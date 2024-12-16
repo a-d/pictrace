@@ -21,7 +21,7 @@ layout: default
         {% if image.path contains 'fulls' %}
         <article class="thumb">
             <a href="{{ site.baseurl }}{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
-                <img src="{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}" alt=""
+                <img loading="lazy" src="{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}" alt=""
                      data-name="{{ image.name }}"/></a>
             <!--<h2></h2>
             <p></p>-->
@@ -39,6 +39,7 @@ layout: default
                     <p>{{ site.footer.bio1 }}</p>
                     <p>{{ site.footer.bio2 }}</p>
                 </section>
+                {% if site.sponsor %}
                 <section>
                     <h2>Sponsor</h2>
                     <div class="presentify">
@@ -54,6 +55,7 @@ layout: default
                         </div>
                     </div>
                 </section>
+                {% endif %}
                 <section>
                     <h2>Follow me on ...</h2>
                     <ul class="icons">
