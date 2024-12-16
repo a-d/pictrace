@@ -1,3 +1,9 @@
+```
+apt update && apt install npm jekyll ruby-dev -y
+bundle install
+bundle exec jekyll serve
+```
+
 <img src="https://i.imgur.com/ZG4gSnb.jpeg" alt="demo"/>
 
 # Photography ![OpenCollective](https://opencollective.com/photography/tiers/backer/badge.svg?label=backer&color=brightgreen)
