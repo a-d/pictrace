@@ -1,5 +1,5 @@
 ```
-apt update && apt install npm jekyll ruby-dev -y
+apt update && apt install npm jekyll ruby-dev gulp imagemagick -y
 bundle install
 bundle exec jekyll serve
 ```
