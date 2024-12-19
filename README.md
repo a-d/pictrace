@@ -6,7 +6,8 @@ This repository contains content under two different licenses:
   - Licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
   - The source code was originally forked from https://github.com/rampatra/photography
 - **Photographs**
-  - All photographs are © 2024,2025 Alexander Dümont, All rights reserved - see the [LICENSE.photos](images/LICENSE.photos) file for details
+  - All photographs are © 2024,2025 Alexander Dümont
+  - All rights reserved - see the [LICENSE.photos](images/LICENSE.photos) file for details
 
  
 # Usage
