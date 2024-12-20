@@ -109,8 +109,26 @@ layout: default
             </div>
             <div>
                 <section>
+                    <script>
+                    function handleFormSubmit(iframe) {
+                        try {
+                            const response = iframe.contentWindow.document.body.textContent;
+                            const responseData = JSON.parse(response);
+                            if (responseData.success) {
+                                const form = document.getElementById('gform');
+                                const formElements = form.elements;
+                                for (let i=0; i<formElements.length; i++) {
+                                    formElements[i].disabled = true;
+                                }
+                                document.getElementById('gform_status').style.display = 'inline';
+                            }
+                        } catch (error) {
+                            console.error('Error processing form submission:', error);
+                        }
+                    }
+                    </script>
                     <h2>Get in touch</h2>
-                    <form class="gform" method="post" data-email="example@email.net" action="https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec">
+                    <form class="gform" id="gform" method="post" target="submitMsg" onload="handleFormSubmit(this)" data-email="example@email.net" action="https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec">
                         <div class="field half first">
                             <input type="text" name="name" id="name" placeholder="Name"/>
                         </div>
@@ -123,8 +141,10 @@ layout: default
                         <ul class="actions">
                             <li><input type="submit" value="Send" class="special"/></li>
                             <li><input type="reset" value="Reset"/></li>
+                            <li id="gform_status" style="display:none">Thank you for the message!</li>
                         </ul>
                     </form>
+                    <iframe name="submitMsg" style="display:none" onload="handleFormSubmit(this)"></iframe>
                 </section>
             </div>
         </div>
