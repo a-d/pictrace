@@ -5,6 +5,8 @@ image_fulls_loc: "/images/fulls"
 image_thumbs_loc: "/images/thumbs"
 #google_analytics: ""
 
+contact: "https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec"
+
 # UI configs
 title: "Photography by Alexander Dümont"
 subtitle: "Capturing Moments, One Frame at a Time!"
