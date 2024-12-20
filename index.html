@@ -111,20 +111,12 @@ layout: default
                 <section>
                     <script>
                     function handleFormSubmit(iframe) {
-                        try {
-                            const response = iframe.contentWindow.document.body.textContent;
-                            const responseData = JSON.parse(response);
-                            if (responseData.success) {
-                                const form = document.getElementById('gform');
-                                const formElements = form.elements;
-                                for (let i=0; i<formElements.length; i++) {
-                                    formElements[i].disabled = true;
-                                }
-                                document.getElementById('gform_status').style.display = 'inline';
-                            }
-                        } catch (error) {
-                            console.error('Error processing form submission:', error);
+                        const form = document.getElementById('gform');
+                        const formElements = form.elements;
+                        for (let i=0; i<formElements.length; i++) {
+                            formElements[i].disabled = true;
                         }
+                        document.getElementById('gform_status').style.display = 'inline';
                     }
                     </script>
                     <h2>Get in touch</h2>
