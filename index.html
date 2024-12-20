@@ -110,22 +110,23 @@ layout: default
             <div>
                 <section>
                     <script>
-                    function handleFormSubmit(iframe) {
-                        const form = document.getElementById('gform');
-                        const formElements = form.elements;
-                        for (let i=0; i<formElements.length; i++) {
-                            formElements[i].disabled = true;
-                        }
-                        document.getElementById('gform_status').style.display = 'inline';
+                    function handleSubmit(form) {
+                        setTimeout(() => {
+                            const formElements = form.elements;
+                            for (let i=0; i<formElements.length; i++) {
+                                formElements[i].disabled = true;
+                            }
+                            document.getElementById('gform_status').style.display = 'inline';
+                        }, 100);
                     }
                     </script>
                     <h2>Get in touch</h2>
-                    <form class="gform" id="gform" method="post" target="submitMsg" onload="handleFormSubmit(this)" data-email="example@email.net" action="https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec">
+                    <form class="gform" id="gform" onsubmit="handleSubmit(this; return true;" method="post" target="submitMsg" onload="handleFormSubmit(this)" data-email="example@email.net" action="https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec">
                         <div class="field half first">
                             <input type="text" name="name" id="name" placeholder="Name"/>
                         </div>
                         <div class="field half">
-                            <input type="text" name="email" id="email" placeholder="Email"/>
+                            <input type="email" name="email" id="email" placeholder="Email"/>
                         </div>
                         <div class="field">
                             <textarea name="message" id="message" rows="4" placeholder="Message"></textarea>
@@ -136,7 +137,7 @@ layout: default
                             <li id="gform_status" style="display:none">Thank you for the message!</li>
                         </ul>
                     </form>
-                    <iframe name="submitMsg" style="display:none" onload="handleFormSubmit(this)"></iframe>
+                    <iframe name="submitMsg" style="display:none"></iframe>
                 </section>
             </div>
         </div>
