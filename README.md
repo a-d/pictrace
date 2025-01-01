@@ -15,7 +15,7 @@ This repository contains content under two different licenses:
 ```
 apt update && apt install npm jekyll ruby-dev gulp imagemagick -y
 bundle install
-bundle exec jekyll serve
+bundle exec jekyll serve --host 0.0.0.0
 ```
 
 
