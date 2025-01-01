@@ -600,7 +600,12 @@
                 if (numValues == 1) {
                     numerator = file.getUint32(valueOffset, !bigEnd);
                     denominator = file.getUint32(valueOffset+4, !bigEnd);
-                    val = new Number(numerator / denominator);
+                    // Add check for zero denominator
+                    if (denominator === 0) {
+                        val = 0;
+                    } else {
+                        val = new Number(numerator / denominator);
+                    }
                     val.numerator = numerator;
                     val.denominator = denominator;
                     return val;
@@ -609,7 +614,12 @@
                     for (n=0;n<numValues;n++) {
                         numerator = file.getUint32(valueOffset + 8*n, !bigEnd);
                         denominator = file.getUint32(valueOffset+4 + 8*n, !bigEnd);
-                        vals[n] = new Number(numerator / denominator);
+                        // Add check for zero denominator
+                        if (denominator === 0) {
+                            vals[n] = 0;
+                        } else {
+                            vals[n] = new Number(numerator / denominator);
+                        }
                         vals[n].numerator = numerator;
                         vals[n].denominator = denominator;
                     }
@@ -629,11 +639,24 @@
 
             case 10: // signed rational, two slongs, first is numerator, second is denominator
                 if (numValues == 1) {
-                    return file.getInt32(valueOffset, !bigEnd) / file.getInt32(valueOffset+4, !bigEnd);
+                    numerator = file.getInt32(valueOffset, !bigEnd);
+                    denominator = file.getInt32(valueOffset+4, !bigEnd);
+                    // Add check for zero denominator
+                    if (denominator === 0) {
+                        return 0;
+                    }
+                    return numerator / denominator;
                 } else {
                     vals = [];
                     for (n=0;n<numValues;n++) {
-                        vals[n] = file.getInt32(valueOffset + 8*n, !bigEnd) / file.getInt32(valueOffset+4 + 8*n, !bigEnd);
+                        numerator = file.getInt32(valueOffset + 8*n, !bigEnd);
+                        denominator = file.getInt32(valueOffset+4 + 8*n, !bigEnd);
+                        // Add check for zero denominator
+                        if (denominator === 0) {
+                            vals[n] = 0;
+                        } else {
+                            vals[n] = numerator / denominator;
+                        }
                     }
                     return vals;
                 }
