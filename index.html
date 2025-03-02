@@ -17,16 +17,19 @@ layout: default
 
     <!-- Main -->
     <div id="main" data-exif='{{ site.exif }}'>
-        {% for image in site.static_files %}
-        {% if image.path contains 'fulls' %}
+        {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
+        {% assign grouped_images = images | group_by_exp: "image", "image.name | slice: 0, 4" %}
+
+        {% for year in grouped_images %}
+        <h2>{{ year.name }}</h2>
+
+        {% for image in year.items %}
         <article class="thumb">
             <a href="{{ site.baseurl }}{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
-                <img loading="lazy" src="{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}" alt=""
-                     data-name="{{ image.name }}"/></a>
-            <!--<h2></h2>
-            <p></p>-->
+                <img loading="lazy" src="{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
+            </a>
         </article>
-        {% endif %}
+        {% endfor %}
         {% endfor %}
     </div>
 
