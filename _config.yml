@@ -1,8 +1,9 @@
 # Base configs
-baseurl: "https://pictrace.de"
-# baseurl: "" # Comment the above line and uncomment this to test the website locally
-image_fulls_loc: "/images/fulls"
-image_thumbs_loc: "/images/thumbs"
+#baseurl: "https://pictrace.de"
+baseurl: "" # Comment the above line and uncomment this to test the website locally
+image_root: "images"
+image_fulls_loc: "fulls"
+image_thumbs_loc: "thumbs"
 #google_analytics: ""
 
 contact: "https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec"

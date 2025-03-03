@@ -32,6 +32,7 @@
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^5.0.0",
     "gulp-uglify": "^3.0.0",
+    "gulp-prompt": "^1.2.0",
     "sass": "^1.25.0"
   }
 }
