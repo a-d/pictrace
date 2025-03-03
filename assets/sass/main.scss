@@ -55,3 +55,29 @@
 	@import 'layout/header';
 	@import 'layout/main';
 	@import 'layout/footer';
+
+
+#main > a.year {
+    width: 0;
+}
+#main > a.location {
+    width: 0;
+}
+#main > a.year::before {
+    content: attr(year);
+    position: absolute;
+    z-index: 19;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #eee;
+    padding: 0.2em;
+    margin: 3em 0.3em;
+}
+#main > a.location::before {
+    content: attr(location);
+    position: absolute;
+    z-index: 19;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #eee;
+    padding: 0.2em;
+    margin: 0.3em;
+}
