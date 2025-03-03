@@ -18,17 +18,22 @@ layout: default
     <!-- Main -->
     <div id="main" data-exif='{{ site.exif }}'>
         {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
-        {% assign grouped_images = images | group_by_exp: "image", "image.name | slice: 0, 4" %}
+        {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
-        {% for year in grouped_images %}
-        <h2>{{ year.name }}</h2>
+        {% for year in years %}
+        <a href="#" class="year" year="{{ year.name }}">{{ year.name }}</a>
 
-        {% for image in year.items %}
+        {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
+        {% for location in locations %}
+        <a href="#" class="location" location="{{ location.name }}">{{ location.name }}</a>
+
+        {% for image in location.items %}
         <article class="thumb">
-            <a href="{{ site.baseurl }}{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
-                <img loading="lazy" src="{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
+            <a href="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
+                <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
             </a>
         </article>
+        {% endfor %}
         {% endfor %}
         {% endfor %}
     </div>
