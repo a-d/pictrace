@@ -20,15 +20,21 @@ layout: default
         {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
         {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
-        {% for year in years %}
-        <a href="#" class="year" year="{{ year.name }}">{{ year.name }}</a>
+        {% for year in years reversed %}
 
         {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
         {% for location in locations %}
-        <a href="#" class="location" location="{{ location.name }}">{{ location.name }}</a>
+        {% assign firstLoc = forloop.first %}
 
         {% for image in location.items %}
         <article class="thumb">
+            {% if forloop.first %}
+            {% if firstLoc %}
+            <a href="#" class="year" year="{{ year.name }}" id="anchor-{{ year.name }}">{{ year.name }}</a>
+            {% endif %}
+            <a href="#" class="location" location="{{ location.name }}" id="anchor-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
+            {% endif %}
+
             <a href="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
                 <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
             </a>

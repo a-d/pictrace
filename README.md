@@ -10,6 +10,12 @@ This repository contains content under two different licenses:
   - All rights reserved - see the [LICENSE.photos](images/LICENSE.photos) file for details
 
  
+# Docker
+
+```
+docker run -it --rm -v ${pwd}:/work -w /work -p 4000:4000 debian bash
+```
+
 # Usage
 
 ```

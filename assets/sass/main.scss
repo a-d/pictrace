@@ -57,27 +57,21 @@
 	@import 'layout/footer';
 
 
-#main > a.year {
-    width: 0;
-}
-#main > a.location {
-    width: 0;
-}
-#main > a.year::before {
-    content: attr(year);
+#main > article > a.year {
     position: absolute;
-    z-index: 19;
+    z-index: 1;
     background-color: rgba(0, 0, 0, 0.5);
     color: #eee;
-    padding: 0.2em;
-    margin: 3em 0.3em;
+    padding: 0.2em 0.3em;
+    margin: 0.3em 0.3em;
+    font-size: 1.2em;
 }
-#main > a.location::before {
-    content: attr(location);
+#main > article > a.location {
     position: absolute;
-    z-index: 19;
+    z-index: 1;
     background-color: rgba(0, 0, 0, 0.5);
     color: #eee;
-    padding: 0.2em;
-    margin: 0.3em;
+    padding: 0.2em 0.3em;
+    margin: 2.8em 0.3em;
+    font-size: 1.2em;
 }
