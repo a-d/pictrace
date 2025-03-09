@@ -29,10 +29,10 @@ layout: default
         {% for image in location.items %}
         <article class="thumb">
             {% if forloop.first %}
+            <a href="#" class="location" location="{{ location.name }}" id="anchor-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
             {% if firstLoc %}
             <a href="#" class="year" year="{{ year.name }}" id="anchor-{{ year.name }}">{{ year.name }}</a>
             {% endif %}
-            <a href="#" class="location" location="{{ location.name }}" id="anchor-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
             {% endif %}
 
             <a href="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" class="image">
