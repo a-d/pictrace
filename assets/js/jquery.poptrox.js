@@ -31,7 +31,7 @@
             overlayColor:					'#000000',					// Overlay color
             overlayOpacity:					0.6,						// Overlay opacity
             overlayClass:					'poptrox-overlay',			// Overlay class
-            windowMargin:					50,							// Window margin size (in pixels; only comes into play when an image is larger than the viewport)
+            windowMargin:					35,							// Window margin size (in pixels; only comes into play when an image is larger than the viewport)
             windowHeightPad:				0,							// Window height pad
             selector:						'a',						// Anchor tag selector
             caption:						null,						// Caption settings (see docs)
