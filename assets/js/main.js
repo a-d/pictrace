@@ -12,8 +12,8 @@
         xlarge: '(max-width: 1680px)',
         large: '(max-width: 1280px)',
         medium: '(max-width: 980px)',
-        small: '(max-width: 736px)',
-        xsmall: '(max-width: 480px)'
+        small: '(max-width: 736px) or (max-height: 400px)',
+        xsmall: '(max-width: 480px) or (max-height: 400px)'
     });
 
     $(function () {
@@ -301,10 +301,10 @@
 
         // Hack: Set margins to 0 when 'xsmall' activates.
         skel
-            .on('-xsmall', function () {
-                $main[0]._poptrox.windowMargin = 50;
+            .on('-small', function () {
+                $main[0]._poptrox.windowMargin = 35;
             })
-            .on('+xsmall', function () {
+            .on('+small', function () {
                 $main[0]._poptrox.windowMargin = 0;
             });
 
@@ -315,7 +315,8 @@
                 var current_data = exif[current];
                 var exif_data = EXIF.getTag(img, current_data['tag']);
                 if (typeof exif_data !== "undefined") {
-                    template += '<i class="fa fa-' + current_data['icon'] + '" aria-hidden="true"></i> ' + exif_data + '&nbsp;&nbsp;';
+                    var txt = (current_data['pre']||'') + exif_data + (current_data['post']||'')
+                    template += '<i class="fa fa-' + current_data['icon'] + '" aria-hidden="true"></i> ' + txt + '&nbsp;&nbsp;';
                 }
             }
             return template;
