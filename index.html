@@ -29,9 +29,9 @@ layout: default
         {% for image in location.items %}
         <article class="thumb">
             {% if forloop.first %}
-            <a href="#" class="location" location="{{ location.name }}" id="anchor-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
+            <a href="#p-{{ year.name }}-{{ location.name }}" class="location" location="{{ location.name }}" id="p-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
             {% if firstLoc %}
-            <a href="#" class="year" year="{{ year.name }}" id="anchor-{{ year.name }}">{{ year.name }}</a>
+            <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
             {% endif %}
             {% endif %}
 
