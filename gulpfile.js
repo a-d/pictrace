@@ -13,6 +13,46 @@ let year = '';
 let location = '';
 let shouldDelete = false;
 
+function getIndexedLocation(year, location) {
+  const yearDir = `images/${year}`;
+
+  // Create year directory if it doesn't exist
+  if (!fs.existsSync(yearDir)) {
+    fs.mkdirSync(yearDir, { recursive: true });
+    return `01_${location}`; // First location in a new year
+  }
+
+  // Read existing directories to find location indices
+  const existingDirs = fs.readdirSync(yearDir).filter(dir =>
+    fs.statSync(path.join(yearDir, dir)).isDirectory()
+  );
+
+  // Check if this location already exists (with any index)
+  const existingLocation = existingDirs.find(dir => {
+    // Extract location name by removing the index prefix (e.g., "01_Berlin" -> "Berlin")
+    const locationName = dir.replace(/^\d+_/, '');
+    return locationName === location;
+  });
+
+  if (existingLocation) {
+    return existingLocation; // Reuse existing indexed location
+  }
+
+  // Find the highest index currently in use
+  let highestIndex = 0;
+  existingDirs.forEach(dir => {
+    const match = dir.match(/^(\d+)_/);
+    if (match) {
+      const index = parseInt(match[1], 10);
+      highestIndex = Math.max(highestIndex, index);
+    }
+  });
+
+  // Use the next available index
+  const nextIndex = highestIndex + 1;
+  return `${String(nextIndex).padStart(2, '0')}_${location}`;
+}
+
 // Task to get user inputs
 gulp.task('get-inputs', function() {
   return gulp.src('./package.json')
@@ -41,8 +81,10 @@ gulp.task('get-inputs', function() {
       // Create directories if they don't exist
       const fs = require('fs');
       const path = require('path');
-      const fullsDir = `images/${year}/${location}/fulls`;
-      const thumbsDir = `images/${year}/${location}/thumbs`;
+      const dir = getIndexedLocation(year, location);
+
+      const fullsDir = `images/${year}/${dir}/fulls`;
+      const thumbsDir = `images/${year}/${dir}/thumbs`;
 
       if (!fs.existsSync(fullsDir)) {
         fs.mkdirSync(fullsDir, { recursive: true });
