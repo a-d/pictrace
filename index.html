@@ -21,26 +21,16 @@ layout: default
         {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
         {% for year in years reversed %}
-
-        {% assign locations_with_dates = "" | split: "" %}
         {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
 
         {% for location in locations %}
-        {% assign first_image = location.items | sort: "modified_time" | last %}
-        {% assign location_with_date = location | hash %}
-        {% assign location_with_date = location_with_date | merge: {"date": first_image.modified_time} %}
-        {% assign locations_with_dates = locations_with_dates | push: location_with_date %}
-        {% endfor %}
-
-        {% assign sorted_locations = locations_with_dates | sort: "date" | reverse %}
-
-        {% for location in sorted_locations %}
         {% assign firstLoc = forloop.first %}
+        {% assign locationName = location.name | split:"_" | last %}
 
         {% for image in location.items %}
         <article class="thumb">
             {% if forloop.first %}
-            <a href="#p-{{ year.name }}-{{ location.name }}" class="location" location="{{ location.name }}" id="p-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
+            <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">{{ locationName }}</a>
             {% if firstLoc %}
             <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
             {% endif %}
