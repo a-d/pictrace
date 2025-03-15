@@ -7,9 +7,11 @@ layout: default
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="index.html"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
+        <h1><a href="/"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
         <nav>
             <ul>
+                <li><a href="#location" class="icon fa-location-arrow">Location</a></li>
+                <li><a href="#year" class="icon fa-calendar">Year</a></li>
                 <li><a href="#footer" class="icon fa-info-circle">About</a></li>
             </ul>
         </nav>
@@ -44,6 +46,45 @@ layout: default
         {% endfor %}
         {% endfor %}
     </div>
+
+
+    <!-- year selection -->
+    <footer id="year" class="panel">
+        <div class="inner split">
+            <div>
+                <section>
+                    <h2>Select photography by year</h2>
+                    <p><a href="#p-2025">2025</a></p>
+                    <p><a href="#p-2024">2024</a></p>
+                </section>
+            </div>
+            <div>
+                <section>
+                    <p>Foo</p>
+                </section>
+            </div>
+        </div>
+    </footer>
+    <!-- location selection -->
+    <footer id="location" class="panel">
+        <div class="inner split">
+            <div>
+                <section>
+                    <h2>Select photography by location</h2>
+                    <p><a href="#p-2024-Berlin">Berlin (2024)</a></p>
+                    <p><a href="#p-2025-Berlin">Berlin (2025)</a></p>
+                    <p><a href="#p-2025-Dresden">Dresden (2025)</a></p>
+                    <p><a href="#p-2025-Oberwiesenthal">Oberwiesenthal (2025)</a></p>
+                    <p><a href="#p-2025-Malaga">Malaga (2025)</a></p>
+                </section>
+            </div>
+            <div>
+                <section>
+                    <p>Foo</p>
+                </section>
+            </div>
+        </div>
+    </footer>
 
     <!-- Footer -->
     <footer id="footer" class="panel">
