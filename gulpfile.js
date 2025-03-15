@@ -17,6 +17,8 @@ function getIndexedLocation(year, location) {
   const yearDir = `images/${year}`;
 
   // Create year directory if it doesn't exist
+  const fs = require('fs');
+  const path = require('path');
   if (!fs.existsSync(yearDir)) {
     fs.mkdirSync(yearDir, { recursive: true });
     return `01_${location}`; // First location in a new year
@@ -35,6 +37,7 @@ function getIndexedLocation(year, location) {
   });
 
   if (existingLocation) {
+    console.log(`Found existing location: ${existingLocation}`);
     return existingLocation; // Reuse existing indexed location
   }
 
@@ -50,6 +53,7 @@ function getIndexedLocation(year, location) {
 
   // Use the next available index
   const nextIndex = highestIndex + 1;
+  console.log(`Inferred next index: ${nextIndex}`);
   return `${String(nextIndex).padStart(2, '0')}_${location}`;
 }
 
@@ -106,17 +110,18 @@ gulp.task('delete', function() {
 });
 
 gulp.task('resize-images', function() {
+  const dir = getIndexedLocation(year, location);
   return gulp.src('images/*.*')
     .pipe(imageResize({
       width: 1024,
       imageMagick: true
     }))
-    .pipe(gulp.dest(`images/${year}/${location}/fulls`))
+    .pipe(gulp.dest(`images/${year}/${dir}/fulls`))
     .pipe(imageResize({
       width: 512,
       imageMagick: true
     }))
-    .pipe(gulp.dest(`images/${year}/${location}/thumbs`));
+    .pipe(gulp.dest(`images/${year}/${dir}/thumbs`));
 });
 
 // compile scss to css
