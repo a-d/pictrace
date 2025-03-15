@@ -21,15 +21,16 @@ layout: default
         {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
         {% for year in years reversed %}
-
         {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
-        {% for location in locations %}
+
+        {% for location in locations reversed %}
         {% assign firstLoc = forloop.first %}
+        {% assign locationName = location.name | split:"_" | last %}
 
         {% for image in location.items %}
         <article class="thumb">
             {% if forloop.first %}
-            <a href="#p-{{ year.name }}-{{ location.name }}" class="location" location="{{ location.name }}" id="p-{{ year.name }}-{{ location.name }}">{{ location.name }}</a>
+            <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">{{ locationName }}</a>
             {% if firstLoc %}
             <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
             {% endif %}
