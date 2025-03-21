@@ -10,8 +10,7 @@ layout: default
         <h1><a href="/"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
         <nav>
             <ul>
-                <li><a href="#location" class="icon fa-location-arrow">Location</a></li>
-                <li><a href="#year" class="icon fa-calendar">Year</a></li>
+                <li><a href="#select" class="icon fa-location-arrow">Select</a></li>
                 <li><a href="#footer" class="icon fa-info-circle">About</a></li>
             </ul>
         </nav>
@@ -48,39 +47,51 @@ layout: default
     </div>
 
 
-    <!-- year selection -->
-    <footer id="year" class="panel">
-        <div class="inner split">
-            <div>
-                <section>
-                    <h2>Select photography by year</h2>
-                    <p><a href="#p-2025">2025</a></p>
-                    <p><a href="#p-2024">2024</a></p>
-                </section>
-            </div>
-            <div>
-                <section>
-                    <p>Foo</p>
-                </section>
-            </div>
-        </div>
-    </footer>
     <!-- location selection -->
-    <footer id="location" class="panel">
+    <footer id="select" class="panel">
         <div class="inner split">
             <div>
                 <section>
-                    <h2>Select photography by location</h2>
-                    <p><a href="#p-2024-Berlin">Berlin (2024)</a></p>
-                    <p><a href="#p-2025-Berlin">Berlin (2025)</a></p>
-                    <p><a href="#p-2025-Dresden">Dresden (2025)</a></p>
-                    <p><a href="#p-2025-Oberwiesenthal">Oberwiesenthal (2025)</a></p>
-                    <p><a href="#p-2025-Malaga">Malaga (2025)</a></p>
+                    <h2>By Location</h2>
+                    {% assign all_locations = "" | split: "" %}
+                    {% for image in images %}
+                        {% assign path_parts = image.path | split: "/" %}
+                        {% assign location_path = path_parts[3] %}
+                        {% assign all_locations = all_locations | push: location_path %}
+                    {% endfor %}
+                    {% assign all_locations = all_locations | uniq | sort %}
+
+                    <!-- Then iterate through these locations -->
+                    {% for location_path in all_locations %}
+                    {% assign locationName = location_path | split:"_" | last %}
+                    <p>
+                        <!-- For each location, find all years -->
+                        {% assign location_years = "" | split: "" %}
+                        {% for image in images %}
+                        {% if image.path contains location_path %}
+                        {% assign path_parts = image.path | split: "/" %}
+                        {% assign year = path_parts[2] %}
+                        {% assign location_years = location_years | push: year %}
+                        {% endif %}
+                        {% endfor %}
+                        {% assign location_years = location_years | uniq | sort | reverse %}
+
+                        {% for year in location_years %}
+                        <a href="#p-{{ year }}-{{ locationName }}">{% if forloop.first %}{{ locationName }} {% endif %}{{ year }}</a>{% unless forloop.last %} | {% endunless %}
+                        {% endfor %}
+                    </p>
+                    {% endfor %}
                 </section>
             </div>
             <div>
                 <section>
-                    <p>Foo</p>
+                    <section>
+                        <h2>By Year</h2>
+                        {% assign all_years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" | sort: "name" | reverse %}
+                        {% for year in all_years %}
+                        <p><a href="#p-{{ year.name }}">{{ year.name }}</a></p>
+                        {% endfor %}
+                    </section>
                 </section>
             </div>
         </div>
