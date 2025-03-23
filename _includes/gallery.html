@@ -1,0 +1,33 @@
+<div class="gallery" id="main">
+    {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
+    {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
+
+    {% for year in years reversed %}
+
+    {% assign firstYear = forloop.first %}
+    {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
+
+    {% for location in locations reversed %}
+    {% assign firstLoc = forloop.first %}
+    {% assign locationName = location.name | split:"_" | last %}
+
+    {% for image in location.items %}
+    <div class="gallery-item" location="{{ locationName }}" year="{{ year.name }}">
+
+        {% if forloop.first %}
+        <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">{{ locationName }}</a>
+        {% if firstLoc %}
+        <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
+        {% endif %}
+        {% endif %}
+
+        <a href="#p-{{ year.name }}-{{ location.name }}-{{ image.name }}" class="image">
+            <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
+        </a>
+    </div>
+
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+
+</div>

@@ -1,0 +1,30 @@
+<div class="popup">
+    {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
+    {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
+
+    {% for year in years reversed %}
+
+    {% assign firstYear = forloop.first %}
+    {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
+
+    {% for location in locations reversed %}
+    {% assign firstLoc = forloop.first %}
+    {% assign locationName = location.name | split:"_" | last %}
+
+    {% for image in location.items %}
+
+    <div id="p-{{ year.name }}-{{ location.name }}-{{ image.name }}" class="lightbox">
+        <a href="#p" class="close">&times;</a>
+        <div class="lightbox-container">
+            <a href="#p" class="nav-arrow nav-prev">&#10094;</a>
+                <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" alt="Full size image 1">
+            <a href="#p" class="nav-arrow nav-next">&#10095;</a>
+        </div>
+    </div>
+
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+
+    <div id="p" class="lightbox"></div>
+</div>
