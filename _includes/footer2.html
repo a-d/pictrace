@@ -1,0 +1,46 @@
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all lightboxes
+    const lightboxes = Array.from(document.querySelectorAll('.lightbox[id^="p-"]'));
+
+    // Set up navigation links
+    lightboxes.forEach((lightbox, index) => {
+      const prevIndex = (index - 1 + lightboxes.length) % lightboxes.length;
+      const nextIndex = (index + 1) % lightboxes.length;
+
+      const prevButton = lightbox.querySelector('.nav-prev');
+      const nextButton = lightbox.querySelector('.nav-next');
+
+      prevButton.href = '#' + lightboxes[prevIndex].id;
+      nextButton.href = '#' + lightboxes[nextIndex].id;
+    });
+
+
+
+    // Get all gallery item links
+    const galleryLinks = document.querySelectorAll('.gallery-item > a.image');
+
+    // Get the current active anchor from the URL
+    const getCurrentAnchor = () => {
+        return window.location.hash || '#p';
+    };
+
+    // Add click event listeners to all gallery links
+    galleryLinks.forEach(link => {
+      link.addEventListener('click', (event) => {
+        const targetAnchor = link.getAttribute('href').split('#')[1];
+        if (targetAnchor) {
+          const targetElement = document.getElementById(targetAnchor);
+          if (targetElement) {
+            const currentAnchor = getCurrentAnchor().substring(1);
+            const closeLink = targetElement.querySelector('a.close');
+            if (closeLink) {
+              closeLink.setAttribute('href', `#${currentAnchor}`);
+            }
+          }
+        }
+      });
+    });
+  });
+</script>
