@@ -43,4 +43,93 @@
       });
     });
   });
+
+
+
+
+  function displayEXIFData(img, ul) {
+      const exifData = EXIF.getAllTags(img);
+      ul.innerHTML = '';
+
+      if (Object.keys(exifData).length === 0) {
+          return;
+      }
+
+      // Common EXIF tags people usually want to see
+      const priorityTags = [
+          'Make', 'Model', 'DateTimeOriginal', 'ExposureTime',
+          'FNumber', 'ISOSpeedRatings', 'FocalLength'
+      ];
+
+      // Display priority tags
+      priorityTags.forEach(tag => {
+          if (exifData[tag] !== undefined) {
+              addExifItem(ul, tag, formatExifValue(tag, exifData[tag]));
+          }
+      });
+  }
+
+  function addExifItem(ul, tag, value) {
+      const li = document.createElement('li');
+      li.setAttribute("tag", tag);
+      li.setAttribute("description", formatTagName(tag));
+      li.textContent = value;
+      ul.appendChild(li);
+  }
+
+  function formatTagName(tag) {
+      return tag
+          .replace(/([A-Z])/g, '$1')
+          .replace(/^./, str => str.toUpperCase());
+  }
+
+  function formatExifValue(tag, value) {
+      if (tag === 'ExposureTime') {
+          // Convert to fraction for exposure time
+          if (value < 1) {
+              return `1/${Math.round(1/value)}s`;
+          }
+          return `${value} sec`;
+      } else if (tag === 'FNumber') {
+          return `f/${value}`;
+      } else if (tag === 'FocalLength') {
+          return `${value}mm`;
+      } else if (Array.isArray(value)) {
+          return value.join(', ');
+      }
+      return value;
+  }
+
+function handleHashChange() {
+  const currentHash = window.location.hash.substring(1);
+  if (currentHash) {
+    const targetElement = document.getElementById(currentHash);
+    if (targetElement) {
+      const images = targetElement.querySelectorAll('.lightbox-container img');
+      images.forEach(function(img) {
+          const itemDiv = img.closest('.lightbox-container');
+
+          let exifDataElement = itemDiv.querySelector('.exif-data');
+          if (!exifDataElement) {
+            exifDataElement = document.createElement('ul');
+            exifDataElement.className = 'exif-data';
+            itemDiv.appendChild(exifDataElement);
+          }
+
+          img.onload = function() {
+            EXIF.getData(img, function() {
+              displayEXIFData(this, exifDataElement);
+            });
+          };
+          if (img.complete) {
+            EXIF.getData(img, function() {
+              displayEXIFData(this, exifDataElement);
+            });
+          }
+      });
+    }
+  }
+}
+handleHashChange();
+window.addEventListener('hashchange', handleHashChange);
 </script>
