@@ -3,18 +3,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300italic,400,400italic">
 <style>
   * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
   }
+  a {
+      text-decoration:none;
+      font-weight:100;
+  }
 
   body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
+      color:#a0a0a1;
+      font-family:"Source Sans Pro",Helvetica,sans-serif;
+      font-size: 13pt;
+      letter-spacing: .025em;
+      line-height: 1.65;
       overflow-x: hidden;
-      background: #000;
+      background: #242629;
   }
 
   .gallery {
@@ -311,5 +319,82 @@ ul.exif-data > li[tag="DateTimeOriginal"] {
 #main:has(:target) > div:has(:target),
 #main:has(:target) > div:has(:target) ~ div {
   display:block;
+}
+
+
+
+
+
+body:has(.lightbox:target > a) header {
+  display:none;
+}
+
+#header {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  -moz-transform: translateY(0);
+  -webkit-transform: translateY(0);
+  -ms-transform: translateY(0);
+  transform: translateY(0);
+  -moz-transition: -moz-transform 1s ease;
+  -webkit-transition: -webkit-transform 1s ease;
+  -ms-transition: -ms-transform 1s ease;
+  transition: transform 1s ease;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  background: #1f2224;
+  bottom: 0em;
+  left: 0;
+  line-height: 4em;
+  padding: 1.5em;
+  position: fixed;
+  user-select: none;
+  width: 100%;
+  z-index: 10002;
+  font-size: 0.5em;
+}
+#header strong, #header b, #header a {
+  color: #fff;
+}
+
+
+#header nav {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+#header nav > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#header nav > ul > li {
+  display: inline-block;
+  padding: 0;
+}
+#header nav > ul > li a.icon::before {
+  color: #505051;
+  float: right;
+  margin-left: .75em;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-transform: none !important;
+}
+#header nav > ul > li a {
+  -moz-transition: background-color 0.5s ease;
+  -webkit-transition: background-color 0.5s ease;
+  -ms-transition: background-color 0.5s ease;
+  transition: background-color 0.5s ease;
+  border: 0;
+  color: #fff;
+  display: inline-block;
+  letter-spacing: .1em;
+  padding: 1em 1.45em;
+  text-transform: uppercase;
+  font-size: 2em;
 }
 </style>
