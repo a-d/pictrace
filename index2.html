@@ -12,8 +12,8 @@ layout: default2
   <h1><a href="/"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
   <nav>
     <ul>
-      <li><a href="#select" class="icon fa-location-arrow">Select</a></li>
-      <li><a href="#footer" class="icon fa-info-circle">About</a></li>
+      <li title="select" class="icon fa-location-arrow">Select</li>
+      <li title="footer" class="icon fa-info-circle">About</li>
     </ul>
   </nav>
 </header>
@@ -100,42 +100,42 @@ layout: default2
         <ul class="icons">
           {% if site.social_urls.facebook %}
           <li>
-            <a href="{{ site.social_urls.facebook }}" class="icon fa-facebook">
+            <a href="{{ site.social_urls.facebook }}" class="icon fa fa-facebook">
               <span class="label">Facebook</span>
             </a>
           </li>
           {% endif %}
           {% if site.social_urls.twitter %}
           <li>
-            <a href="{{ site.social_urls.twitter }}" class="icon fa-twitter">
+            <a href="{{ site.social_urls.twitter }}" class="icon fa fa-twitter">
               <span class="label">Twitter</span>
             </a>
           </li>
           {% endif %}
           {% if site.social_urls.instagram %}
           <li>
-            <a href="{{ site.social_urls.instagram }}" class="icon fa-instagram">
+            <a href="{{ site.social_urls.instagram }}" class="icon fa fa-instagram">
               <span class="label">Instagram</span>
             </a>
           </li>
           {% endif %}
           {% if site.social_urls.dribbble %}
           <li>
-            <a href="{{ site.social_urls.dribbble }}" class="icon fa-dribbble">
+            <a href="{{ site.social_urls.dribbble }}" class="icon fa fa-dribbble">
               <span class="label">Dribbble</span>
             </a>
           </li>
           {% endif %}
           {% if site.social_urls.github %}
           <li>
-            <a href="{{ site.social_urls.github }}" class="icon fa-github">
+            <a href="{{ site.social_urls.github }}" class="icon fa fa-github">
               <span class="label">GitHub</span>
             </a>
           </li>
           {% endif %}
           {% if site.social_urls.linkedin %}
           <li>
-            <a href="{{ site.social_urls.linkedin }}" class="icon fa-linkedin">
+            <a href="{{ site.social_urls.linkedin }}" class="icon fa fa-linkedin">
               <span class="label">LinkedIn</span>
             </a>
           </li>
@@ -143,7 +143,7 @@ layout: default2
         </ul>
       </section>
       <p class="copyright">
-        &copy; {{ site.author }}. Design: {{ site.web_design }}
+        &copy; {{ site.author }}. Design: {{ site.author }}
       </p>
     </div>
     <div>
