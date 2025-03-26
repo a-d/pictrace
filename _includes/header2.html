@@ -25,6 +25,11 @@
       line-height: 1.65;
       overflow-x: hidden;
       background: #242629;
+      position:absolute;
+      top:0;
+      left:0;
+      height:100%;
+      width:100%;
   }
 
   .gallery {
@@ -162,6 +167,15 @@
       background: rgba(255, 255, 255, 0.2);
       z-index: 1010;
   }
+  .close::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 0;
+  }
 
   .close:hover {
       background: rgba(255, 255, 255, 0.3);
@@ -194,10 +208,26 @@
       left: -1.7em;
       padding-right: 0.1em;
   }
+  .nav-prev::before {
+    content: "";
+    position: fixed;
+    top: -10vh;
+    left: -50vw;
+    right: 0;
+    bottom: -10vh;
+  }
 
   .nav-next {
       right: -1.7em;
       padding-left: 0.1em;
+  }
+  .nav-next::before {
+    content: "";
+    position: fixed;
+    top: -10vh;
+    left: 0;
+    right: -50vw;
+    bottom: -10vh;
   }
 
   /* Empty lightbox for clean closing */
@@ -231,15 +261,13 @@
       .nav-next {
           right: 0.5em;
       }
-      ul.exif-data {
+      ul.exif-data,
+      #header > h1 > a > strong {
           display:none !important;
       }
-      #header nav > ul > li a {
-          font-size: .9em;
-          padding: 0 1.15em;
-          width: 1em;
+      #header nav > ul > li {
+          width: 4em;
           overflow: hidden;
-          height: 3em;
       }
   }
 
@@ -356,7 +384,6 @@ body:has(.lightbox:target > a) header {
   bottom: 0em;
   left: 0;
   line-height: 4em;
-  padding: 1.5em;
   position: fixed;
   user-select: none;
   width: 100%;
@@ -366,7 +393,12 @@ body:has(.lightbox:target > a) header {
 #header strong, #header b, #header a {
   color: #fff;
 }
-
+#header > h1 {
+  line-height: 4em;
+  margin-left: 1em;
+  height: 4em;
+  overflow: hidden;
+}
 
 #header nav {
   position: absolute;
@@ -417,6 +449,7 @@ footer {
   top:0;
   left:0;
   overflow: auto;
+  max-height: 100%;
   z-index: 10003;
   display:none;
   backdrop-filter: blur(8px);
