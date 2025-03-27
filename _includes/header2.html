@@ -420,6 +420,7 @@ body:has(.lightbox:target > a) header {
   font-style: normal;
   font-weight: normal;
   text-transform: none !important;
+  height: 4em;
 }
 #header nav > ul > li {
   -moz-transition: background-color 0.5s ease;
@@ -448,8 +449,6 @@ footer {
   right: 0;
   top:0;
   left:0;
-  overflow: auto;
-  max-height: 100%;
   z-index: 10003;
   display:none;
   backdrop-filter: blur(8px);
@@ -463,6 +462,8 @@ footer > * {
   border: 1px solid #1f2224;
   background-color: #242629;
   padding: 1em 2em;
+  max-height: 100%;
+  overflow: auto;
 }
 footer .inner.split > * {
   display: inline-block;
