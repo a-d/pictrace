@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rampatra/photography.git"
+    "url": "git+https://github.com/a-d/pictrace.git"
   },
   "keywords": [
     "photography",
@@ -22,9 +22,9 @@
   "author": "Ram Patra",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/rampatra/photography/issues"
+    "url": "https://github.com/a-d/pictrace/issues"
   },
-  "homepage": "https://github.com/rampatra/photography#readme",
+  "homepage": "https://github.com/a-d/pictrace#readme",
   "devDependencies": {
     "del": "^4.1.1",
     "gulp": "^4.0.2",
