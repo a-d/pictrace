@@ -144,6 +144,7 @@
       max-width: 100%;
       max-height: calc(100vh - 2em);
       object-fit: contain;
+      z-index: 5;
   }
 
   #p {
@@ -256,10 +257,12 @@
           padding: 3em;
       }
       .nav-prev {
-          left: 0.5em;
+          left: -1.1em;
+          z-index: 4;
       }
       .nav-next {
-          right: 0.5em;
+          right: -1.1em;
+          z-index: 4;
       }
       ul.exif-data,
       #header > h1 > a > strong {
