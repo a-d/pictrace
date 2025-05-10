@@ -13,11 +13,11 @@
 
     {% for image in location.items %}
 
-    <div id="p-{{ year.name }}-{{ location.name }}-{{ image.name }}" class="lightbox">
+    <div id="p-{{ year.name }}-{{ locationName }}-{{ image.name }}" class="lightbox">
         <a href="#p" class="close">&times;</a>
         <div class="lightbox-container">
             <a href="#p" class="nav-arrow nav-prev">&#10094;</a>
-            <a href="#p" class="nav-this"><img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" alt="{{ image.name }}" /></a>
+            <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}" alt="{{ image.name }}" />
             <a href="#p" class="nav-arrow nav-next">&#10095;</a>
         </div>
     </div>
