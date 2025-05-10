@@ -256,21 +256,27 @@
       .lightbox {
           padding: 3em;
       }
-      .nav-prev {
-          left: -1.1em;
-          z-index: 4;
-      }
-      .nav-next {
-          right: -1.1em;
-          z-index: 4;
-      }
       ul.exif-data,
-      #header > h1 > a > strong {
+      #header > h1 > a > strong,
+      .nav-prev,
+      .close::before {
           display:none !important;
       }
       #header nav > ul > li {
           width: 4em;
           overflow: hidden;
+      }
+      .nav-next {
+          font-size: 0;
+      }
+      .nav-next::before {
+          top: -100vh;
+          left: -100vw;
+          right: -100vw;
+          bottom: -100vh;
+      }
+      .lightbox-container {
+          z-index: 1;
       }
   }
 
@@ -318,10 +324,12 @@ ul.exif-data {
   background-image: -ms-linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
   background-image: linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
   color: #fff;
+  overflow: hidden;
 }
 ul.exif-data > li {
   display:inline;
   cursor: default;
+  white-space: nowrap;
 }
 ul.exif-data > li::before {
   font: normal normal normal 1em/1 FontAwesome;
