@@ -42,6 +42,10 @@
         }
       });
     });
+
+    // hide location/year selection menu after click
+    const sel = document.getElementById('select');
+    sel.querySelectorAll('a[href^="#"]').forEach(n => n.onclick=function() { sel.style.display='none'; setTimeout(() => sel.style.display=null, 100); });
   });
 
 
