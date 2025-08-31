@@ -1,3 +1,5 @@
+<div id="location-indicator"></div>
+
 <div class="popup">
     {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
     {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
