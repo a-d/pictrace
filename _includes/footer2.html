@@ -65,9 +65,9 @@
 
       let timer;
       window.addEventListener("scroll", () => {
-        indicator.style.opacity = 1;
+        locationIndicator.style.opacity = 1;
         clearTimeout(timer);
-        timer = setTimeout(() => indicator.style.opacity = 0, 1000);
+        timer = setTimeout(() => locationIndicator.style.opacity = 0, 1000);
       });
     }
   });
@@ -92,7 +92,7 @@
       // Display priority tags
       priorityTags.forEach(tag => {
           let v = exifData[tag];
-          if (v !== undefined && v !== null && !isNaN(v)) {
+          if (v !== undefined && v !== null && v==v) {
               addExifItem(ul, tag, formatExifValue(tag, v));
           }
       });
