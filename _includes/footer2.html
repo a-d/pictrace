@@ -47,10 +47,12 @@
     {
       const sel = document.getElementById('select');
       sel.querySelectorAll('a[href^="#"]').forEach(n => n.onclick=function() { sel.style.display='none'; setTimeout(() => sel.style.display=null, 100); });
+    }
 
-      // add location scrolling indicator
+    // add location scrolling indicator
+    {
       const locationIndicator = document.getElementById("location-indicator");
-      const locationItems = document.querySelectorAll("#main .gallery-item .location");
+      const locationItems = document.querySelectorAll("#main .gallery-item");
       const locationObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -58,7 +60,7 @@
             locationIndicator.textContent = entry.target.getAttribute("location");
           }
         });
-      }, { threshold: 0.6 });
+      }, { threshold: 1 }); // 100% visible
       locationItems.forEach(sec => locationObserver.observe(sec));
 
       let timer;
