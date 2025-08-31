@@ -91,8 +91,9 @@
 
       // Display priority tags
       priorityTags.forEach(tag => {
-          if (exifData[tag] !== undefined) {
-              addExifItem(ul, tag, formatExifValue(tag, exifData[tag]));
+          let v = exifData[tag];
+          if (v !== undefined && v !== NaN) {
+              addExifItem(ul, tag, formatExifValue(tag, v));
           }
       });
   }
