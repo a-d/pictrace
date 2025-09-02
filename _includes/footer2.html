@@ -92,7 +92,7 @@
       // Display priority tags
       priorityTags.forEach(tag => {
           let v = exifData[tag];
-          if (v !== undefined && v !== null && v==v && v != "NaN") {
+          if (v !== undefined && v !== null && value.toString() != "NaN") {
               addExifItem(ul, tag, formatExifValue(tag, v));
           }
       });
