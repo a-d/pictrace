@@ -13,7 +13,7 @@ This repository contains content under two different licenses:
 # Docker
 
 ```
-docker run -it --rm -v ${pwd}:/work -w /work -p 4000:4000 debian bash
+docker run -it --rm -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -v ${pwd}:/work -w /work -p 4000:4000 debian bash
 ```
 
 # Usage
