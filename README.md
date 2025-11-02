@@ -24,6 +24,10 @@ bundle install
 bundle exec jekyll serve --host 0.0.0.0
 ```
 
+```
+docker exec -it pictrace gulp resize
+```
+
 
 # Photography 
 
