@@ -13,7 +13,39 @@
     {% assign firstLoc = forloop.first %}
     {% assign locationName = location.name | split:"_" | last %}
 
-    {% for image in location.items %}
+
+    {% for f in location.items %}
+    {% if f.name contains '~' %}
+    {% assign images_with_tilde = images_with_tilde | push: f %}
+    {% else %}
+    {% assign images_without_tilde = images_without_tilde | push: f %}
+    {% endif %}
+    {% endfor %}
+
+    {%- comment -%} Create sortable strings: "sortkey|index" {%- endcomment -%}
+    {% assign tilde_sortable = "" | split: "" %}
+    {% for f in images_with_tilde %}
+    {% assign parts = f.name | split: "~" %}
+    {% assign key = parts[1] | default: parts[0] %}
+    {% assign sortable = key | append: "|" | append: forloop.index0 %}
+    {% assign tilde_sortable = tilde_sortable | push: sortable %}
+    {% endfor %}
+
+    {% assign tilde_sortable_sorted = tilde_sortable | sort_natural %}
+
+    {%- comment -%} Rebuild sorted array using indices {%- endcomment -%}
+    {% assign images_with_tilde_sorted = "" | split: "" %}
+    {% for sortable in tilde_sortable_sorted %}
+    {% assign parts = sortable | split: "|" %}
+    {% assign idx = parts[1] | plus: 0 %}
+    {% assign images_with_tilde_sorted = images_with_tilde_sorted | push: images_with_tilde[idx] %}
+    {% endfor %}
+
+    {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
+    {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
+
+
+    {% for image in images_sorted %}
 
     <div id="p-{{ year.name }}-{{ locationName }}-{{ image.name }}" class="lightbox">
         <a href="#p" class="close">&times;</a>

@@ -1,42 +1,23 @@
-<div class="map" style="grid-row: span 2" count="{{ images_sorted.size }}">
+<div class="map" pathId="path23" style="grid-row: span 10; --bg: url('{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ images_sorted[0].name }}')" count="{{ images_sorted.size }}">
   <style>
 
-    /* Demo content section */
-    .intro-section {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 60px 40px;
-      background: #2a2a2a;
-      margin-bottom: 40px;
+    .map {
+      background-image: var(--bg);
+      background-size: cover;
+      background-position: left bottom;
+      letter-spacing:0;
     }
 
-    .intro-section h1 {
-      color: #ff6b35;
-      margin-bottom: 20px;
-    }
-
-    .intro-section p {
-      line-height: 1.8;
-      color: #ccc;
-      margin-bottom: 15px;
-    }
-
-    /* Map container - now scrolls with content */
     .map-container {
       flex: 0 0 45%;
       position: sticky;
-      top: 60px;
+      top:1em;
       height: fit-content;
-      background: #2a2a2a;
-      border-radius: 12px;
-      padding: 40px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
     .map-wrapper {
       position: relative;
       width: 100%;
-      max-width: 500px;
       margin: 0 auto;
     }
 
@@ -74,90 +55,468 @@
         /* JavaScript will handle this */
       }
     }
-
-    .map-outline {
-      fill: #3a3a3a;
-      stroke: #555;
-      stroke-width: 1;
-    }
-
-    .location-marker {
-      fill: #ff6b35;
-      transition: opacity 0.3s ease;
-    }
-
-    .location-label {
-      fill: #fff;
-      font-size: 10px;
-      transition: opacity 0.3s ease;
-    }
-
-    .photo-section {
-      margin-bottom: 60px;
-      background: #2a2a2a;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-
-    .photo-section:last-child {
-      margin-bottom: 0;
-    }
-
-    .photo-placeholder {
-      width: 100%;
-      height: 400px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: rgba(255,255,255,0.9);
-    }
-
-    .photo-info {
-      padding: 30px;
-    }
-
-    .photo-info h2 {
-      margin-bottom: 10px;
-      color: #ff6b35;
-    }
-
-    .photo-info p {
-      line-height: 1.6;
-      color: #ccc;
-    }
   </style>
 
   <div class="map-container">
     <div class="map-wrapper">
-      <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
-        <!-- Simplified Namibia outline -->
-        <path class="map-outline" d="M50,50 L250,50 L250,150 L280,150 L280,350 L50,350 L50,200 L20,200 L20,100 L50,100 Z"/>
+      <svg
+          width="193.44745mm"
+          height="199.64392mm"
+          viewBox="0 0 193.44745 199.64392"
+          version="1.1"
+          id="svg1"
+          xml:space="preserve"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:svg="http://www.w3.org/2000/svg"><defs
+     id="defs1"><linearGradient
+       id="linearGradient21"><stop
+         style="stop-color:#fefbf1;stop-opacity:0.30000001;"
+         offset="0.6439594"
+         id="stop19" /><stop
+          style="stop-color:#fefcf3;stop-opacity:0;"
+          offset="1"
+          id="stop20" /></linearGradient><linearGradient
+          id="linearGradient24"><stop
+         style="stop-color:#b18f8a;stop-opacity:1;"
+         offset="0.48773447"
+         id="stop24" /><stop
+          style="stop-color:#b18f8a;stop-opacity:0;"
+          offset="1"
+          id="stop25" /></linearGradient><linearGradient
+          id="linearGradient16"><stop
+         style="stop-color:#fefcf3;stop-opacity:0.30000001;"
+         offset="0.78001851"
+         id="stop17" /><stop
+          style="stop-color:#fefcf3;stop-opacity:0;"
+          offset="1"
+          id="stop18" /></linearGradient><linearGradient
+          id="linearGradient12"><stop
+         style="stop-color:#b18f8a;stop-opacity:1;"
+         offset="0.78066379"
+         id="stop13" /><stop
+          style="stop-color:#b18f8a;stop-opacity:0;"
+          offset="1"
+          id="stop16" /></linearGradient><linearGradient
+          id="linearGradient11"><stop
+         style="stop-color:#fefcf3;stop-opacity:0.30000001;"
+         offset="0.65089417"
+         id="stop11" /><stop
+          style="stop-color:#fefcf3;stop-opacity:0;"
+          offset="1"
+          id="stop12" /></linearGradient><linearGradient
+          id="linearGradient9"><stop
+         style="stop-color:#b18f8a;stop-opacity:1;"
+         offset="0"
+         id="stop9" /><stop
+          style="stop-color:#b18f8a;stop-opacity:0;"
+          offset="1"
+          id="stop10" /></linearGradient><linearGradient
+          id="linearGradient5"><stop
+         style="stop-color:#b18f8a;stop-opacity:1;"
+         offset="0"
+         id="stop5" /><stop
+          style="stop-color:#b18f8a;stop-opacity:0;"
+          offset="1"
+          id="stop6" /></linearGradient><linearGradient
+          id="linearGradient1"><stop
+         style="stop-color:#fefcf3;stop-opacity:0.30000001;"
+         offset="0.82106781"
+         id="stop1" /><stop
+          style="stop-color:#fefcf3;stop-opacity:0;"
+          offset="1"
+          id="stop2" /></linearGradient><linearGradient
+          id="linearGradient14"><stop
+         style="stop-color:#7797de;stop-opacity:0.89999998;"
+         offset="0.63858819"
+         id="stop14" /><stop
+          style="stop-color:#6d6d6d;stop-opacity:0;"
+          offset="1"
+          id="stop15" /></linearGradient><linearGradient
+          id="linearGradient3"><stop
+         style="stop-color:#7e1e1e;stop-opacity:0.55487803;"
+         offset="0"
+         id="stop3" /><stop
+          style="stop-color:#7e1e1e;stop-opacity:0;"
+          offset="1"
+          id="stop4" /></linearGradient><linearGradient
+          xlink:href="#linearGradient3"
+          id="linearGradient4"
+          x1="95.360168"
+          y1="171.78355"
+          x2="133.84094"
+          y2="171.78355"
+          gradientUnits="userSpaceOnUse" /><linearGradient
+          xlink:href="#linearGradient3"
+          id="linearGradient20"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="matrix(1.4452598,0,0,1.4452598,-48.808093,-187.15134)"
+          x1="95.360168"
+          y1="171.78355"
+          x2="133.84094"
+          y2="171.78355" /><radialGradient
+          xlink:href="#linearGradient14"
+          id="radialGradient1"
+          cx="44.432171"
+          cy="103.08363"
+          fx="44.432171"
+          fy="103.08363"
+          r="42.409435"
+          gradientTransform="matrix(2.0168068,0,0,2.158625,-2.6573904,-118.70444)"
+          gradientUnits="userSpaceOnUse" /><linearGradient
+          xlink:href="#linearGradient5"
+          id="linearGradient6"
+          x1="101.98931"
+          y1="186.21356"
+          x2="104.78527"
+          y2="191.20293"
+          gradientUnits="userSpaceOnUse" /><radialGradient
+          xlink:href="#linearGradient1"
+          id="radialGradient8"
+          cx="119.63235"
+          cy="163.21109"
+          fx="119.63235"
+          fy="163.21109"
+          r="59.6367"
+          gradientTransform="matrix(1.1479004,-0.00281841,0.00157575,0.64177786,-17.950844,61.521577)"
+          gradientUnits="userSpaceOnUse" /><linearGradient
+          xlink:href="#linearGradient9"
+          id="linearGradient10"
+          x1="166.3485"
+          y1="107.16484"
+          x2="180.82385"
+          y2="107.40243"
+          gradientUnits="userSpaceOnUse" /><radialGradient
+          xlink:href="#linearGradient11"
+          id="radialGradient12"
+          cx="166.86337"
+          cy="41.355049"
+          fx="166.86337"
+          fy="41.355049"
+          r="23.614241"
+          gradientTransform="matrix(1.1146744,-0.0594657,0.05709142,1.0701688,-21.495949,3.251915)"
+          gradientUnits="userSpaceOnUse" /><radialGradient
+          xlink:href="#linearGradient12"
+          id="radialGradient16"
+          cx="173.15945"
+          cy="32.592899"
+          fx="173.15945"
+          fy="32.592899"
+          r="23.614241"
+          gradientTransform="matrix(0.90755102,0.26487211,-0.21931936,0.75147027,23.15667,-39.067634)"
+          gradientUnits="userSpaceOnUse" /><linearGradient
+          xlink:href="#linearGradient24"
+          id="linearGradient25"
+          x1="49.050026"
+          y1="24.600811"
+          x2="49.1759"
+          y2="15.453678"
+          gradientUnits="userSpaceOnUse" /><radialGradient
+          xlink:href="#linearGradient16"
+          id="radialGradient25"
+          cx="89.130997"
+          cy="60.510475"
+          fx="89.130997"
+          fy="60.510475"
+          r="77.218842"
+          gradientTransform="matrix(1.2769132,0.01846087,-0.00475735,0.3290596,-22.77519,14.56653)"
+          gradientUnits="userSpaceOnUse" /><radialGradient
+          xlink:href="#linearGradient21"
+          id="radialGradient2"
+          cx="123.82356"
+          cy="106.27927"
+          fx="123.82356"
+          fy="106.27927"
+          r="38.598206"
+          gradientTransform="matrix(1.5827445,0.07235912,-0.12610712,2.7583992,-57.82552,-192.56687)"
+          gradientUnits="userSpaceOnUse" /></defs><g
+          id="layer5"
+          transform="translate(-2.6134666,-10.830855)"><g
+       id="layer2"
+       style="display:inline"><rect
+         style="display:inline;fill:url(#radialGradient1);stroke:none;stroke-width:0.424909;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+         id="rect14"
+         width="171.06328"
+         height="183.09213"
+         x="-48.446362"
+         y="46.818867"
+         rx="2.7090011"
+         ry="3.7396235" /><path
+          style="fill:url(#radialGradient25);stroke:url(#linearGradient25);stroke-width:1.186;stroke-linecap:square;stroke-dasharray:none"
+          d="m 18.648,11.424 c -4.706689,4.014772 -2.596911,15.344777 -3.192,23.771999 l 15.074043,8.044995 107.033337,2.851055 30.76763,-5.820905 C 163.9033,34.068772 145.70562,28.673753 148.37171,14.351217 Z"
+          id="path18" /><text
+          xml:space="preserve"
+          style="font-size:8.15768px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';opacity:0.212034;fill:none;stroke:none;stroke-width:0.213;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+          x="111.54379"
+          y="27.422451"
+          id="text3-3-7-1-2"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.213;stroke-dasharray:none;stroke-opacity:1"
+           x="111.54379"
+           y="27.422451"
+           id="tspan18-5-3-3">Angola</tspan></text><path
+          style="fill:url(#radialGradient12);fill-opacity:1;stroke:url(#radialGradient16);stroke-width:1.186;stroke-linecap:square;stroke-dasharray:none"
+          d="M 147.54971,13.507115 C 145.24315,29.693573 160.56397,30.892973 167.58,39.06 l 21.53995,1.329939 6.34084,3.532904 0.007,-32.330843 z"
+          id="path17" /><text
+          xml:space="preserve"
+          style="font-size:8.15768px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';opacity:0.212034;fill:none;stroke:none;stroke-width:0.213;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+          x="160.76436"
+          y="27.614769"
+          id="text3-3-7-1"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.213;stroke-dasharray:none;stroke-opacity:1"
+           x="160.76436"
+           y="27.614769"
+           id="tspan18-5-3">Zambia</tspan></text><path
+          style="fill:url(#radialGradient2);fill-opacity:1;stroke:url(#linearGradient10);stroke-width:1.186;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+          d="m 188.496,39.648 6.9404,4.320241 -0.0204,89.556149 -13.02971,17.68232 -18.38536,-11.64707 c -7.27253,4.7554 -8.65525,22.82333 -33.01692,22.20434 2.50549,-16.99444 -0.0785,-26.31552 -8.00312,-27.58454 L 119.448,48.047999 Z"
+          id="path16" /><text
+          xml:space="preserve"
+          style="font-size:8.15768px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';opacity:0.212034;fill:none;stroke:none;stroke-width:0.213;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+          x="132.23282"
+          y="113.84615"
+          id="text3-3-7"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.213;stroke-dasharray:none;stroke-opacity:1"
+           x="132.23282"
+           y="113.84615"
+           id="tspan18-5">Botswana</tspan></text><path
+          style="fill:url(#radialGradient8);stroke:url(#linearGradient6);stroke-width:1.186;stroke-linecap:square;stroke-dasharray:none"
+          d="M 95.296338,209.84557 C 82.021499,198.96942 80.763224,185.09231 77.531999,181.104 L 122.472,133.224 c 13.50325,5.23065 8.41681,18.28085 8.82247,28.57194 27.17896,-1.43333 23.08462,-16.27427 32.10344,-21.74509 3.38506,-2.05337 28.0621,25.76761 32.02809,1.1624 L 195.3502,169.75691 195.3,193.158 Z"
+          id="path15" /><text
+          xml:space="preserve"
+          style="font-size:8.15768px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';opacity:0.212034;fill:none;stroke:none;stroke-width:0.213;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+          x="140.29384"
+          y="174.33498"
+          id="text3-3"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.213;stroke-dasharray:none;stroke-opacity:1"
+           x="140.29384"
+           y="174.33498"
+           id="tspan4-9">South</tspan><tspan
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.213;stroke-dasharray:none;stroke-opacity:1"
+          x="140.29384"
+          y="181.9256"
+          id="tspan18">Africa</tspan></text><text
+          xml:space="preserve"
+          style="font-size:8.15768px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';display:inline;fill:none;stroke:url(#linearGradient20);stroke-width:0.413344;stroke-linecap:square;stroke-dasharray:none"
+          x="89.400826"
+          y="63.16991"
+          id="text3-3-7-1-23"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.15768px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:url(#linearGradient20);stroke-width:0.413344;stroke-dasharray:none;stroke-opacity:0.554878"
+           x="89.400826"
+           y="63.16991"
+           id="tspan18-5-3-2">Zambia</tspan></text><path
+          style="fill:#fdf5d8;fill-opacity:1;stroke:#7e1e1e;stroke-width:1.486;stroke-linecap:square;stroke-opacity:0.554878"
+          d="M 15.456,35.111999 C 27.235414,31.373747 38.997512,27.677343 45.527999,36.624 L 103.152,35.615999 c 1.5595,5.300504 19.70808,8.651011 39.228,8.064 15.77949,-0.474527 42.83952,-12.176717 47.376,-3.107998 -7.66023,4.179475 -12.51042,3.407719 -19.404,9.239999 l -5.04,-6.383999 C 155.72961,45.085044 152.55432,48.237076 136.5,48.384 l -0.336,47.711998 -12.936,0.168 0.588,85.008002 c -10.59834,7.45597 -21.57157,7.25137 -30.912001,3.024 -0.948231,-5.89625 -6.019135,-11.45562 -13.104,-0.168 -3.556865,-1.90038 -9.576001,-9.072 -9.576001,-9.072 -3.844271,-3.64194 -14.689505,-37.44304 -15.288,-48.804 C 53.423747,97.545633 48.765987,96.437237 30.239999,65.183998 23.40257,53.649293 14.191476,46.675311 15.456,35.111999 Z"
+          id="path1" /><text
+          xml:space="preserve"
+          style="font-size:11.7429px;line-height:0.9;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';fill:none;stroke:none;stroke-width:0.595003;stroke-linecap:square;stroke-dasharray:none"
+          x="28.844473"
+          y="54.330383"
+          id="text3-3-7-1-5"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.7429px;line-height:0.9;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.595003;stroke-dasharray:none;stroke-opacity:0.554878"
+           x="28.844473"
+           y="54.330383"
+           id="tspan18-5-3-39">Namibia</tspan></text></g><path
+          style="fill:none;fill-opacity:1;stroke:#b27f73;stroke-width:2.258;stroke-linecap:round;stroke-dasharray:1.258, 3.774;stroke-dashoffset:14.9702;stroke-opacity:1"
+          d="m 87.194751,103.58831 c 6.862587,11.22852 8.588339,25.16146 18.294269,33.2623 -5.89547,1.68912 -6.507122,6.04676 -5.46453,19.7198 -2.160197,4.00865 -4.094899,9.14478 -5.939692,14.73045 1.945277,-15.54174 -13.198252,-20.94962 -19.95738,-31.71798 L 66.99978,124.25846 54.407625,106.67696 C 58.279626,84.334382 66.392583,77.743922 74.602593,71.51395 L 86.481988,52.506922 c -6.13321,17.127145 -3.444583,31.588013 -0.712764,48.943098"
+          id="path23" /><g
+          id="layer3"><ellipse
+         style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+         id="path2-3-65"
+         cx="87.23925"
+         cy="104.05899"
+         rx="0.57077897"
+         ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-1"
+          cx="74.438583"
+          cy="71.662834"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-6"
+          cx="54.662167"
+          cy="109.58633"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-61"
+          cx="54.02383"
+          cy="103.8325"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3"
+          cx="99.374779"
+          cy="156.90718"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-2"
+          cx="94.118752"
+          cy="171.16649"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-69"
+          cx="74.129211"
+          cy="139.47055"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-8"
+          cx="66.866669"
+          cy="124.81041"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-5"
+          cx="86.359406"
+          cy="53.092152"
+          rx="0.57077897"
+          ry="0.57077849" /><ellipse
+          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          id="path2-3-64"
+          cx="105.72486"
+          cy="136.91112"
+          rx="0.57077897"
+          ry="0.57077849" /></g><g
+          id="layer4"><text
+         xml:space="preserve"
+         style="font-size:5.64444px;line-height:0.7;font-family:'Mortal Kombat 4';-inkscape-font-specification:'Mortal Kombat 4, Normal';fill:none;stroke:url(#linearGradient4);stroke-width:0.286;stroke-linecap:square;stroke-dasharray:none"
+         x="95.62912"
+         y="173.20155"
+         id="text3"><tspan
+           id="tspan3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:url(#linearGradient4);stroke-width:0.286;stroke-dasharray:none;stroke-opacity:0.554878"
+           x="95.62912"
+           y="173.20155">Fishriver</tspan><tspan
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:url(#linearGradient4);stroke-width:0.286;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="95.62912"
+          y="177.32475"
+          id="tspan4">Canyon</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="63.546303"
+          y="154.57127"
+          id="text5"><tspan
+           id="tspan5"
+           style="stroke-width:0.286"
+           x="63.546303"
+           y="154.57127">Keetmanshoop</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="90.283394"
+          y="104.77626"
+          id="text6"><tspan
+           id="tspan6"
+           style="stroke-width:0.286"
+           x="90.283394"
+           y="104.77626">Windhoek</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="89.808212"
+          y="53.457275"
+          id="text7"><tspan
+           id="tspan7"
+           style="stroke-width:0.286"
+           x="89.808212"
+           y="53.457275">Etosha</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="58.802998"
+          y="70.801186"
+          id="text8"><tspan
+           id="tspan8"
+           style="stroke-width:0.286"
+           x="58.802998"
+           y="70.801186">Outjo</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="18.888237"
+          y="105.48902"
+          id="text10"><tspan
+           id="tspan10"
+           style="stroke-width:0.286"
+           x="18.888237"
+           y="105.48902">Swakopmund</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="76.503296"
+          y="138.63252"
+          id="text11"><tspan
+           id="tspan11"
+           style="stroke-width:0.286"
+           x="76.503296"
+           y="138.63252">Namib</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="67.474953"
+          y="122.09979"
+          id="text12"><tspan
+           id="tspan12"
+           style="stroke-width:0.286"
+           x="67.474953"
+           y="122.09979">Sossusvlei</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="27.56019"
+          y="113.21062"
+          id="text13"><tspan
+           id="tspan13"
+           style="stroke-width:0.286"
+           x="27.56019"
+           y="113.21062">Walvis Bay</tspan></text><text
+          xml:space="preserve"
+          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0.7;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.285999;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
+          x="103.31098"
+          y="133.30675"
+          id="text14"><tspan
+           id="tspan14"
+           style="stroke-width:0.286"
+           x="103.31098"
+           y="133.30675">Kalahari</tspan></text></g></g></svg>
 
-        <!-- Travel path - animates as you scroll -->
-        <path class="travel-path" d="M150,80 L200,120 L220,180 L180,240 L150,300 L100,280"/>
-
-        <!-- Location markers -->
-        <circle class="location-marker" cx="150" cy="80" r="6"/>
-        <circle class="location-marker" cx="200" cy="120" r="6"/>
-        <circle class="location-marker" cx="220" cy="180" r="6"/>
-        <circle class="location-marker" cx="180" cy="240" r="6"/>
-        <circle class="location-marker" cx="150" cy="300" r="6"/>
-        <circle class="location-marker" cx="100" cy="280" r="6"/>
-
-        <!-- Location labels -->
-        <text class="location-label" x="160" y="78">Windhoek</text>
-        <text class="location-label" x="210" y="118">Etosha</text>
-        <text class="location-label" x="230" y="178">Skeleton Coast</text>
-        <text class="location-label" x="190" y="238">Swakopmund</text>
-        <text class="location-label" x="160" y="298">Sossusvlei</text>
-        <text class="location-label" x="110" y="278">Fish River</text>
-      </svg>
     </div>
   </div>
 </div><script>
+  function makeProgressMapper(points) {
+    // points: array of [x, y] sorted by x
+    return function(t) {
+      if (t <= points[0][0]) return points[0][1];
+      if (t >= points[points.length - 1][0]) return points[points.length - 1][1];
+
+      // find segment
+      let i = 1;
+      while (i < points.length && t > points[i][0]) i++;
+      const p0 = points[Math.max(i - 2, 0)];
+      const p1 = points[i - 1];
+      const p2 = points[i];
+      const p3 = points[Math.min(i + 1, points.length - 1)];
+
+      // normalize t in [0,1] for this segment
+      const u = (t - p1[0]) / (p2[0] - p1[0]);
+
+      // Catmull–Rom spline
+      const y =
+        0.5 *
+        ((2 * p1[1]) +
+          (-p0[1] + p2[1]) * u +
+          (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * u * u +
+          (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * u * u * u);
+
+      return Math.min(1, Math.max(0, y));
+    };
+  }
+
+
+  window.mapProgress = makeProgressMapper([
+    [0.0, 0.1],
+    [0.4, 0.6],
+    [0.7, 0.7],
+    [0.9, 0.8],
+    [1.0, 1.0]
+  ]);
+
+
   // Check if CSS scroll-driven animations are supported
   const supportsScrollTimeline = CSS.supports('animation-timeline', 'view()');
 
@@ -167,9 +526,9 @@
     const scripts = document.getElementsByTagName('script');
     const currentScript = scripts[scripts.length - 1];
     const mapElement = currentScript.previousSibling;
-    window.x = mapElement;
+    const pathId = mapElement.getAttribute("pathId");
 
-    const path = mapElement.querySelector('.travel-path');
+    const path = mapElement.querySelector('path[id="'+pathId+'"]');
     const pathLength = path.getTotalLength();
     const gallery = document.querySelector('.gallery');
 
@@ -201,6 +560,7 @@
       if (totalDistance > 0) {
         scrollPercent = Math.max(0, Math.min(1, scrolledDistance / totalDistance));
       }
+      scrollPercent = window.mapProgress(scrollPercent);
 
       const drawLength = pathLength * scrollPercent;
       path.style.strokeDashoffset = pathLength - drawLength;
