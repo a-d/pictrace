@@ -17,13 +17,15 @@
 
     .map-wrapper {
       position: relative;
-      width: 100%;
+      width: 130%;
       margin: 0 auto;
+      left: -5%;
     }
 
-    svg {
+    .map-wrapper > svg {
       width: 100%;
       height: auto;
+      max-height: calc(100vh - 5em);
     }
 
     /* The travel path with scroll animation */
@@ -317,7 +319,7 @@
            id="tspan18-5-3-39">Namibia</tspan></text></g><path
           style="fill:none;fill-opacity:1;stroke:#b27f73;stroke-width:2.258;stroke-linecap:round;stroke-dasharray:1.258, 3.774;stroke-dashoffset:14.9702;stroke-opacity:1"
           d="m 87.194751,103.58831 c 6.862587,11.22852 8.588339,25.16146 18.294269,33.2623 -5.89547,1.68912 -6.507122,6.04676 -5.46453,19.7198 -2.160197,4.00865 -4.094899,9.14478 -5.939692,14.73045 1.945277,-15.54174 -13.198252,-20.94962 -19.95738,-31.71798 L 66.99978,124.25846 54.407625,106.67696 C 58.279626,84.334382 66.392583,77.743922 74.602593,71.51395 L 86.481988,52.506922 c -6.13321,17.127145 -3.444583,31.588013 -0.712764,48.943098"
-          id="path23" /><g
+          id="path23" class="travel-path" /><g
           id="layer3"><ellipse
          style="fill:#2e241d;fill-opacity:1;stroke:#7e1e1e;stroke-width:0.558;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:0.554878"
          id="path2-3-65"
