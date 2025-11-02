@@ -52,7 +52,7 @@
     // add location scrolling indicator
     {
       const locationIndicator = document.getElementById("location-indicator");
-      const locationItems = document.querySelectorAll("#main .gallery-item");
+      const locationItems = document.querySelectorAll(".gallery .gallery-item");
       const locationObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
