@@ -1,4 +1,4 @@
-<div class="gallery" id="main">
+<div class="gallery">
     {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
     {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
@@ -25,16 +25,33 @@
             {% endif %}
             {% endfor %}
 
-        {% assign tilde_with_keys = "" | split: "" %}
-            {% for f in images_with_tilde %}
+        {%- comment -%} Create sortable strings: "sortkey|index" {%- endcomment -%}
+        {% assign tilde_sortable = "" | split: "" %}
+        {% for f in images_with_tilde %}
             {% assign parts = f.name | split: "~" %}
             {% assign key = parts[1] | default: parts[0] %}
-            {% assign item = f | merge: {"key": key} %}
-            {% assign tilde_with_keys = tilde_with_keys | push: item %}
+            {% assign sortable = key | append: "|" | append: forloop.index0 %}
+            {% assign tilde_sortable = tilde_sortable | push: sortable %}
             {% endfor %}
-        {% assign images_with_tilde_sorted = tilde_with_keys | sort_natural: "key" | reverse %}
+
+        {% assign tilde_sortable_sorted = tilde_sortable | sort_natural %}
+
+        {%- comment -%} Rebuild sorted array using indices {%- endcomment -%}
+        {% assign images_with_tilde_sorted = "" | split: "" %}
+        {% for sortable in tilde_sortable_sorted %}
+            {% assign parts = sortable | split: "|" %}
+            {% assign idx = parts[1] | plus: 0 %}
+            {% assign images_with_tilde_sorted = images_with_tilde_sorted | push: images_with_tilde[idx] %}
+            {% endfor %}
+
         {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
         {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
+
+    {% assign location_hint = locationName | append: ".html" %}
+    {% assign location_hint_exists = site.static_files | where: "name", location_hint | first %}
+    {% if location_hint_exists %}
+    {% include_relative {{ location_hint_exists.path }} %}
+    {% endif %}
 
     {% for image in images_sorted %}
     <div class="gallery-item" location="{{ locationName }}" year="{{ year.name }}">
