@@ -13,16 +13,26 @@
 
 
     {%- comment -%} Extract suffix after ~ for sort key {%- endcomment -%}
-        {% assign images_with_tilde = location.items | where_exp:"f","f.name contains '~'" %}
-        {% assign images_without_tilde = location.items | where_exp:"f","f.name contains '~' == false" %}
+
+        {% assign images_with_tilde = "" | split: "" %}
+        {% assign images_without_tilde = "" | split: "" %}
+
+        {% for f in location.items %}
+            {% if f.name contains '~' %}
+            {% assign images_with_tilde = images_with_tilde | push: f %}
+            {% else %}
+            {% assign images_without_tilde = images_without_tilde | push: f %}
+            {% endif %}
+            {% endfor %}
+
         {% assign tilde_with_keys = "" | split: "" %}
-        {% for f in images_with_tilde %}
-        {% assign parts = f.name | split: "~" %}
-        {% assign key = parts[1] | default: parts[0] %}
-        {% assign item = f | merge: {"key": key} %}
-        {% assign tilde_with_keys = tilde_with_keys | push: item %}
-        {% endfor %}
-        {% assign images_with_tilde_sorted = tilde_with_keys | sort_natural: "key" %}
+            {% for f in images_with_tilde %}
+            {% assign parts = f.name | split: "~" %}
+            {% assign key = parts[1] | default: parts[0] %}
+            {% assign item = f | merge: {"key": key} %}
+            {% assign tilde_with_keys = tilde_with_keys | push: item %}
+            {% endfor %}
+        {% assign images_with_tilde_sorted = tilde_with_keys | sort_natural: "key" | reverse %}
         {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
         {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
 

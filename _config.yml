@@ -1,5 +1,6 @@
 # Base configs
 #baseurl: "https://pictrace.de"
+encoding: "utf-8"
 baseurl: "" # Comment the above line and uncomment this to test the website locally
 image_root: "images"
 image_fulls_loc: "fulls"
