@@ -13,6 +13,8 @@
     {% assign firstLoc = forloop.first %}
     {% assign locationName = location.name | split:"_" | last %}
 
+    {% assign images_with_tilde = "" | split: "" %}
+    {% assign images_without_tilde = "" | split: "" %}
 
     {% for f in location.items %}
     {% if f.name contains '~' %}
