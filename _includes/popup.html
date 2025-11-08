@@ -46,9 +46,7 @@
     {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
     {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
 
-
     {% for image in images_sorted %}
-
     <div id="p-{{ year.name }}-{{ locationName }}-{{ image.name }}" class="lightbox">
         <a href="#p" class="close">&times;</a>
         <div class="lightbox-container">
@@ -57,7 +55,6 @@
             <a href="#p" class="nav-arrow nav-next">&#10095;</a>
         </div>
     </div>
-
     {% endfor %}
     {% endfor %}
     {% endfor %}

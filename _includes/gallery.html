@@ -55,21 +55,17 @@
 
     {% for image in images_sorted %}
     <div class="gallery-item" location="{{ locationName }}" year="{{ year.name }}">
-
         {% if forloop.first %}
         <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">{{ locationName }}</a>
         {% if firstLoc %}
         <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
         {% endif %}
         {% endif %}
-
         <a href="#p-{{ year.name }}-{{ locationName }}-{{ image.name }}" class="image">
             <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
         </a>
     </div>
-
     {% endfor %}
     {% endfor %}
     {% endfor %}
-
 </div>
