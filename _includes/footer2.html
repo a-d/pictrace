@@ -28,10 +28,16 @@
         timer = setTimeout(() => locationIndicator.style.opacity = 0, 1000);
       });
     }
+
+    // Add click event listeners to all gallery links
+    const closeLink = document.querySelector('a.close');
+    if(closeLink)
+      document.querySelectorAll('.gallery-item > a.image').forEach(link => {
+        link.addEventListener('click', (event) => {
+          closeLink.setAttribute('href', window.location.hash || '#p');
+        });
+      });
   });
-
-
-
 
   function displayEXIFData(img, ul) {
       const exifData = EXIF.getAllTags(img);
