@@ -4,6 +4,8 @@
 
     {% for year in years reversed %}
 
+    <section class="year" year="{{ year.name }}" id="p-{{ year.name }}">
+
     {% assign firstYear = forloop.first %}
     {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
 
@@ -11,6 +13,7 @@
     {% assign firstLoc = forloop.first %}
     {% assign locationName = location.name | split:"_" | last %}
 
+    <section class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">
 
     {%- comment -%} Extract suffix after ~ for sort key {%- endcomment -%}
 
@@ -54,18 +57,20 @@
     {% endif %}
 
     {% for image in images_sorted %}
-    <div class="gallery-item" location="{{ locationName }}" year="{{ year.name }}">
+    <article class="gallery-item" location="{{ locationName }}" year="{{ year.name }}">
         {% if forloop.first %}
-        <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}" id="p-{{ year.name }}-{{ locationName }}">{{ locationName }}</a>
+        <a href="#p-{{ year.name }}-{{ locationName }}" class="location" location="{{ locationName }}">{{ locationName }}</a>
         {% if firstLoc %}
-        <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}" id="p-{{ year.name }}">{{ year.name }}</a>
+        <a href="#p-{{ year.name }}" class="year" year="{{ year.name }}">{{ year.name }}</a>
         {% endif %}
         {% endif %}
         <a href="#p-{{ year.name }}-{{ locationName }}-{{ image.name }}" class="image">
             <img loading="lazy" src="{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_thumbs_loc }}/{{ image.name }}" alt="" data-name="{{ image.name }}"/>
         </a>
-    </div>
+    </article>
     {% endfor %}
+    </section>
     {% endfor %}
+    </section>
     {% endfor %}
 </div>

@@ -40,7 +40,7 @@
     display: grid;
     width: 100%;
     grid-auto-flow: dense;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(max(300px, 100% / 5), 1fr));
     /* grid-auto-rows: calc( 300px * 3 / 4); */
   }
 
@@ -118,8 +118,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      bottom: 0;
+      right: 0;
       background-color: rgba(0, 0, 0, 0.8);
       z-index: 1000;
       padding: 5em;
@@ -281,7 +281,7 @@
   }
 
   @media (max-width: 899px) {
-      .gallery > .map {
+      .gallery .map {
           display:none;
       }
       .gallery-item {
@@ -295,7 +295,7 @@
 
 
 
-.gallery > div > a.year {
+.gallery > .year > .location > article > a.year {
     position: absolute;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.5);
@@ -304,7 +304,7 @@
     margin: 2.8em 0.3em;
     font-size: 1.2em;
 }
-.gallery > div > a.location {
+.gallery > .year > .location > article > a.location {
     position: absolute;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.5);
@@ -360,17 +360,19 @@ ul.exif-data > li[tag="DateTimeOriginal"] {
 }
 
 
-.gallery:has(:target) > div,
-.gallery:has(:target) > div:has(a.location:target) ~ div:has(a.location),
-.gallery:has(:target) > div:has(a.location:target) ~ div:has(a.location) ~ div,
-.gallery:has(:target) > div:has(a.year:target) ~ div:has(a.year),
-.gallery:has(:target) > div:has(a.year:target) ~ div:has(a.year) ~ div {
+
+.gallery > .year,
+.gallery > .year > .location {
+  display:contents;
+}
+
+.gallery:has(:target) > .year > .location {
   display:none;
 }
 
-.gallery:has(:target) > div:has(:target),
-.gallery:has(:target) > div:has(:target) ~ div {
-  display:block;
+.gallery > .year:target > .location,
+.gallery > .year > .location:target {
+  display:contents !important;
 }
 
 
