@@ -41,13 +41,14 @@
     width: 100%;
     grid-auto-flow: dense;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    grid-auto-rows: calc( 300px * 3 / 4);
+    /* grid-auto-rows: calc( 300px * 3 / 4); */
   }
 
   .gallery-item {
       position: relative;
       opacity: 0;
       animation: fadeIn 0.5s forwards;
+      aspect-ratio: 4/3;
   }
 
   /* Sequential loading animation */
