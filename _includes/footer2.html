@@ -17,32 +17,6 @@
     });
 
 
-
-    // Get all gallery item links
-    const galleryLinks = document.querySelectorAll('.gallery-item > a.image');
-
-    // Get the current active anchor from the URL
-    const getCurrentAnchor = () => {
-        return window.location.hash || '#p';
-    };
-
-    // Add click event listeners to all gallery links
-    galleryLinks.forEach(link => {
-      link.addEventListener('click', (event) => {
-        const targetAnchor = link.getAttribute('href').split('#')[1];
-        if (targetAnchor) {
-          const targetElement = document.getElementById(targetAnchor);
-          if (targetElement) {
-            const currentAnchor = getCurrentAnchor().substring(1);
-            const closeLink = targetElement.querySelector('a.close');
-            if (closeLink) {
-              closeLink.setAttribute('href', `#${currentAnchor}`);
-            }
-          }
-        }
-      });
-    });
-
     // hide location/year selection menu after click
     {
       const sel = document.getElementById('select');
