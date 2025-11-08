@@ -1,22 +1,6 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Get all lightboxes
-    const lightboxes = Array.from(document.querySelectorAll('.lightbox[id^="p-"]'));
-
-    // Set up navigation links
-    lightboxes.forEach((lightbox, index) => {
-      const prevIndex = (index - 1 + lightboxes.length) % lightboxes.length;
-      const nextIndex = (index + 1) % lightboxes.length;
-
-      const prevButton = lightbox.querySelector('.nav-prev');
-      const nextButton = lightbox.querySelector('.nav-next');
-
-      prevButton.href = '#' + lightboxes[prevIndex].id;
-      nextButton.href = '#' + lightboxes[nextIndex].id;
-    });
-
-
     // hide location/year selection menu after click
     {
       const sel = document.getElementById('select');
