@@ -1,0 +1,10 @@
+{% if include.firstYear == false or include.firstLoc == false or include.firstImage == false %}
+  <a href="#{{ include.current_id }}" class="nav-arrow nav-next">&#10095;</a>
+</div>
+{% endif %}
+<div class="lightbox-container" id="{{ include.current_id }}">
+  <a href="#{{ include.prev_id }}" class="nav-arrow nav-prev">&#10094;</a>
+  <img loading="lazy" src="{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_fulls_loc }}/{{ include.image.name }}" alt="{{ include.image.name }}" />
+{% if include.lastYear and include.lastLoc and include.lastImage %}
+</div>
+{% endif %}

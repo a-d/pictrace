@@ -3,7 +3,8 @@
 <head>
     {% include header2.html %}
 </head>
-<body>
+{% assign image = site.static_files | where_exp: "file", "file.path contains 'fulls'" | last %}
+<body style="--bg:url('{{ image.path }}')">
 
     {{ content }}
     

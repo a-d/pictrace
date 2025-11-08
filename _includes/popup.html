@@ -1,76 +1,8 @@
 <div id="location-indicator"></div>
 
-<div class="popup">
-
-    <div class="lightbox">
-        <a href="#p" class="close">&times;</a>
-    {% assign prev_id = "" %}
-
-    {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
-    {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
-
-    {% for year in years reversed %}
-
-    {% assign firstYear = forloop.first %}
-    {% assign lastYear = forloop.last %}
-    {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
-
-    {% for location in locations reversed %}
-    {% assign firstLoc = forloop.first %}
-    {% assign lastLoc = forloop.last %}
-    {% assign locationName = location.name | split:"_" | last %}
-
-    {% assign images_with_tilde = "" | split: "" %}
-    {% assign images_without_tilde = "" | split: "" %}
-
-    {% for f in location.items %}
-    {% if f.name contains '~' %}
-    {% assign images_with_tilde = images_with_tilde | push: f %}
-    {% else %}
-    {% assign images_without_tilde = images_without_tilde | push: f %}
-    {% endif %}
-    {% endfor %}
-
-    {%- comment -%} Create sortable strings: "sortkey|index" {%- endcomment -%}
-    {% assign tilde_sortable = "" | split: "" %}
-    {% for f in images_with_tilde %}
-    {% assign parts = f.name | split: "~" %}
-    {% assign key = parts[1] | default: parts[0] %}
-    {% assign sortable = key | append: "|" | append: forloop.index0 %}
-    {% assign tilde_sortable = tilde_sortable | push: sortable %}
-    {% endfor %}
-
-    {% assign tilde_sortable_sorted = tilde_sortable | sort_natural %}
-
-    {%- comment -%} Rebuild sorted array using indices {%- endcomment -%}
-    {% assign images_with_tilde_sorted = "" | split: "" %}
-    {% for sortable in tilde_sortable_sorted %}
-    {% assign parts = sortable | split: "|" %}
-    {% assign idx = parts[1] | plus: 0 %}
-    {% assign images_with_tilde_sorted = images_with_tilde_sorted | push: images_with_tilde[idx] %}
-    {% endfor %}
-
-    {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
-    {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
-
-    {% for image in images_sorted %}
-        {% capture current_id %}p-{{ year.name }}-{{ locationName }}-{{ image.name }}{% endcapture %}
-        {% capture current_image %}{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ image.name }}{% endcapture %}
-        {% if firstYear == false or firstLoc == false or forloop.first == false %}
-                <a href="#{{ current_id }}" class="nav-arrow nav-next">&#10095;</a>
-            </div>
-        {% endif %}
-            <div class="lightbox-container" id="{{ current_id }}">
-                <a href="#{{ prev_id }}" class="nav-arrow nav-prev">&#10094;</a>
-                <img loading="lazy" src="{{ current_image }}" alt="{{ image.name }}" />
-        {% if lastYear and lastLoc and forloop.last %}
-            </div>
-        {% endif %}
-        {% assign prev_id = current_id %}
-    {% endfor %}
-    {% endfor %}
-    {% endfor %}
-    </div>
-
-    <div id="p" class="lightbox"></div>
+<div class="lightbox">
+    <a href="#p" class="close">&times;</a>
+    {% include iterator.html inner='popup_item.html' %}
 </div>
+
+<div id="p" class="lightbox"></div>

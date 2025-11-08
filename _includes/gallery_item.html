@@ -1,0 +1,32 @@
+{% assign locationName = include.location.name | split:"_" | last %}
+
+{% if include.firstLoc and include.firstImage %}
+<section class="year" year="{{ include.year.name }}" id="p-{{ include.year.name }}">
+{% endif %}
+{% if include.firstImage %}
+<section class="location" location="{{ locationName }}" id="p-{{ include.year.name }}-{{ locationName }}">
+{% assign location_hint = locationName | append: ".html" %}
+{% assign location_hint_exists = site.static_files | where: "name", location_hint | first %}
+{% if location_hint_exists %}
+{% include_relative {{ location_hint_exists.path }} %}
+{% endif %}
+{% endif %}
+
+<article class="gallery-item" location="{{ locationName }}" year="{{ include.year.name }}">
+  {% if firstImage %}
+  <a href="#p-{{ include.year.name }}-{{ locationName }}" class="location" location="{{ locationName }}">{{ locationName }}</a>
+  {% if firstLoc %}
+  <a href="#p-{{ include.year.name }}" class="year" year="{{ include.year.name }}">{{ include.year.name }}</a>
+  {% endif %}
+  {% endif %}
+  <a href="#{{ include.current_id }}" class="image">
+    <img loading="lazy" src="{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_thumbs_loc }}/{{ include.image.name }}" alt="" data-name="{{ include.image.name }}"/>
+  </a>
+</article>
+
+{% if include.lastLoc and include.lastImage %}
+</section>
+{% endif %}
+{% if include.lastImage %}
+</section>
+{% endif %}
