@@ -2,6 +2,7 @@
 <html>
 <head>
     {% include header2.html %}
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/map.css">
 </head>
 {% assign image = site.static_files | where_exp: "file", "file.path contains 'fulls'" | last %}
 <body style="--bg:url('{{ image.path }}')">
@@ -9,5 +10,6 @@
     {{ content }}
     
     {% include footer2.html %}
+    <script src="{{ site.baseurl }}/assets/js/map.js"></script>
 </body>
 </html>

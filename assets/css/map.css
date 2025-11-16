@@ -1,0 +1,56 @@
+.map {
+  background-image: var(--bg);
+  background-size: cover;
+  background-position: left bottom;
+  letter-spacing:0;
+}
+
+.map-container {
+  flex: 0 0 45%;
+  position: sticky;
+  top:1em;
+  height: fit-content;
+}
+
+.map-wrapper {
+  position: relative;
+  width: 130%;
+  margin: 0 auto;
+  left: -5%;
+}
+
+.map-wrapper > svg {
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 3.5em);
+}
+
+/* The travel path with scroll animation */
+.travel-path {
+  fill: none;
+  stroke: #ff6b35;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: draw-path linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 100%;
+}
+
+@keyframes draw-path {
+  from {
+    stroke-dashoffset: 400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Fallback for browsers without CSS scroll-driven animations */
+@supports not (animation-timeline: view()) {
+  .travel-path {
+    /* JavaScript will handle this */
+  }
+}
