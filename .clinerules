@@ -1,0 +1,209 @@
+# Pictrace - Photography Blog Cline Rules
+
+## Project Overview
+
+This is a Jekyll-based photography blog hosted on GitHub Pages. The site displays photo galleries organized by year and location, with automatic thumbnail generation via Gulp/ImageMagick.
+
+## Project Structure
+
+```
+pictrace/
+├── _config.yml          # Jekyll configuration
+├── _layouts/            # Page layouts (default2.html)
+├── _includes/           # Reusable components
+│   ├── iterator.html    # Core iteration logic for images
+│   ├── gallery.html     # Gallery container
+│   ├── gallery_item.html # Individual gallery items
+│   ├── popup.html       # Lightbox/popup container
+│   └── popup_item.html  # Individual popup items
+├── journeys/            # Location-specific journey pages (SVG maps)
+├── images/              # Photo storage
+│   └── {year}/          # Year directories (2024, 2025, 2026, etc.)
+│       └── {index}_{Location}/  # Location directories
+│           ├── fulls/   # Full-size images (1024px width)
+│           └── thumbs/  # Thumbnail images (512px width)
+├── gulpfile.js          # Image processing tasks
+└── index.html           # Main entry point
+```
+
+## Image Organization
+
+### Directory Naming Convention
+- **Year directories**: Four-digit year (e.g., `2024`, `2025`)
+- **Location directories**: `{two-digit-index}_{LocationName}` (e.g., `01_Berlin`, `36_Namibia`)
+  - Index is auto-incremented per year
+  - LocationName uses PascalCase without spaces
+- **Subdirectories**: Always `fulls/` and `thumbs/`
+
+### Image File Naming
+- **Standard naming**: Keep original camera filenames (e.g., `DSCF0122.JPG`)
+- **Custom sort ordering**: Prefix with `~{sortkey}` to override natural sort
+  - Example: `~01_DSCF0122.JPG` sorts before `~02_DSCF0456.JPG`
+  - Files with `~` prefix are sorted first, then files without
+- **Supported formats**: JPG, JPEG, PNG (case-insensitive)
+
+## Image Processing Workflow
+
+### Adding New Photos
+1. Place original images in the project root `images/` folder (not in year subdirectories)
+2. Run `gulp resize` (or just `gulp`)
+3. When prompted:
+   - Enter the year (e.g., `2025`)
+   - Enter the location name without index (e.g., `Paris`)
+   - Optionally confirm deletion of originals after processing
+4. The task automatically:
+   - Creates `images/{year}/{index}_{location}/fulls/` and `thumbs/` directories
+   - Resizes images to 1024px width for `fulls/`
+   - Resizes images to 512px width for `thumbs/`
+   - Auto-assigns the next available index for new locations
+
+### Image Sizes
+- **Full images**: 1024px width (for lightbox/popup view)
+- **Thumbnails**: 512px width (for gallery grid)
+- Both maintain aspect ratio
+
+### Dependencies
+- Node.js and npm
+- ImageMagick (must be installed on system)
+- Gulp packages defined in `package.json`
+
+## Jekyll Configuration
+
+### Key Config Variables (`_config.yml`)
+```yaml
+image_root: "images"           # Base path for images
+image_fulls_loc: "fulls"       # Full-size subdirectory name
+image_thumbs_loc: "thumbs"     # Thumbnail subdirectory name
+baseurl: ""                    # Set to "" for local, or domain for production
+```
+
+### EXIF Display Configuration
+The `exif` config defines which camera metadata to show:
+- Model (camera model)
+- FNumber (aperture)
+- FocalLength
+- ExposureTime (shutter speed)
+- ISOSpeedRatings
+
+## Liquid Templating Patterns
+
+### Iterator Pattern
+The `_includes/iterator.html` is the core component that:
+1. Filters `site.static_files` for images in `fulls/` directories
+2. Groups images by year (reversed for newest-first)
+3. Groups by location within each year
+4. Handles custom sort ordering via `~` prefix
+5. Passes context to inner templates (`gallery_item.html` or `popup_item.html`)
+
+### Key Variables in Templates
+- `year.name` - The year string (e.g., "2025")
+- `location.name` - Full location directory name (e.g., "36_Namibia")
+- `locationName` - Location without index (e.g., "Namibia")
+- `image.path` - Full path to image file
+- `image.name` - Image filename
+
+### Including Journey Pages
+Location-specific content (like SVG maps) can be added by creating `journeys/{LocationName}.html`. These are automatically included in the gallery via:
+```liquid
+{% include_relative {{ location_hint_exists.path }} %}
+```
+
+## Journey Pages (Custom Location Content)
+
+Journey pages in `journeys/` directory can contain:
+- SVG maps with animated travel paths
+- Custom CSS scoped to the map component
+- JavaScript for scroll-driven animations
+
+### SVG Map Conventions
+- Use `pathId` attribute on container to reference the travel path
+- Path element should have class `travel-path` for CSS animations
+- Include fallback JavaScript for browsers without CSS scroll-driven animations
+
+## HTML/CSS Patterns
+
+### Gallery Structure
+```html
+<div class="gallery">
+  <section class="year" id="p-{year}">
+    <section class="location" id="p-{year}-{location}">
+      <article class="gallery-item">
+        <a href="#{popup-id}" class="image">
+          <img src="{thumb-path}" loading="lazy" />
+        </a>
+      </article>
+    </section>
+  </section>
+</div>
+```
+
+### ID Conventions
+- Year anchors: `p-{year}` (e.g., `p-2025`)
+- Location anchors: `p-{year}-{locationName}` (e.g., `p-2025-Namibia`)
+- Image popup anchors: `p-{year}-{locationName}-{filename}`
+
+## Development Workflow
+
+### Local Development
+1. Install dependencies: `npm install`
+2. Ensure ImageMagick is installed
+3. Run Jekyll locally: `bundle exec jekyll serve`
+4. Process new images: `gulp resize`
+
+### Deployment
+- Site is deployed automatically via GitHub Pages
+- Commits to main branch trigger rebuild
+- No manual deployment steps required
+
+## Code Style Guidelines
+
+### Liquid Templates
+- Use meaningful variable names extracted from paths
+- Comment complex logic with `{%- comment -%}...{%- endcomment -%}`
+- Prefer `where_exp` over manual filtering
+- Group related assignments together
+
+### JavaScript
+- Use vanilla JavaScript (no frameworks required)
+- Check for CSS feature support before JS fallbacks
+- Scope variables to avoid global namespace pollution
+- Use `const` for immutable values, `let` for mutable
+
+### CSS
+- Use CSS custom properties (variables) for theming
+- Prefer `var(--property)` for configurable values
+- Support CSS scroll-driven animations with JS fallback
+
+## File Modification Guidelines
+
+### When Adding New Locations
+1. Use the gulp workflow - don't manually create directories
+2. Location names should be single words or PascalCase compounds
+3. Avoid special characters in location names
+
+### When Modifying Templates
+- Test with multiple years and locations
+- Verify both gallery view and popup/lightbox functionality
+- Check responsive behavior on different screen sizes
+
+### When Adding Journey Pages
+1. Create file as `journeys/{LocationName}.html` (exact match to directory name)
+2. Include self-contained CSS within `<style>` tags
+3. Include self-contained JavaScript within `<script>` tags
+4. Use relative positioning within the gallery grid
+
+## Common Tasks
+
+### Reorder Images in a Location
+Rename files with `~{sortkey}` prefix:
+```
+~01_featured.jpg    (shows first)
+~02_second.jpg      (shows second)
+DSCF0123.jpg        (natural sort after ~ files)
+```
+
+### Add a New Year
+Simply add images with the new year in the gulp prompt - directories are created automatically.
+
+### Create Location-Specific Content
+Create `journeys/{LocationName}.html` with custom HTML/SVG/CSS/JS.
