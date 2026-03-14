@@ -35,17 +35,6 @@
       height:100%;
       width:100%;
   }
-  body::before {
-    content: "";
-    background-image: var(--bg);
-    background-size: cover;
-    background-position: bottom;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-  }
 
   .gallery {
     display: grid;
@@ -56,6 +45,7 @@
 
     background-image: var(--bg);
     background-size: cover;
+    background-attachment: fixed;
   }
 
   .gallery-item {
@@ -302,8 +292,14 @@
       .gallery-item {
           filter: brightness(1.1);
       }
+      .gallery-item img {
+          border-color: white;
+      }
       .lightbox {
           padding: 2em;
+      }
+      * {
+        background-image: none !important;
       }
   }
 
