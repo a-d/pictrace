@@ -1,14 +1,14 @@
 <div class="map" pathId="path33" progressFn="moroccoProgress" style="grid-column: 1; grid-row: span 10; --bg: url('{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ images_sorted[98].name }}')" count="{{ images_sorted.size }}">
 <script>
-// Morocco-specific progress mapping for animation timing
-// 5 stops: Agadir -> Marrakech -> Zagora -> Erfoud -> Ouarzazate -> Agadir
+/* Morocco-specific progress mapping for animation timing */
+/* 5 stops: Agadir -> Marrakech -> Zagora -> Erfoud -> Ouarzazate -> Agadir */
 window.moroccoProgress = window.makeProgressMapper([
   [0.0, 0.0],
-  [0.2, 0.2],   // Agadir to Marrakech
-  [0.4, 0.4],   // Marrakech to Zagora
-  [0.6, 0.6],   // Zagora to Erfoud
-  [0.8, 0.8],   // Erfoud to Ouarzazate
-  [1.0, 1.0]    // Ouarzazate back to Agadir
+  [0.2, 0.2],   /* Agadir to Marrakech */
+  [0.4, 0.4],   /* Marrakech to Zagora */
+  [0.6, 0.6],   /* Zagora to Erfoud */
+  [0.8, 0.8],   /* Erfoud to Ouarzazate */
+  [1.0, 1.0]    /* Ouarzazate back to Agadir */
 ]);
 </script>
   <div class="map-container">

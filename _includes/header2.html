@@ -36,6 +36,24 @@
       width:100%;
   }
 
+  /* Click-blocking overlay - hidden by default */
+  body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 3.5em; /* Stop above the header */
+      z-index: 10002; /* Above gallery, below popover and header */
+      pointer-events: none; /* Don't block clicks when hidden */
+      background: transparent;
+  }
+
+  /* Enable click blocking when popover is open */
+  body:has([popover]:popover-open)::before {
+      pointer-events: auto;
+  }
+
   .gallery {
     display: grid;
     width: 100%;
@@ -413,8 +431,11 @@ body:has(.lightbox-container:target > a) header {
   position: fixed;
   user-select: none;
   width: 100%;
-  z-index: 10002;
+  z-index: 10004;
   font-size: 0.5em;
+  overflow: hidden;
+  height: 7em;
+  display: block;
 }
 #header strong, #header b, #header a {
   color: #fff;
@@ -438,7 +459,26 @@ body:has(.lightbox-container:target > a) header {
   margin: 0;
   padding: 0;
 }
-#header nav > ul > li.icon::before {
+#header nav > ul > li {
+  display: inline-block;
+}
+#header nav > ul > li > button {
+  -moz-transition: background-color 0.5s ease;
+  -webkit-transition: background-color 0.5s ease;
+  -ms-transition: background-color 0.5s ease;
+  transition: background-color 0.5s ease;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-block;
+  letter-spacing: .1em;
+  padding: 1em 1.45em;
+  text-transform: uppercase;
+  font-size: 2em;
+  cursor: pointer;
+  font-family: inherit;
+}
+#header nav > ul > li > button.icon::before {
   color: #505051;
   float: right;
   margin-left: .75em;
@@ -448,68 +488,50 @@ body:has(.lightbox-container:target > a) header {
   font-style: normal;
   font-weight: normal;
   text-transform: none !important;
-  height: 4em;
 }
-#header nav > ul > li {
-  -moz-transition: background-color 0.5s ease;
-  -webkit-transition: background-color 0.5s ease;
-  -ms-transition: background-color 0.5s ease;
-  transition: background-color 0.5s ease;
-  border: 0;
-  color: #fff;
-  display: inline-block;
-  letter-spacing: .1em;
-  padding: 1em 1.45em;
-  text-transform: uppercase;
-  font-size: 2em;
+#header nav > ul > li > button:hover {
+  background-color: #242629;
 }
 
 
-footer h2 {
+[popover] h2 {
   text-transform: uppercase;
   margin: 0.5em 0;
 }
 
-
-footer {
+/* Popover styling */
+[popover] {
   position: fixed;
+  inset: unset;
   bottom: 3.5em;
   right: 0;
-  top:0;
-  left:0;
-  z-index: 10003;
-  display:none;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); /* For Safari */
-}
-footer > * {
-  position:absolute;
-  right:0;
-  bottom:0;
+  margin: 0;
   min-width: 20em;
+  max-height: calc(100vh - 4em);
+  overflow: auto;
   border: 1px solid #1f2224;
   background-color: #242629;
+  color: #a0a0a1; /* Override browser default (CanvasText/black) */
   padding: 1em 2em;
-  max-height: 100%;
-  overflow: auto;
+  z-index: 10003;
 }
-footer .inner.split > * {
+
+/* Hide the default backdrop (we're using body::before instead) */
+[popover]::backdrop {
+  display: none;
+}
+
+/* Blur only the gallery when popover is open, not the header */
+body:has([popover]:popover-open) .gallery {
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+}
+
+[popover] .inner.split > * {
   display: inline-block;
   vertical-align: top;
   margin: 1em;
 }
-nav > ul > li:hover {
-  background-color: #242629;
-}
-
-  body:has(nav > ul > li[title="spot"]:hover) #spot,
-  #spot:has(:hover) {
-    display:block;
-  }
-  body:has(nav > ul > li[title="about"]:hover) #about,
-  #about:has(:hover) {
-    display:block;
-  }
 
 input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="search"], input[type="url"], select, textarea {
   -moz-appearance: none;

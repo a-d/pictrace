@@ -2,13 +2,17 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // hide location/year selection menu after click
+    /* close spot popover when clicking location/year links */
     {
       const sel = document.getElementById('spot');
-      sel.querySelectorAll('a[href^="#"]').forEach(n => n.onclick=function() { sel.style.display='none'; setTimeout(() => sel.style.display=null, 100); });
+      sel.querySelectorAll('a[href^="#"]').forEach(n => {
+        n.addEventListener('click', function(e) {
+          sel.hidePopover();
+        });
+      });
     }
 
-    // add location scrolling indicator
+    /* add location scrolling indicator */
     {
       const locationIndicator = document.getElementById("location-indicator");
       const locationItems = document.querySelectorAll(".gallery .gallery-item");
@@ -19,7 +23,7 @@
             locationIndicator.textContent = entry.target.getAttribute("location");
           }
         });
-      }, { threshold: 1 }); // 100% visible
+      }, { threshold: 1 }); /* 100% visible */
       locationItems.forEach(sec => locationObserver.observe(sec));
 
       let timer = setTimeout(() => locationIndicator.style.opacity = 0, 100);
@@ -30,7 +34,7 @@
       });
     }
 
-    // Add click event listeners to all gallery links
+    /* Add click event listeners to all gallery links */
     const closeLink = document.querySelector('a.close');
     if(closeLink)
       document.querySelectorAll('.gallery-item > a.image').forEach(link => {
@@ -48,13 +52,13 @@
           return;
       }
 
-      // Common EXIF tags people usually want to see
+      /* Common EXIF tags people usually want to see */
       const priorityTags = [
           'Make', 'Model', 'DateTimeOriginal', 'ExposureTime',
           'FNumber', 'ISOSpeedRatings', 'FocalLength'
       ];
 
-      // Display priority tags
+      /* Display priority tags */
       priorityTags.forEach(tag => {
           let v = exifData[tag];
           if (v !== undefined && v !== null && v.toString() != "NaN") {
@@ -79,7 +83,7 @@
 
   function formatExifValue(tag, value) {
       if (tag === 'ExposureTime') {
-          // Convert to fraction for exposure time
+          /* Convert to fraction for exposure time */
           if (value < 1) {
               return `1/${Math.round(1/value)}s`;
           }
