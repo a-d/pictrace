@@ -53,7 +53,7 @@
 {% assign lastImage = forloop.last %}
 {% capture current_id %}p-{{ year.name }}-{{ locationName }}-{{ image.name }}{% endcapture %}
 
-{% include {{ include.inner }} image=image year=year location=location current_id=current_id prev_id=prev_id firstImage=firstImage firstLoc=firstLoc firstYear=firstYear lastImage=lastImage lastLoc=lastLoc lastYear=lastYear %}
+{% include {{ include.inner }} image=image year=year location=location locationName=locationName current_id=current_id prev_id=prev_id firstImage=firstImage firstLoc=firstLoc firstYear=firstYear lastImage=lastImage lastLoc=lastLoc lastYear=lastYear %}
 {% assign prev_id = current_id %}
 
 {% endfor %}

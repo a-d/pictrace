@@ -9,14 +9,25 @@ This is a Jekyll-based photography blog hosted on GitHub Pages. The site display
 ```
 pictrace/
 ├── _config.yml          # Jekyll configuration
-├── _layouts/            # Page layouts (default2.html)
+├── _data/
+│   └── journeys.yml     # Registry of journey pages
+├── _layouts/
+│   └── default2.html    # Main page layout
 ├── _includes/           # Reusable components
+│   ├── header2.html     # HTML head content (CSS/JS references)
 │   ├── iterator.html    # Core iteration logic for images
 │   ├── gallery.html     # Gallery container
 │   ├── gallery_item.html # Individual gallery items
 │   ├── popup.html       # Lightbox/popup container
-│   └── popup_item.html  # Individual popup items
-├── journeys/            # Location-specific journey pages (SVG maps)
+│   ├── popup_item.html  # Individual popup items
+│   └── journeys/        # Location-specific journey content
+│       ├── Namibia.html
+│       └── Morocco.html
+├── assets/              # Static assets
+│   ├── css/
+│   │   └── main.css     # Combined site styles
+│   └── js/
+│       └── main.js      # Combined site JavaScript
 ├── images/              # Photo storage
 │   └── {year}/          # Year directories (2024, 2025, 2026, etc.)
 │       └── {index}_{Location}/  # Location directories
@@ -85,6 +96,26 @@ The `exif` config defines which camera metadata to show:
 - ExposureTime (shutter speed)
 - ISOSpeedRatings
 
+## Assets (CSS & JavaScript)
+
+### External Asset Files
+All site-wide styles and scripts are in external files:
+- **`assets/css/main.css`** - Combined site styles including:
+  - Gallery layout and responsive grid
+  - Lightbox/popup styles
+  - Journey map styles (`.map`, `.map-container`, `.travel-path`)
+  - Navigation and UI components
+- **`assets/js/main.js`** - Combined site JavaScript including:
+  - `makeProgressMapper()` - Factory for journey-specific animation curves
+  - Journey map scroll animation (with CSS scroll-timeline fallback)
+  - Gallery navigation and EXIF display
+  - Location indicator functionality
+
+### Adding New Styles/Scripts
+- Add site-wide styles to `assets/css/main.css`
+- Add site-wide JavaScript to `assets/js/main.js`
+- Journey-specific progress functions remain inline in journey files (see Journey Pages section)
+
 ## Liquid Templating Patterns
 
 ### Iterator Pattern
@@ -102,23 +133,78 @@ The `_includes/iterator.html` is the core component that:
 - `image.path` - Full path to image file
 - `image.name` - Image filename
 
-### Including Journey Pages
-Location-specific content (like SVG maps) can be added by creating `journeys/{LocationName}.html`. These are automatically included in the gallery via:
-```liquid
-{% include_relative {{ location_hint_exists.path }} %}
-```
-
 ## Journey Pages (Custom Location Content)
 
-Journey pages in `journeys/` directory can contain:
-- SVG maps with animated travel paths
-- Custom CSS scoped to the map component
-- JavaScript for scroll-driven animations
+Journey pages provide custom content (like SVG maps) for specific locations. They use an include-based architecture:
+
+### Architecture
+- **Content files**: Located in `_includes/journeys/{LocationName}.html`
+- **Data registry**: `_data/journeys.yml` tracks which journeys exist
+- **Include mechanism**: `gallery_item.html` uses the data file to conditionally include journey content
+- **Styles**: Journey map styles are in `assets/css/main.css` (not inline)
+- **Scripts**: Core journey functionality is in `assets/js/main.js`
+
+### File Structure
+```
+_includes/
+└── journeys/
+    ├── Namibia.html
+    └── Morocco.html
+_data/
+└── journeys.yml      # Registry of available journeys
+assets/
+├── css/
+│   └── main.css      # Contains .map, .travel-path styles
+└── js/
+    └── main.js       # Contains makeProgressMapper, scroll animation
+```
+
+### Journey Data File (`_data/journeys.yml`)
+```yaml
+- name: Namibia
+- name: Morocco
+```
+
+### Journey Content Files
+Each journey file in `_includes/journeys/` should:
+- Have Jekyll front matter (`---` delimiters, can be empty)
+- Contain a `<div class="map">` with `pathId` and `progressFn` attributes
+- Include **only** the journey-specific progress function inline (uses `makeProgressMapper` from main.js)
+- Contain the SVG map content
+
+Example structure:
+```html
+---
+---
+<div class="map" pathId="path23" progressFn="namibiaProgress" style="grid-column: 1; grid-row: span 10; --bg: url('...')">
+<script>
+/* Journey-specific progress mapping - must be inline to define before main.js runs */
+window.namibiaProgress = window.makeProgressMapper([
+  [0.0, 0.07],
+  [0.4, 0.6],
+  [0.7, 0.7],
+  [0.9, 0.8],
+  [1.0, 1.0]
+]);
+</script>
+  <div class="map-container">
+    <div class="map-wrapper">
+      <svg>...</svg>
+    </div>
+  </div>
+</div>
+```
 
 ### SVG Map Conventions
-- Use `pathId` attribute on container to reference the travel path
-- Path element should have class `travel-path` for CSS animations
-- Include fallback JavaScript for browsers without CSS scroll-driven animations
+- Use `pathId` attribute on container to reference the travel path element
+- Path element should have `id` matching `pathId` value
+- Path uses `stroke-dasharray` and `stroke-dashoffset` for animation
+
+### Adding a New Journey
+1. Create `_includes/journeys/{LocationName}.html` with front matter
+2. Add entry to `_data/journeys.yml`: `- name: {LocationName}`
+3. Location name must exactly match the directory name (without index prefix)
+4. Include only the progress function inline; styles are in main.css
 
 ## HTML/CSS Patterns
 
@@ -224,10 +310,20 @@ Example preferred structure:
 - Check responsive behavior on different screen sizes
 
 ### When Adding Journey Pages
-1. Create file as `journeys/{LocationName}.html` (exact match to directory name)
-2. Include self-contained CSS within `<style>` tags
-3. Include self-contained JavaScript within `<script>` tags
-4. Use relative positioning within the gallery grid
+1. Create `_includes/journeys/{LocationName}.html` with front matter
+2. Add entry to `_data/journeys.yml`: `- name: {LocationName}`
+3. Add only the inline `<script>` for the progress function
+4. All other styles/scripts are already in main.css/main.js
+
+### When Modifying Styles
+- Edit `assets/css/main.css` for site-wide changes
+- Journey map styles (`.map`, `.map-container`, `.travel-path`) are in main.css
+- Test across different screen sizes
+
+### When Modifying JavaScript
+- Edit `assets/js/main.js` for site-wide changes
+- `makeProgressMapper` must remain globally accessible for journey files
+- Test with and without CSS scroll-timeline support
 
 ## Common Tasks
 
@@ -243,4 +339,6 @@ DSCF0123.jpg        (natural sort after ~ files)
 Simply add images with the new year in the gulp prompt - directories are created automatically.
 
 ### Create Location-Specific Content
-Create `journeys/{LocationName}.html` with custom HTML/SVG/CSS/JS.
+1. Create `_includes/journeys/{LocationName}.html`
+2. Add to `_data/journeys.yml`
+3. Include SVG and progress function script
