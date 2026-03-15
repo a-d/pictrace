@@ -1,4 +1,26 @@
-# List of locations that have journey map content
-# Add location names here (without the index prefix) to enable journey maps
-- Namibia
-- Morocco
+# Journey map configurations
+# Each journey defines metadata for the map animation and display
+
+- name: Namibia
+  pathId: path23
+  progressFn: namibiaProgress
+  bgImageIndex: 0
+  progressCoords:
+    - [0.0, 0.07]
+    - [0.4, 0.6]
+    - [0.7, 0.7]
+    - [0.9, 0.8]
+    - [1.0, 1.0]
+
+
+- name: Morocco
+  pathId: path33
+  progressFn: moroccoProgress
+  bgImageIndex: 98
+  progressCoords: # 5 stops: Agadir -> Marrakech -> Zagora -> Erfoud -> Ouarzazate -> Agadir
+    - [0.0, 0.0]
+    - [0.2, 0.2]
+    - [0.4, 0.4]
+    - [0.6, 0.6]
+    - [0.8, 0.8]
+    - [1.0, 1.0]

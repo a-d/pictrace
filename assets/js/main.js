@@ -183,6 +183,65 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  /* ========================================
+     Hover-based popover for mouse devices
+     ======================================== */
+  {
+    /* Check for hover capability using CSS media queries */
+    var hasHover = window.matchMedia('(hover: hover)').matches;
+    var hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    var supportsHover = hasHover && hasFinePointer;
+
+    if (supportsHover) {
+      var hideTimeout = null;
+      var HIDE_DELAY = 150; /* ms delay before hiding popover */
+      var currentPopover = null;
+
+      document.querySelectorAll('button[popovertarget]').forEach(function(button) {
+        var targetId = button.getAttribute('popovertarget');
+        var popover = document.getElementById(targetId);
+        if (!popover) return;
+
+        /* Prevent default click from toggling popover */
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+        });
+
+        /* Show on button hover */
+        button.addEventListener('mouseenter', function() {
+          clearTimeout(hideTimeout);
+          /* Hide any other open popover */
+          if (currentPopover && currentPopover !== popover) {
+            currentPopover.hidePopover();
+          }
+          popover.showPopover();
+          currentPopover = popover;
+        });
+
+        /* Start hide timer when leaving button */
+        button.addEventListener('mouseleave', function() {
+          hideTimeout = setTimeout(function() {
+            popover.hidePopover();
+            if (currentPopover === popover) currentPopover = null;
+          }, HIDE_DELAY);
+        });
+
+        /* Cancel hide when entering popover */
+        popover.addEventListener('mouseenter', function() {
+          clearTimeout(hideTimeout);
+        });
+
+        /* Hide when leaving popover */
+        popover.addEventListener('mouseleave', function() {
+          hideTimeout = setTimeout(function() {
+            popover.hidePopover();
+            if (currentPopover === popover) currentPopover = null;
+          }, HIDE_DELAY);
+        });
+      });
+    }
+  }
 });
 
 function displayEXIFData(img, ul) {

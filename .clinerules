@@ -10,19 +10,19 @@ This is a Jekyll-based photography blog hosted on GitHub Pages. The site display
 pictrace/
 ├── _config.yml          # Jekyll configuration
 ├── _data/
-│   └── journeys.yml     # Registry of journey pages
+│   └── journeys.yml     # Journey map configurations (metadata + animation settings)
 ├── _layouts/
 │   └── default2.html    # Main page layout
 ├── _includes/           # Reusable components
 │   ├── header2.html     # HTML head content (CSS/JS references)
 │   ├── iterator.html    # Core iteration logic for images
 │   ├── gallery.html     # Gallery container
-│   ├── gallery_item.html # Individual gallery items
+│   ├── gallery_item.html # Individual gallery items + journey map template
 │   ├── popup.html       # Lightbox/popup container
 │   ├── popup_item.html  # Individual popup items
-│   └── journeys/        # Location-specific journey content
-│       ├── Namibia.html
-│       └── Morocco.html
+│   └── journeys/        # SVG-only journey map content
+│       ├── Namibia.svg  # SVG map for Namibia
+│       └── Morocco.svg  # SVG map for Morocco
 ├── assets/              # Static assets
 │   ├── css/
 │   │   └── main.css     # Combined site styles
@@ -114,7 +114,7 @@ All site-wide styles and scripts are in external files:
 ### Adding New Styles/Scripts
 - Add site-wide styles to `assets/css/main.css`
 - Add site-wide JavaScript to `assets/js/main.js`
-- Journey-specific progress functions remain inline in journey files (see Journey Pages section)
+- Journey progress functions are now generated from YAML data (no inline scripts needed)
 
 ## Liquid Templating Patterns
 
@@ -135,61 +135,83 @@ The `_includes/iterator.html` is the core component that:
 
 ## Journey Pages (Custom Location Content)
 
-Journey pages provide custom content (like SVG maps) for specific locations. They use an include-based architecture:
+Journey pages provide custom SVG maps for specific locations. The architecture separates data (YAML) from content (SVG).
 
 ### Architecture
-- **Content files**: Located in `_includes/journeys/{LocationName}.html`
-- **Data registry**: `_data/journeys.yml` tracks which journeys exist
-- **Include mechanism**: `gallery_item.html` uses the data file to conditionally include journey content
-- **Styles**: Journey map styles are in `assets/css/main.css` (not inline)
-- **Scripts**: Core journey functionality is in `assets/js/main.js`
+- **Data file**: `_data/journeys.yml` contains all journey metadata and animation configuration
+- **SVG files**: `_includes/journeys/{LocationName}.svg` contain only the SVG map content
+- **Template**: `gallery_item.html` generates the map container, script, and includes the SVG
+- **Styles**: Journey map styles are in `assets/css/main.css`
+- **Scripts**: Core journey functionality (`makeProgressMapper`) is in `assets/js/main.js`
 
 ### File Structure
 ```
+_data/
+└── journeys.yml          # All journey metadata and animation config
 _includes/
 └── journeys/
-    ├── Namibia.html
-    └── Morocco.html
-_data/
-└── journeys.yml      # Registry of available journeys
+    ├── Namibia.svg       # SVG content only
+    └── Morocco.svg       # SVG content only
 assets/
 ├── css/
-│   └── main.css      # Contains .map, .travel-path styles
+│   └── main.css          # Contains .map, .travel-path styles
 └── js/
-    └── main.js       # Contains makeProgressMapper, scroll animation
+    └── main.js           # Contains makeProgressMapper, scroll animation
 ```
 
 ### Journey Data File (`_data/journeys.yml`)
+Contains all journey metadata including animation configuration:
 ```yaml
 - name: Namibia
+  pathId: path23              # SVG path element ID for animation
+  progressFn: namibiaProgress # JavaScript function name for progress mapping
+  bgImageIndex: 0             # Index into images_sorted for background image
+  comment: "Description of the journey animation timing"
+  progressCoords:             # Animation timing curve coordinates
+    - [0.0, 0.07]             # [scroll_progress, path_progress]
+    - [0.4, 0.6]
+    - [0.7, 0.7]
+    - [0.9, 0.8]
+    - [1.0, 1.0]
+
 - name: Morocco
+  pathId: path33
+  progressFn: moroccoProgress
+  bgImageIndex: 98
+  comment: "5 stops: Agadir -> Marrakech -> Zagora -> Erfoud -> Ouarzazate -> Agadir"
+  progressCoords:
+    - [0.0, 0.0]
+    - [0.2, 0.2]
+    - [0.4, 0.4]
+    - [0.6, 0.6]
+    - [0.8, 0.8]
+    - [1.0, 1.0]
 ```
 
-### Journey Content Files
-Each journey file in `_includes/journeys/` should:
-- Have Jekyll front matter (`---` delimiters, can be empty)
-- Contain a `<div class="map">` with `pathId` and `progressFn` attributes
-- Include **only** the journey-specific progress function inline (uses `makeProgressMapper` from main.js)
-- Contain the SVG map content
-
-Example structure:
+### Journey SVG Files (`_includes/journeys/{LocationName}.svg`)
+Each journey file contains **only** the SVG content:
 ```html
----
----
-<div class="map" pathId="path23" progressFn="namibiaProgress" style="grid-column: 1; grid-row: span 10; --bg: url('...')">
-<script>
-/* Journey-specific progress mapping - must be inline to define before main.js runs */
-window.namibiaProgress = window.makeProgressMapper([
-  [0.0, 0.07],
-  [0.4, 0.6],
-  [0.7, 0.7],
-  [0.9, 0.8],
-  [1.0, 1.0]
-]);
-</script>
+<svg ...>
+  <!-- Map graphics -->
+  <path id="path23" class="travel-path" ... />  <!-- ID must match pathId in YAML -->
+  <!-- Location markers, labels, etc. -->
+</svg>
+```
+
+### Generated HTML Structure
+The `gallery_item.html` template generates the complete map structure from YAML data:
+```html
+<div class="map" pathId="path23" progressFn="namibiaProgress" 
+     style="grid-column: 1; grid-row: span 10; --bg: url('...')" count="123">
+  <script>
+  /* Comment from YAML */
+  window.namibiaProgress = window.makeProgressMapper([
+    [0.0, 0.07], [0.4, 0.6], [0.7, 0.7], [0.9, 0.8], [1.0, 1.0]
+  ]);
+  </script>
   <div class="map-container">
     <div class="map-wrapper">
-      <svg>...</svg>
+      <!-- SVG included from _includes/journeys/Namibia.html -->
     </div>
   </div>
 </div>
@@ -197,14 +219,20 @@ window.namibiaProgress = window.makeProgressMapper([
 
 ### SVG Map Conventions
 - Use `pathId` attribute on container to reference the travel path element
-- Path element should have `id` matching `pathId` value
+- Path element should have `id` matching `pathId` value in YAML
 - Path uses `stroke-dasharray` and `stroke-dashoffset` for animation
+- Add `class="travel-path"` to the animated path element
 
 ### Adding a New Journey
-1. Create `_includes/journeys/{LocationName}.html` with front matter
-2. Add entry to `_data/journeys.yml`: `- name: {LocationName}`
-3. Location name must exactly match the directory name (without index prefix)
-4. Include only the progress function inline; styles are in main.css
+1. Create `_includes/journeys/{LocationName}.svg` with SVG content only
+2. Add entry to `_data/journeys.yml` with all required fields:
+   - `name` - Must match the location directory name (without index prefix)
+   - `pathId` - ID of the SVG path element to animate
+   - `progressFn` - Unique JavaScript function name
+   - `bgImageIndex` - Index of background image in sorted image list
+   - `comment` - Description for the generated script
+   - `progressCoords` - Array of [scroll, path] coordinate pairs
+3. Ensure SVG path element has matching `id` attribute
 
 ## HTML/CSS Patterns
 
@@ -310,10 +338,10 @@ Example preferred structure:
 - Check responsive behavior on different screen sizes
 
 ### When Adding Journey Pages
-1. Create `_includes/journeys/{LocationName}.html` with front matter
-2. Add entry to `_data/journeys.yml`: `- name: {LocationName}`
-3. Add only the inline `<script>` for the progress function
-4. All other styles/scripts are already in main.css/main.js
+1. Create `_includes/journeys/{LocationName}.svg` with SVG content only (no wrapper HTML)
+2. Add complete entry to `_data/journeys.yml` with all fields (name, pathId, progressFn, bgImageIndex, comment, progressCoords)
+3. Ensure SVG path element `id` matches `pathId` in YAML
+4. All wrapper HTML and scripts are generated by `gallery_item.html`
 
 ### When Modifying Styles
 - Edit `assets/css/main.css` for site-wide changes
@@ -338,7 +366,17 @@ DSCF0123.jpg        (natural sort after ~ files)
 ### Add a New Year
 Simply add images with the new year in the gulp prompt - directories are created automatically.
 
-### Create Location-Specific Content
-1. Create `_includes/journeys/{LocationName}.html`
-2. Add to `_data/journeys.yml`
-3. Include SVG and progress function script
+### Create Location-Specific Content (Journey Map)
+1. Create `_includes/journeys/{LocationName}.svg` with SVG content only
+2. Add complete entry to `_data/journeys.yml`:
+   ```yaml
+   - name: LocationName
+     pathId: pathXX
+     progressFn: locationNameProgress
+     bgImageIndex: 0
+     comment: "Description of journey stops"
+     progressCoords:
+       - [0.0, 0.0]
+       - [1.0, 1.0]
+   ```
+3. Ensure SVG has path with matching `id` and `class="travel-path"`

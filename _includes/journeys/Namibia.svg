@@ -1,26 +1,13 @@
-<div class="map" pathId="path23" progressFn="namibiaProgress" style="grid-column: 1; grid-row: span 10; --bg: url('{{ site.baseurl }}/{{site.image_root}}/{{ year.name }}/{{ location.name }}/{{ site.image_fulls_loc }}/{{ images_sorted[0].name }}')" count="{{ images_sorted.size }}">
-<script>
-/* Namibia-specific progress mapping for animation timing */
-window.namibiaProgress = window.makeProgressMapper([
-  [0.0, 0.07],
-  [0.4, 0.6],
-  [0.7, 0.7],
-  [0.9, 0.8],
-  [1.0, 1.0]
-]);
-</script>
-  <div class="map-container">
-    <div class="map-wrapper">
-      <svg
-          width="193.44745mm"
-          height="199.64392mm"
-          viewBox="0 0 193.44745 199.64392"
-          version="1.1"
-          id="svg1"
-          xml:space="preserve"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:svg="http://www.w3.org/2000/svg"><defs
+<svg
+    width="193.44745mm"
+    height="199.64392mm"
+    viewBox="0 0 193.44745 199.64392"
+    version="1.1"
+    id="svg1"
+    xml:space="preserve"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:svg="http://www.w3.org/2000/svg"><defs
      id="defs1"><linearGradient
        id="linearGradient21"><stop
          style="stop-color:#fefbf1;stop-opacity:0.30000001;"
@@ -426,6 +413,3 @@ window.namibiaProgress = window.makeProgressMapper([
            style="stroke-width:0.286"
            x="103.31098"
            y="133.30675">Kalahari</tspan></text></g></g></svg>
-    </div>
-  </div>
-</div>
