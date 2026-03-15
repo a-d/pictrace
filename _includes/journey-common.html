@@ -58,12 +58,12 @@
 
 <script>
 (function() {
-  // Only define once
+  /* Only define once */
   if (window.journeyMapInitialized) return;
   window.journeyMapInitialized = true;
 
-  // Progress mapping function factory for smooth animation
-  // Each journey can have its own progress curve
+  /* Progress mapping function factory for smooth animation */
+  /* Each journey can have its own progress curve */
   window.makeProgressMapper = function(points) {
     return function(t) {
       if (t <= points[0][0]) return points[0][1];
@@ -78,7 +78,7 @@
 
       const u = (t - p1[0]) / (p2[0] - p1[0]);
 
-      // Catmull–Rom spline
+      /* Catmull–Rom spline */
       const y =
         0.5 *
         ((2 * p1[1]) +
@@ -90,17 +90,17 @@
     };
   };
 
-  // Default linear progress (can be overridden per journey)
+  /* Default linear progress (can be overridden per journey) */
   var defaultProgress = function(t) { return t; };
 
-  // Check if CSS scroll-driven animations are supported
+  /* Check if CSS scroll-driven animations are supported */
   const supportsScrollTimeline = CSS.supports('animation-timeline', 'view()');
 
   if (!supportsScrollTimeline) {
     const gallery = document.querySelector('.gallery');
     const maps = [];
 
-    // Initialize all journey maps
+    /* Initialize all journey maps */
     function initJourneyMaps() {
       document.querySelectorAll('.map[pathId]').forEach(function(mapElement) {
         if (mapElement.dataset.journeyInitialized) return;
@@ -114,7 +114,7 @@
         path.style.strokeDasharray = pathLength;
         path.style.strokeDashoffset = pathLength;
 
-        // Get journey-specific progress mapper if defined, otherwise use default
+        /* Get journey-specific progress mapper if defined, otherwise use default */
         const progressFnName = mapElement.getAttribute('progressFn');
         const progressFn = (progressFnName && window[progressFnName]) ? window[progressFnName] : defaultProgress;
 
@@ -143,7 +143,7 @@
         if (totalDistance > 0) {
           scrollPercent = Math.max(0, Math.min(1, scrolledDistance / totalDistance));
         }
-        // Use journey-specific progress function
+        /* Use journey-specific progress function */
         scrollPercent = map.progressFn(scrollPercent);
 
         const drawLength = map.pathLength * scrollPercent;
@@ -151,7 +151,7 @@
       });
     }
 
-    // Initialize on DOM ready and handle dynamic content
+    /* Initialize on DOM ready and handle dynamic content */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function() {
         initJourneyMaps();
@@ -162,7 +162,7 @@
       updateAllPaths();
     }
 
-    // Single event listeners for all maps
+    /* Single event listeners for all maps */
     window.addEventListener('scroll', updateAllPaths);
     window.addEventListener('resize', function() {
       initJourneyMaps();

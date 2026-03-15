@@ -12,15 +12,15 @@ layout: default2
   <h1><a href="/"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
   <nav>
     <ul>
-      <li title="spot" class="icon fa-location-arrow">Spot</li>
-      <li title="about" class="icon fa-info-circle">About</li>
+      <li><button popovertarget="spot" class="icon fa-location-arrow">Select</button></li>
+      <li><button popovertarget="about" class="icon fa-info-circle">About</button></li>
     </ul>
   </nav>
 </header>
 
 
 <!-- location selection -->
-<footer id="spot">
+<div id="spot" popover>
   <div class="inner split">
     <div>
       <section>
@@ -67,10 +67,10 @@ layout: default2
       </section>
     </div>
   </div>
-</footer>
+</div>
 
-<!-- Footer -->
-<footer id="about">
+<!-- About -->
+<div id="about" popover>
   <div class="inner split">
     <div>
       <section>
@@ -180,4 +180,5 @@ layout: default2
       </section>
     </div>
   </div>
-</footer>
+</div>
+
