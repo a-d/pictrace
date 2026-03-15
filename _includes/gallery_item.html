@@ -7,20 +7,20 @@
 {%- comment -%} Journey map: check if this location has a journey configuration {%- endcomment -%}
 {% assign journey = site.data.journeys | where: "name", include.locationName | first %}
 {% if journey %}
-<div class="map" pathId="{{ journey.pathId }}" progressFn="{{ journey.progressFn }}" style="grid-column: 1; grid-row: span 10; --bg: url('{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_fulls_loc }}/{{ include.images_sorted[journey.bgImageIndex].name }}')" count="{{ include.images_sorted.size }}">
+<aside class="map" pathId="{{ journey.pathId }}" progressFn="{{ journey.progressFn }}" style="grid-column: 1; grid-row: span 10; --bg: url('{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_fulls_loc }}/{{ include.images_sorted[journey.bgImageIndex].name }}')" count="{{ include.images_sorted.size }}">
 <script>
 window.{{ journey.progressFn }} = window.makeProgressMapper([
   {% for coord in journey.progressCoords %}[{{ coord[0] }}, {{ coord[1] }}]{% unless forloop.last %},
   {% endunless %}{% endfor %}
 ]);
 </script>
-  <div class="map-container">
+  <figure class="map-container">
     <div class="map-wrapper">
       {% capture journey_path %}journeys/{{ journey.name }}.svg{% endcapture %}
       {% include {{ journey_path }} %}
     </div>
-  </div>
-</div>
+  </figure>
+</aside>
 {% endif %}
 {% endif %}
 

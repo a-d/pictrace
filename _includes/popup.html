@@ -1,8 +1,8 @@
-<div id="location-indicator"></div>
+<aside id="location-indicator" aria-live="polite"></aside>
 
-<div class="lightbox">
+<section class="lightbox" aria-label="Image viewer">
     <a href="#p" class="close">&times;</a>
     {% include iterator.html inner='popup_item.html' %}
-</div>
+</section>
 
-<div id="p" class="lightbox"></div>
+<section id="p" class="lightbox"></section>
