@@ -1,0 +1,667 @@
+/* Main site styles - extracted from _includes/header2.html */
+
+:root {
+    color-scheme: only light;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    font-weight: 100;
+    font-family: "Source Sans Pro", Helvetica, sans-serif;
+    color: #c4b9b9;
+}
+
+body {
+    color: #a0a0a1;
+    font-family: "Source Sans Pro", Helvetica, sans-serif;
+    font-size: 13pt;
+    letter-spacing: .025em;
+    line-height: 1.65;
+    overflow-x: hidden;
+    background: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+/* Click-blocking overlay - hidden by default */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 3.5em; /* Stop above the header */
+    z-index: 10002; /* Above gallery, below popover and header */
+    pointer-events: none; /* Don't block clicks when hidden */
+    background: transparent;
+}
+
+/* Enable click blocking when popover is open */
+body:has([popover]:popover-open)::before {
+    pointer-events: auto;
+}
+
+.gallery {
+    display: grid;
+    width: 100%;
+    grid-auto-flow: dense;
+    grid-template-columns: repeat(auto-fill, minmax(max(300px, 100% / 5), 1fr));
+    background-image: var(--bg);
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.gallery-item {
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+    aspect-ratio: 4/3;
+}
+
+/* Sequential loading animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Apply different animation delays for each image */
+.gallery-item:nth-child(24+0) { animation-delay: 0ms; }
+.gallery-item:nth-child(24n+1) { animation-delay: 50ms; }
+.gallery-item:nth-child(24n+2) { animation-delay: 100ms; }
+.gallery-item:nth-child(24n+3) { animation-delay: 150ms; }
+.gallery-item:nth-child(24n+4) { animation-delay: 200ms; }
+.gallery-item:nth-child(24n+5) { animation-delay: 250ms; }
+.gallery-item:nth-child(24n+6) { animation-delay: 300ms; }
+.gallery-item:nth-child(24n+7) { animation-delay: 350ms; }
+.gallery-item:nth-child(24n+8) { animation-delay: 400ms; }
+.gallery-item:nth-child(24n+9) { animation-delay: 450ms; }
+.gallery-item:nth-child(24n+10) { animation-delay: 500ms; }
+.gallery-item:nth-child(24n+11) { animation-delay: 550ms; }
+.gallery-item:nth-child(24n+12) { animation-delay: 600ms; }
+.gallery-item:nth-child(24n+13) { animation-delay: 650ms; }
+.gallery-item:nth-child(24n+14) { animation-delay: 700ms; }
+.gallery-item:nth-child(24n+15) { animation-delay: 750ms; }
+.gallery-item:nth-child(24n+16) { animation-delay: 800ms; }
+.gallery-item:nth-child(24n+17) { animation-delay: 850ms; }
+.gallery-item:nth-child(24n+18) { animation-delay: 900ms; }
+.gallery-item:nth-child(24n+19) { animation-delay: 950ms; }
+.gallery-item:nth-child(24n+20) { animation-delay: 1000ms; }
+.gallery-item:nth-child(24n+21) { animation-delay: 1050ms; }
+.gallery-item:nth-child(24n+22) { animation-delay: 1100ms; }
+.gallery-item:nth-child(24n+23) { animation-delay: 1150ms; }
+
+.gallery-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 0.1em solid black;
+}
+
+.gallery-item::after {
+    background-image: -moz-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
+    background-image: -webkit-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
+    background-image: -ms-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
+    background-image: linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
+    -moz-pointer-events: none;
+    -webkit-pointer-events: none;
+    -ms-pointer-events: none;
+    pointer-events: none;
+    background-size: cover;
+    content: "";
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+/* Lightbox styles */
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 20000;
+    padding: 5em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); /* For Safari */
+    opacity: 0;
+    transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+.lightbox:has(:target) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.5s ease, visibility 0s linear;
+}
+
+.lightbox-container:target {
+    display: flex;
+}
+
+.lightbox-container {
+    position: relative;
+    width: auto;
+    height: auto;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-container img {
+    max-width: 100%;
+    max-height: calc(100vh - 2em);
+    object-fit: contain;
+    z-index: 5;
+}
+
+#p {
+    height: 0;
+    width: 0;
+    padding: 0;
+}
+
+.close {
+    position: absolute;
+    top: 1.5em;
+    right: 1.5em;
+    color: white;
+    font-size: 2em;
+    text-decoration: none;
+    width: 1.5em;
+    height: 1.5em;
+    text-align: center;
+    line-height: 1.5em;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 1010;
+}
+
+.close::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+.close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Navigation arrows */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 3em;
+    text-decoration: none;
+    width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 1010;
+    transition: background 0.3s ease;
+}
+
+.nav-arrow:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.nav-prev {
+    left: -1.7em;
+    padding-right: 0.1em;
+}
+
+.nav-prev::before {
+    content: "";
+    position: fixed;
+    top: -10vh;
+    left: -50vw;
+    right: 0;
+    bottom: -10vh;
+}
+
+.nav-next {
+    right: -1.7em;
+    padding-left: 0.1em;
+}
+
+.nav-next::before {
+    content: "";
+    position: fixed;
+    top: -10vh;
+    left: 0;
+    right: -50vw;
+    bottom: -10vh;
+}
+
+/* Empty lightbox for clean closing */
+#gallery-close {
+    background-color: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+#gallery-close:target {
+    display: none;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+}
+
+@media (max-width: 768px) {
+    .lightbox {
+        padding: 3em;
+    }
+    ul.exif-data,
+    #header > h1 > a > strong,
+    .nav-prev,
+    .close::before {
+        display: none !important;
+    }
+    #header nav > ul > li {
+        width: 5em;
+        overflow: hidden;
+    }
+    #header nav > ul > li > button {
+        color: transparent !important;
+    }
+    #header nav > ul > li > button.icon::before {
+        right: 1.6em !important;
+    }
+    .nav-next {
+        font-size: 0;
+    }
+    .nav-next::before {
+        top: -100vh;
+        left: -100vw;
+        right: -100vw;
+        bottom: -100vh;
+    }
+    .lightbox-container {
+        z-index: 1;
+    }
+}
+
+@media (max-width: 899px) {
+    .gallery .map {
+        display: none;
+    }
+    .gallery-item {
+        filter: brightness(1.1);
+    }
+    .gallery-item img {
+        border-color: white;
+    }
+    .lightbox {
+        padding: 2em;
+    }
+    * {
+        background-image: none !important;
+    }
+}
+
+.gallery > .year > .location > article > a.year {
+    position: absolute;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #eee;
+    padding: 0.2em 0.3em;
+    margin: 2.8em 0.3em;
+    font-size: 1.2em;
+}
+
+.gallery > .year > .location > article > a.location {
+    position: absolute;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #eee;
+    padding: 0.2em 0.3em;
+    margin: 0.3em 0.3em;
+    font-size: 1.2em;
+}
+
+ul.exif-data {
+    letter-spacing: 0.025em;
+    display: inline;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2em 2em 1em 2em;
+    background-image: -moz-linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
+    background-image: -webkit-linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
+    background-image: -ms-linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
+    background-image: linear-gradient(to top, rgba(16,16,16,0.45) 25%, rgba(16,16,16,0) 100%);
+    color: #fff;
+    overflow: hidden;
+    z-index: 10;
+}
+
+ul.exif-data > li {
+    display: inline;
+    cursor: default;
+    white-space: nowrap;
+}
+
+ul.exif-data > li::before {
+    font: normal normal normal 1em/1 FontAwesome;
+    padding: 0 0.3em 0 0.5em;
+}
+
+ul.exif-data > li[tag="Model"]::before {
+    content: "\f083";
+}
+
+ul.exif-data > li[tag="ExposureTime"]::before {
+    content: "\f017";
+}
+
+ul.exif-data > li[tag="FNumber"]::before {
+    content: "\f192";
+}
+
+ul.exif-data > li[tag="ISOSpeedRatings"]::before {
+    content: "\f0eb";
+}
+
+ul.exif-data > li[tag="FocalLength"]::before {
+    content: "\f012";
+}
+
+ul.exif-data > li[tag="Make"],
+ul.exif-data > li[tag="DateTimeOriginal"] {
+    display: none;
+}
+
+.gallery > .year,
+.gallery > .year > .location {
+    display: contents;
+}
+
+.gallery:has(:target) > .year > .location {
+    display: none;
+}
+
+.gallery > .year:target > .location,
+.gallery > .year > .location:target {
+    display: contents !important;
+}
+
+body:has(.lightbox-container:target > a) header {
+    display: none;
+}
+
+#header {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    -moz-transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -ms-transform: translateY(0);
+    transform: translateY(0);
+    -moz-transition: -moz-transform 1s ease;
+    -webkit-transition: -webkit-transform 1s ease;
+    -ms-transition: -ms-transform 1s ease;
+    transition: transform 1s ease;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    background: #1f2224;
+    bottom: 0em;
+    left: 0;
+    line-height: 3em;
+    position: fixed;
+    user-select: none;
+    width: 100%;
+    z-index: 10004;
+    font-size: 0.5em;
+    overflow: hidden;
+    height: 5em;
+    display: block;
+}
+
+#header strong, #header b, #header a {
+    color: #fff;
+}
+
+#header > h1 {
+    line-height: 3em;
+    margin-left: 1em;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+}
+
+#header nav {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+#header nav > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header nav > ul > li {
+    display: inline-block;
+}
+
+#header nav > ul > li > button {
+    -moz-transition: background-color 0.5s ease;
+    -webkit-transition: background-color 0.5s ease;
+    -ms-transition: background-color 0.5s ease;
+    transition: background-color 0.5s ease;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    display: inline-block;
+    letter-spacing: .1em;
+    padding: 0 1.95em 0 1.45em;
+    text-transform: uppercase;
+    font-size: 2em;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 3em;
+    width: 100%;
+    height: 3em;
+    overflow: hidden;
+    position: relative;
+}
+
+#header nav > ul > li > button.icon::before {
+    color: #505051;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-transform: none !important;
+    position: absolute;
+    right: 0.7em;
+    opacity: 1;
+}
+
+#header nav > ul > li > button:hover {
+    background-color: #242629;
+}
+
+[popover] h2 {
+    text-transform: uppercase;
+    margin: 0.5em 0;
+}
+
+/* Popover styling */
+[popover] {
+    position: fixed;
+    inset: unset;
+    bottom: 2.5em;
+    right: 0;
+    margin: 0;
+    min-width: 20em;
+    max-height: calc(100vh - 4em);
+    overflow: auto;
+    border: 1px solid #1f2224;
+    background-color: #242629;
+    color: #a0a0a1; /* Override browser default (CanvasText/black) */
+    padding: 1em 2em;
+    z-index: 10003;
+}
+
+/* Hide the default backdrop (we're using body::before instead) */
+[popover]::backdrop {
+    display: none;
+}
+
+/* Blur only the gallery when popover is open, not the header */
+body:has([popover]:popover-open) .gallery {
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+}
+
+[popover] .inner.split > * {
+    display: inline-block;
+    vertical-align: top;
+    margin: 1em;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="search"], input[type="url"], select, textarea {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    background: #34363b;
+    border: 0;
+    border-radius: 0;
+    color: #a0a0a1;
+    display: block;
+    outline: 0;
+    text-decoration: none;
+    width: 100%;
+    margin: 0.8em 0;
+    font-size: 1em;
+    padding: 0.5em;
+}
+
+ul.actions, ul.actions > li {
+    display: inline;
+}
+
+ul.actions > li > input {
+    background: #242629;
+    border: 1px solid #34363b;
+    border-radius: 10%;
+    color: #a0a0a1;
+    padding: 0.7em;
+}
+
+ul.actions > li > input:hover {
+    border: 1px solid #a0a0a1;
+    background: #34363b;
+}
+
+#location-indicator {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    background: rgba(0, 0, 0, 0.7);
+    color: rgb(255, 255, 255);
+    padding: 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: block;
+}
+
+/* ========================================
+   Journey map styles - from journey-common.html
+   ======================================== */
+
+.map {
+    background-image: var(--bg);
+    background-size: cover;
+    background-position: left bottom;
+    letter-spacing: 0;
+}
+
+.map-container {
+    flex: 0 0 45%;
+    position: sticky;
+    top: 1em;
+    height: fit-content;
+}
+
+.map-wrapper {
+    position: relative;
+    width: 130%;
+    margin: 0 auto;
+    left: -5%;
+}
+
+.map-wrapper > svg {
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 3.5em);
+}
+
+/* The travel path with scroll animation */
+.travel-path {
+    fill: none;
+    stroke: #ff6b35;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: draw-path linear;
+    animation-timeline: view();
+    animation-range: entry 0% cover 100%;
+}
+
+@keyframes draw-path {
+    from {
+        stroke-dashoffset: var(--path-length, 400);
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Fallback for browsers without CSS scroll-driven animations */
+@supports not (animation-timeline: view()) {
+    .travel-path {
+        /* JavaScript will handle this */
+    }
+}
+
+#about p {
+  margin: 1em 0;
+}
