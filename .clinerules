@@ -157,6 +157,42 @@ Journey pages in `journeys/` directory can contain:
 
 ## Code Style Guidelines
 
+### Semantic HTML
+**Emphasize semantic HTML tags throughout the project.** Use appropriate HTML5 elements to convey meaning and structure:
+
+- **`<article>`** - Self-contained content (individual gallery items, blog posts)
+- **`<section>`** - Thematic grouping of content (year groups, location groups)
+- **`<header>`** - Introductory content, navigation
+- **`<footer>`** - Footer content, metadata, credits
+- **`<nav>`** - Navigation blocks
+- **`<main>`** - Primary content of the page
+- **`<figure>`** / **`<figcaption>`** - Images with captions
+- **`<aside>`** - Tangentially related content
+- **`<time>`** - Date/time values (with `datetime` attribute)
+
+**Avoid generic `<div>` and `<span>` when a semantic alternative exists.** Semantic elements improve:
+- Accessibility for screen readers
+- SEO and content structure
+- Code readability and maintainability
+
+Example preferred structure:
+```html
+<main class="gallery">
+  <section class="year" id="p-2025">
+    <header><h2>2025</h2></header>
+    <section class="location" id="p-2025-Berlin">
+      <header><h3>Berlin</h3></header>
+      <article class="gallery-item">
+        <figure>
+          <a href="#popup-id"><img src="thumb.jpg" alt="Description" loading="lazy" /></a>
+          <figcaption>Optional caption</figcaption>
+        </figure>
+      </article>
+    </section>
+  </section>
+</main>
+```
+
 ### Liquid Templates
 - Use meaningful variable names extracted from paths
 - Comment complex logic with `{%- comment -%}...{%- endcomment -%}`
