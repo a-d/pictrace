@@ -1,0 +1,141 @@
+---
+# Jekyll layout that compresses HTML
+# Source: https://github.com/penibelst/jekyll-compress-html
+---
+{%- capture _LINE_FEED %}
+{% endcapture -%}
+
+{%- if site.compress_html.ignore.envs contains jekyll.environment -%}
+  {{ content }}
+{%- else -%}
+
+{%- assign _compress = site.compress_html -%}
+{%- assign _profile = _compress.profile -%}
+
+{%- assign _blanklines = _compress.blanklines -%}
+{%- assign _clippings = _compress.clippings -%}
+{%- assign _comments = _compress.comments -%}
+{%- assign _endings = _compress.endings -%}
+{%- assign _startings = _compress.startings -%}
+
+{%- assign _full = _compress.full -%}
+
+{%- if _clippings == "all" -%}
+  {%- assign _clippings = "html head title base link meta style body article section nav aside h1 h2 h3 h4 h5 h6 hgroup header footer address p hr blockquote ol ul li dl dt dd figure figcaption main div table caption colgroup col tbody thead tfoot tr td th" | split: " " -%}
+{%- endif -%}
+
+{%- if _endings == "all" -%}
+  {%- assign _endings = "html head body li dt dd p rt rp optgroup option colgroup caption thead tbody tfoot tr td th" | split: " " -%}
+{%- endif -%}
+
+{%- if _startings == "all" -%}
+  {%- assign _startings = "html head body li dt dd p rt rp optgroup option colgroup caption thead tbody tfoot tr td th" | split: " " -%}
+{%- endif -%}
+
+{%- if _full -%}
+  {%- assign _blanklines = true -%}
+  {%- assign _clippings = "all" -%}
+  {%- assign _comments = "all" -%}
+  {%- assign _endings = "all" -%}
+  {%- assign _startings = "all" -%}
+{%- endif -%}
+
+{%- assign _content = content -%}
+
+{%- if _comments == "all" -%}
+  {%- assign _COMMENT_DELIMITER = "<!-- -->" -%}
+  {%- assign _empty_content = "" -%}
+  {%- assign _parts = _content | split: "<!--" -%}
+  {%- for _part in _parts -%}
+    {%- if forloop.first -%}
+      {%- assign _empty_content = _empty_content | append: _part -%}
+    {%- else -%}
+      {%- if _part contains "-->" -%}
+        {%- assign _afterComment = _part | split: "-->" -%}
+        {%- if _afterComment.size > 1 -%}
+          {%- assign _empty_content = _empty_content | append: _afterComment[1] -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- assign _empty_content = _empty_content | append: "<!--" | append: _part -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign _content = _empty_content -%}
+{%- endif -%}
+
+{%- if _blanklines -%}
+  {%- assign _content = _content | split: _LINE_FEED -%}
+  {%- assign _new_content = "" -%}
+  {%- for _line in _content -%}
+    {%- assign _trimmed = _line | strip -%}
+    {%- if _trimmed != "" or forloop.last -%}
+      {%- if forloop.last -%}
+        {%- assign _new_content = _new_content | append: _trimmed -%}
+      {%- else -%}
+        {%- assign _new_content = _new_content | append: _trimmed | append: _LINE_FEED -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign _content = _new_content -%}
+{%- endif -%}
+
+{%- if _clippings -%}
+  {%- for _element in _clippings -%}
+    {%- assign _openTag = "<" | append: _element | append: ">" -%}
+    {%- assign _closeTag = "</" | append: _element | append: ">" -%}
+    
+    {%- assign _content = _content | split: _LINE_FEED | join: " " -%}
+    
+    {%- assign _parts = _content | split: _openTag -%}
+    {%- assign _new_content = "" -%}
+    {%- for _part in _parts -%}
+      {%- if forloop.first -%}
+        {%- assign _stripped = _part | strip -%}
+        {%- assign _new_content = _stripped -%}
+      {%- else -%}
+        {%- assign _stripped = _part | strip -%}
+        {%- assign _new_content = _new_content | append: _openTag | append: _stripped -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign _content = _new_content -%}
+
+    {%- assign _parts = _content | split: _closeTag -%}
+    {%- assign _new_content = "" -%}
+    {%- for _part in _parts -%}
+      {%- if forloop.first -%}
+        {%- assign _stripped = _part | strip -%}
+        {%- assign _new_content = _stripped -%}
+      {%- else -%}
+        {%- assign _stripped = _part | strip -%}
+        {%- assign _new_content = _new_content | append: _closeTag | append: _stripped -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign _content = _new_content -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if _endings -%}
+  {%- for _element in _endings -%}
+    {%- assign _closeTag = "</" | append: _element | append: ">" -%}
+    {%- assign _content = _content | replace: _closeTag, "" -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if _startings -%}
+  {%- for _element in _startings -%}
+    {%- assign _openTag = "<" | append: _element | append: ">" -%}
+    {%- assign _content = _content | replace: _openTag, "" -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if _profile -%}
+  {%- assign _size_before = content.size -%}
+  {%- assign _size_after = _content.size -%}
+  {%- assign _savings = _size_before | minus: _size_after -%}
+  {%- assign _percent = _savings | times: 100.0 | divided_by: _size_before -%}
+  <!-- compress_html: {{ _size_before }} → {{ _size_after }} (saved {{ _savings }} bytes, {{ _percent | round: 1 }}%) -->
+{%- endif -%}
+
+{{ _content }}
+
+{%- endif -%}
