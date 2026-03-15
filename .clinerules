@@ -204,6 +204,7 @@ Example preferred structure:
 - Check for CSS feature support before JS fallbacks
 - Scope variables to avoid global namespace pollution
 - Use `const` for immutable values, `let` for mutable
+- **Use `/* ... */` comments only** - Do NOT use `//` single-line comments, as HTML compression collapses code to single lines, which would break with `//` comments
 
 ### CSS
 - Use CSS custom properties (variables) for theming
