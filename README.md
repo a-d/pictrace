@@ -21,7 +21,7 @@ docker run -it --rm -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -v ${pwd}:/work -w /work -
 ```
 apt update && apt install npm jekyll ruby-dev gulp imagemagick -y
 bundle install
-bundle exec jekyll serve --host 0.0.0.0
+LANG=C.UTF-8 LC_ALL=C.UTF-8 bundle exec jekyll serve --host 0.0.0.0
 ```
 
 ```
