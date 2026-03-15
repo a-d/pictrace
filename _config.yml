@@ -1,3 +1,14 @@
+# HTML Compression
+# See: https://github.com/penibelst/jekyll-compress-html
+compress_html:
+  clippings: all
+  comments: all
+  endings: []
+  ignore:
+    envs: []
+  blanklines: false
+  profile: false
+
 # Base configs
 #baseurl: "https://pictrace.de"
 encoding: "utf-8"
