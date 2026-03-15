@@ -25,45 +25,29 @@ layout: default2
     <div>
       <section>
         <h2>By Location</h2>
-        {% assign all_locations = "" | split: "" %}
-        {% for image in images %}
-        {% assign path_parts = image.path | split: "/" %}
-        {% assign location_path = path_parts[3] %}
-        {% assign all_locations = all_locations | push: location_path %}
-        {% endfor %}
-        {% assign all_locations = all_locations | uniq | sort %}
-
-        <!-- Then iterate through these locations -->
-        {% for location_path in all_locations %}
-        {% assign locationName = location_path | split:"_" | last %}
+        {%- comment -%} Optimized: Use group_by_exp instead of O(n²) nested loops {%- endcomment -%}
+        {% assign spot_images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
+        {% assign locations_with_years = spot_images | group_by_exp: "img", "img.path | split: '/' | slice: 3, 1 | first" | sort: "name" %}
+        
+        {% for loc_group in locations_with_years %}
+        {% assign locationName = loc_group.name | split: "_" | last %}
+        {% assign loc_years = loc_group.items | group_by_exp: "img", "img.path | split: '/' | slice: 2, 1 | first" | sort: "name" | reverse %}
         <p>
-          <!-- For each location, find all years -->
-          {% assign location_years = "" | split: "" %}
-          {% for image in images %}
-          {% if image.path contains location_path %}
-          {% assign path_parts = image.path | split: "/" %}
-          {% assign year = path_parts[2] %}
-          {% assign location_years = location_years | push: year %}
-          {% endif %}
-          {% endfor %}
-          {% assign location_years = location_years | uniq | sort | reverse %}
-
-          {% for year in location_years %}
-          <a href="#p-{{ year }}-{{ locationName }}">{% if forloop.first %}{{ locationName }} {% endif %}{{ year }}</a>{% unless forloop.last %} | {% endunless %}
-          {% endfor %}
+        {% for year_group in loc_years %}
+        <a href="#p-{{ year_group.name }}-{{ locationName }}">{% if forloop.first %}{{ locationName }} {% endif %}{{ year_group.name }}</a>{% unless forloop.last %} | {% endunless %}
+        {% endfor %}
         </p>
         {% endfor %}
       </section>
     </div>
     <div>
       <section>
-        <section>
-          <h2>By Year</h2>
-          {% assign all_years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" | sort: "name" | reverse %}
-          {% for year in all_years %}
-          <p><a href="#p-{{ year.name }}">{{ year.name }}</a></p>
-          {% endfor %}
-        </section>
+        <h2>By Year</h2>
+        {%- comment -%} Optimized: Use group_by_exp for years {%- endcomment -%}
+        {% assign spot_years = spot_images | group_by_exp: "img", "img.path | split: '/' | slice: 2, 1 | first" | sort: "name" | reverse %}
+        {% for year in spot_years %}
+        <p><a href="#p-{{ year.name }}">{{ year.name }}</a></p>
+        {% endfor %}
       </section>
     </div>
   </div>
