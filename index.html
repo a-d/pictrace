@@ -2,11 +2,6 @@
 layout: default2
 ---
 
-
-{% include gallery.html %}
-
-{% include popup.html %}
-
 <!-- Header -->
 <header id="header">
   <h1><a href="/"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
@@ -18,6 +13,9 @@ layout: default2
   </nav>
 </header>
 
+{% include gallery.html %}
+
+{% include popup.html %}
 
 <!-- location selection -->
 <nav id="spot" popover aria-label="Location selection">
