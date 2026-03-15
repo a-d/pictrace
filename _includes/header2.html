@@ -424,6 +424,8 @@ body:has(.lightbox-container:target > a) header {
   margin-left: 1em;
   height: 4em;
   overflow: hidden;
+  position: relative;
+  z-index: 0;
 }
 
 #header nav {
@@ -500,12 +502,12 @@ nav > ul > li:hover {
   background-color: #242629;
 }
 
-  body:has(nav > ul > li[title="select"]:hover) #select,
-  #select:has(:hover) {
+  body:has(nav > ul > li[title="spot"]:hover) #spot,
+  #spot:has(:hover) {
     display:block;
   }
-  body:has(nav > ul > li[title="footer"]:hover) #footer,
-  #footer:has(:hover) {
+  body:has(nav > ul > li[title="about"]:hover) #about,
+  #about:has(:hover) {
     display:block;
   }
 
