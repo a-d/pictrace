@@ -14,7 +14,6 @@ pictrace/
 ├── _layouts/
 │   └── default2.html    # Main page layout
 ├── _includes/           # Reusable components
-│   ├── header2.html     # HTML head content (CSS/JS references)
 │   ├── iterator.html    # Core iteration logic for images
 │   ├── gallery.html     # Gallery container
 │   ├── gallery_item.html # Individual gallery items + journey map template
