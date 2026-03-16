@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a Jekyll-based photography blog hosted on GitHub Pages. The site displays photo galleries organized by year and location, with automatic thumbnail generation via Gulp/ImageMagick.
+This is a Jekyll-based photography blog hosted on GitHub Pages. The site displays photo galleries organized by year and location, with automatic thumbnail generation via a bash script using ImageMagick.
 
 ## Project Structure
 
@@ -33,7 +33,7 @@ pictrace/
 │       └── {index}_{Location}/  # Location directories
 │           ├── fulls/   # Full-size images (1024px width)
 │           └── thumbs/  # Thumbnail images (512px width)
-├── gulpfile.js          # Image processing tasks
+├── resize.sh            # Image processing script (bash)
 └── index.html           # Main entry point
 ```
 
@@ -57,26 +57,38 @@ pictrace/
 
 ### Adding New Photos
 1. Place original images in the project root `images/` folder (not in year subdirectories)
-2. Run `gulp resize` (or just `gulp`)
-3. When prompted:
+2. Run `./resize.sh` (interactive mode) or `./resize.sh 2025 "Paris"` (direct mode)
+3. When prompted (interactive mode):
    - Enter the year (e.g., `2025`)
    - Enter the location name without index (e.g., `Paris`)
    - Optionally confirm deletion of originals after processing
-4. The task automatically:
+4. The script automatically:
    - Creates `images/{year}/{index}_{location}/fulls/` and `thumbs/` directories
    - Resizes images to 1024px width for `fulls/`
    - Resizes images to 512px width for `thumbs/`
+   - Generates both JPG and AVIF formats
+   - Preserves essential EXIF metadata
    - Auto-assigns the next available index for new locations
+
+### Command Line Options
+```bash
+./resize.sh                    # Interactive mode (prompts for year/location)
+./resize.sh 2026 "Paris"       # Direct mode with arguments
+./resize.sh 2026 "Paris" -d    # Delete originals after processing
+./resize.sh 2026 "Paris" -v    # Verbose mode (show avifenc output)
+./resize.sh 2026 "Paris" -d -v # Combine flags
+```
 
 ### Image Sizes
 - **Full images**: 1024px width (for lightbox/popup view)
 - **Thumbnails**: 512px width (for gallery grid)
 - Both maintain aspect ratio
+- Both JPG and AVIF formats generated
 
 ### Dependencies
-- Node.js and npm
-- ImageMagick (must be installed on system)
-- Gulp packages defined in `package.json`
+- ImageMagick (`apt install imagemagick`)
+- avifenc (`apt install libavif-bin`)
+- exiftool (`apt install libimage-exiftool-perl`)
 
 ## Jekyll Configuration
 
@@ -259,10 +271,12 @@ The `gallery_item.html` template generates the complete map structure from YAML 
 ## Development Workflow
 
 ### Local Development
-1. Install dependencies: `npm install`
-2. Ensure ImageMagick is installed
-3. Run Jekyll locally: `bundle exec jekyll serve`
-4. Process new images: `gulp resize`
+1. Ensure dependencies are installed:
+   - ImageMagick: `apt install imagemagick`
+   - avifenc: `apt install libavif-bin`
+   - exiftool: `apt install libimage-exiftool-perl`
+2. Run Jekyll locally: `bundle exec jekyll serve`
+3. Process new images: `./resize.sh`
 
 ### Deployment
 - Site is deployed automatically via GitHub Pages
@@ -328,7 +342,7 @@ Example preferred structure:
 ## File Modification Guidelines
 
 ### When Adding New Locations
-1. Use the gulp workflow - don't manually create directories
+1. Use the `resize.sh` script - don't manually create directories
 2. Location names should be single words or PascalCase compounds
 3. Avoid special characters in location names
 
@@ -364,7 +378,7 @@ DSCF0123.jpg        (natural sort after ~ files)
 ```
 
 ### Add a New Year
-Simply add images with the new year in the gulp prompt - directories are created automatically.
+Simply add images with the new year in the `resize.sh` prompt - directories are created automatically.
 
 ### Create Location-Specific Content (Journey Map)
 1. Create `_includes/journeys/{LocationName}.svg` with SVG content only
