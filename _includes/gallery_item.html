@@ -7,7 +7,12 @@
 {%- comment -%} Journey map: check if this location has a journey configuration {%- endcomment -%}
 {% assign journey = site.data.journeys | where: "name", include.locationName | first %}
 {% if journey %}
-<aside class="map" pathId="{{ journey.pathId }}" progressFn="{{ journey.progressFn }}" style="grid-column: 1; grid-row: span 10; --bg: url('{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_thumbs_loc }}/{{ include.images_sorted[journey.bgImageIndex].name }}')" count="{{ include.images_sorted.size }}">
+{%- assign bg_image = include.images_sorted[journey.bgImageIndex] -%}
+{%- assign bg_basename = bg_image.name | split: '.' | first -%}
+{%- assign bg_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' -%}
+{%- assign bg_avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' | append: bg_basename | append: '.avif' -%}
+{%- assign bg_avif_exists = site.static_files | where: "path", bg_avif_static_path | first -%}
+<aside class="map" pathId="{{ journey.pathId }}" progressFn="{{ journey.progressFn }}" style="grid-column: 1; grid-row: span 10; --bg: {% if bg_avif_exists %}image-set(url('{{ bg_base_path }}{{ bg_basename }}.avif') type('image/avif'), url('{{ bg_base_path }}{{ bg_image.name }}') type('image/jpeg')){% else %}url('{{ bg_base_path }}{{ bg_image.name }}'){% endif %}" count="{{ include.images_sorted.size }}">
 <script>
 window.{{ journey.progressFn }} = window.makeProgressMapper([
   {% for coord in journey.progressCoords %}[{{ coord[0] }}, {{ coord[1] }}]{% unless forloop.last %},
@@ -31,8 +36,15 @@ window.{{ journey.progressFn }} = window.makeProgressMapper([
   <a href="#p-{{ include.year.name }}" class="year" year="{{ include.year.name }}">{{ include.year.name }}</a>
   {% endif %}
   {% endif %}
+  {%- assign image_basename = include.image.name | split: '.' | first -%}
+  {%- assign thumb_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' -%}
+  {%- assign avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' | append: image_basename | append: '.avif' -%}
+  {%- assign avif_exists = site.static_files | where: "path", avif_static_path | first -%}
   <a href="#{{ include.current_id }}" class="image">
-    <img loading="lazy" src="{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_thumbs_loc }}/{{ include.image.name }}" alt="" data-name="{{ include.image.name }}"/>
+    <picture>
+      {% if avif_exists %}<source srcset="{{ thumb_base_path }}{{ image_basename }}.avif" type="image/avif">{% endif %}
+      <img loading="lazy" src="{{ thumb_base_path }}{{ include.image.name }}" alt="" data-name="{{ include.image.name }}"/>
+    </picture>
   </a>
 </article>
 

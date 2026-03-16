@@ -244,27 +244,84 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-function displayEXIFData(img, ul) {
-    var exifData = EXIF.getAllTags(img);
+function displayEXIFData(exifData, ul) {
     ul.innerHTML = '';
 
-    if (Object.keys(exifData).length === 0) {
+    if (!exifData || Object.keys(exifData).length === 0) {
         return;
     }
 
     /* Common EXIF tags people usually want to see */
+    /* exifr uses slightly different tag names: ISO instead of ISOSpeedRatings */
     var priorityTags = [
-        'Make', 'Model', 'DateTimeOriginal', 'ExposureTime',
-        'FNumber', 'ISOSpeedRatings', 'FocalLength'
+        { key: 'Make', label: 'Make' },
+        { key: 'Model', label: 'Model' },
+        { key: 'DateTimeOriginal', label: 'DateTimeOriginal' },
+        { key: 'ExposureTime', label: 'ExposureTime' },
+        { key: 'FNumber', label: 'FNumber' },
+        { key: 'ISO', label: 'ISOSpeedRatings' },
+        { key: 'FocalLength', label: 'FocalLength' }
     ];
 
     /* Display priority tags */
     priorityTags.forEach(function(tag) {
-        var v = exifData[tag];
-        if (v !== undefined && v !== null && v.toString() != "NaN") {
-            addExifItem(ul, tag, formatExifValue(tag, v));
+        var v = exifData[tag.key];
+        if (v !== undefined && v !== null && v.toString() !== 'NaN') {
+            addExifItem(ul, tag.label, formatExifValue(tag.label, v));
         }
     });
+}
+
+/* Fetch EXIF data using exifr library */
+/* We fetch the image data ourselves to avoid exifr's Node.js code paths */
+async function fetchExifData(jpgUrl) {
+    try {
+        /* Check if exifr is loaded (may be delayed due to ES module import) */
+        if (!window.exifr) {
+            console.warn('exifr not loaded yet');
+            return null;
+        }
+        
+        /* Fetch only the first 64KB of the image (EXIF is always at the start) */
+        /* This uses browser's fetch API which properly handles HTTP cache */
+        var response = await fetch(jpgUrl, {
+            headers: { 'Range': 'bytes=0-16383' }
+        });
+        
+        /* Handle both full response (200) and partial content (206) */
+        if (!response.ok && response.status !== 206) {
+            throw new Error('Failed to fetch image: ' + response.status);
+        }
+        
+        var buffer = await response.arrayBuffer();
+        
+        /* Parse EXIF from the ArrayBuffer - this uses browser-only code path */
+        var exifData = await window.exifr.parse(buffer);
+        return exifData;
+    } catch (err) {
+        console.warn('EXIF fetch failed:', err);
+        return null;
+    }
+}
+
+/* Get JPG path from image element (handles both <img> and <picture> cases) */
+function getJpgPath(img) {
+    var src = img.getAttribute('src') || '';
+    /* If src is already a JPG, use it directly */
+    if (src.toLowerCase().endsWith('.jpg') || src.toLowerCase().endsWith('.jpeg')) {
+        return src;
+    }
+    /* For AVIF sources displayed via <picture>, construct JPG path */
+    /* Replace .avif extension with .jpg, or append .jpg to basename */
+    if (src.toLowerCase().endsWith('.avif')) {
+        return src.replace(/\.avif$/i, '.jpg');
+    }
+    /* Fallback: try to construct JPG path from any extension */
+    var lastDot = src.lastIndexOf('.');
+    if (lastDot > 0) {
+        return src.substring(0, lastDot) + '.jpg';
+    }
+    return src;
 }
 
 function addExifItem(ul, tag, value) {
@@ -298,35 +355,55 @@ function formatExifValue(tag, value) {
     return value;
 }
 
-function handleHashChange() {
+/* Handle hash change to load EXIF data for visible lightbox images */
+/* Uses async/await to ensure non-blocking behavior */
+async function handleHashChange() {
   var currentHash = window.location.hash.substring(1);
-  if (currentHash) {
-    var targetElement = document.getElementById(currentHash);
-    if (targetElement) {
-      var images = targetElement.querySelectorAll('.lightbox-container img');
-      images.forEach(function(img) {
-          var itemDiv = img.closest('.lightbox-container');
+  if (!currentHash) return;
 
-          var exifDataElement = itemDiv.querySelector('.exif-data');
-          if (!exifDataElement) {
-            exifDataElement = document.createElement('ul');
-            exifDataElement.className = 'exif-data';
-            itemDiv.appendChild(exifDataElement);
-          }
+  var targetElement = document.getElementById(currentHash);
+  if (!targetElement) return;
 
-          img.onload = function() {
-            EXIF.getData(img, function() {
-              displayEXIFData(this, exifDataElement);
-            });
-          };
-          if (img.complete) {
-            EXIF.getData(img, function() {
-              displayEXIFData(this, exifDataElement);
-            });
-          }
-      });
+  var images = targetElement.querySelectorAll('.lightbox-container img');
+  
+  /* Process each image asynchronously without blocking rendering */
+  images.forEach(function(img) {
+    var itemDiv = img.closest('.lightbox-container');
+
+    var exifDataElement = itemDiv.querySelector('.exif-data');
+    if (!exifDataElement) {
+      exifDataElement = document.createElement('ul');
+      exifDataElement.className = 'exif-data';
+      itemDiv.appendChild(exifDataElement);
     }
-  }
+
+    /* Skip if EXIF already loaded for this image */
+    if (itemDiv.dataset.exifLoaded) return;
+    itemDiv.dataset.exifLoaded = 'true';
+
+    /* Get JPG path for EXIF reading (works with both old JPGs and new AVIF+JPG setup) */
+    var jpgPath = getJpgPath(img);
+
+    /* Fetch EXIF data asynchronously - does not block rendering */
+    /* Using requestIdleCallback for lowest priority, falls back to setTimeout */
+    var scheduleExifLoad = window.requestIdleCallback || function(cb) { setTimeout(cb, 0); };
+    
+    scheduleExifLoad(async function() {
+      var exifData = await fetchExifData(jpgPath);
+      displayEXIFData(exifData, exifDataElement);
+    });
+  });
 }
-handleHashChange();
+
+/* Initialize on page load and hash changes */
+/* Use requestIdleCallback to avoid blocking initial render */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    var scheduleInit = window.requestIdleCallback || function(cb) { setTimeout(cb, 0); };
+    scheduleInit(handleHashChange);
+  });
+} else {
+  var scheduleInit = window.requestIdleCallback || function(cb) { setTimeout(cb, 0); };
+  scheduleInit(handleHashChange);
+}
 window.addEventListener('hashchange', handleHashChange);
