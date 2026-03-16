@@ -5,33 +5,41 @@
    ======================================== */
 
 /* Progress mapping function factory for smooth animation */
-/* Each journey can have its own progress curve */
-/* Defined globally so journey-specific scripts can use it */
-window.makeProgressMapper = function(points) {
-    return function(t) {
-      if (t <= points[0][0]) return points[0][1];
-      if (t >= points[points.length - 1][0]) return points[points.length - 1][1];
+/* Uses Catmull-Rom spline interpolation for smooth curves */
+function makeProgressMapper(points) {
+  return function(t) {
+    if (t <= points[0][0]) return points[0][1];
+    if (t >= points[points.length - 1][0]) return points[points.length - 1][1];
 
-      var i = 1;
-      while (i < points.length && t > points[i][0]) i++;
-      var p0 = points[Math.max(i - 2, 0)];
-      var p1 = points[i - 1];
-      var p2 = points[i];
-      var p3 = points[Math.min(i + 1, points.length - 1)];
+    var i = 1;
+    while (i < points.length && t > points[i][0]) i++;
+    var p0 = points[Math.max(i - 2, 0)];
+    var p1 = points[i - 1];
+    var p2 = points[i];
+    var p3 = points[Math.min(i + 1, points.length - 1)];
 
-      var u = (t - p1[0]) / (p2[0] - p1[0]);
+    var u = (t - p1[0]) / (p2[0] - p1[0]);
 
-      /* Catmull–Rom spline */
-      var y =
-        0.5 *
-        ((2 * p1[1]) +
-          (-p0[1] + p2[1]) * u +
-          (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * u * u +
-          (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * u * u * u);
+    /* Catmull-Rom spline */
+    var y =
+      0.5 *
+      ((2 * p1[1]) +
+        (-p0[1] + p2[1]) * u +
+        (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * u * u +
+        (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * u * u * u);
 
     return Math.min(1, Math.max(0, y));
   };
-};
+}
+
+/* Process journey progress data stored by inline scripts */
+/* Inline scripts store coordinate arrays in window.journeyProgressData */
+/* This runs after main.js loads and creates the actual progress functions */
+if (window.journeyProgressData) {
+  Object.keys(window.journeyProgressData).forEach(function(name) {
+    window[name] = makeProgressMapper(window.journeyProgressData[name]);
+  });
+}
 
 (function() {
   /* Only define once */
