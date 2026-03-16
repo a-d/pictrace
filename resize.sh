@@ -21,9 +21,9 @@ trap 'INTERRUPTED=true; echo -e "\n${YELLOW}Interrupted! Finishing current image
 # Configuration
 FULL_WIDTH=1024
 THUMB_WIDTH=512
-FULL_QUALITY=95           # Base quality (used for JPG)
-THUMB_QUALITY=80          # Base quality (used for JPG)
-AVIF_QUALITY_MULTIPLIER=0.8  # AVIF uses lower quality number (more efficient codec)
+FULL_QUALITY=95               # Base quality (used for JPG)
+THUMB_QUALITY=80              # Base quality (used for JPG)
+AVIF_QUALITY_MULTIPLIER=0.83  # AVIF uses lower quality number (more efficient codec)
 IMAGES_DIR="images"
 
 # Convert JPEG-style quality (0-100) to avifenc quantizer (0-63)
