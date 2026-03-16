@@ -2,6 +2,32 @@
 	color-scheme: only light;
 }
 
+/* Font Awesome subset - only icons used in this project */
+@font-face {
+	font-family: 'FontAwesome';
+	src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+.fa {
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.fa-location-arrow::before { content: "\f124"; }
+.fa-info-circle::before { content: "\f05a"; }
+.fa-facebook::before { content: "\f09a"; }
+.fa-twitter::before { content: "\f099"; }
+.fa-instagram::before { content: "\f16d"; }
+.fa-dribbble::before { content: "\f17d"; }
+.fa-github::before { content: "\f09b"; }
+.fa-linkedin::before { content: "\f0e1"; }
+
 * {
 	margin: 0;
 	padding: 0;
