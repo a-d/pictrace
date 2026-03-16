@@ -1,4 +1,4 @@
 <title>{{ site.title }}</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-<link rel="stylesheet" href="{{ site.baseurl }}/assets/css/main.css">
+<style>{% capture css %}{% include_relative assets/css/main.css %}{% endcapture %}{{ css }}</style>
