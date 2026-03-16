@@ -12,21 +12,34 @@ This repository contains content under two different licenses:
  
 # Docker
 
-```
+```bash
 docker run -it --rm -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -v ${pwd}:/work -w /work -p 4000:4000 debian bash
 ```
 
 # Usage
 
+## Setup
+```bash
+apt update && apt install jekyll ruby-dev imagemagick libavif-bin libimage-exiftool-perl -y
 ```
-apt update && apt install npm jekyll ruby-dev gulp imagemagick -y
-bundle install
+
+## Run Jekyll Server
+```bash
 LANG=C.UTF-8 LC_ALL=C.UTF-8 bundle exec jekyll serve --host 0.0.0.0
 ```
 
+## Process Images
+Place your images in the `images/` directory, then run:
+```bash
+./resize.sh                    # Interactive mode (prompts for year/location)
+./resize.sh 2026 "Paris"       # Direct mode with arguments
+./resize.sh 2026 "Paris" -d    # Delete originals after processing
 ```
-docker exec -it pictrace gulp resize
-```
+
+The script generates:
+- **Full-size images**: 1024px width, 95% quality (AVIF + JPG fallback)
+- **Thumbnails**: 512px width, 80% quality (AVIF + JPG fallback)
+- **EXIF metadata**: Preserved in both formats
 
 
 # Photography 

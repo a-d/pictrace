@@ -2,9 +2,16 @@
   <a href="#{{ include.current_id }}" class="nav-arrow nav-next">&#10095;</a>
 </figure>
 {% endif %}
+{%- assign image_basename = include.image.name | split: '.' | first -%}
+{%- assign full_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_fulls_loc | append: '/' -%}
+{%- assign avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_fulls_loc | append: '/' | append: image_basename | append: '.avif' -%}
+{%- assign avif_exists = site.static_files | where: "path", avif_static_path | first -%}
 <figure class="lightbox-container" id="{{ include.current_id }}">
   <a href="#{{ include.prev_id }}" class="nav-arrow nav-prev">&#10094;</a>
-  <img loading="lazy" src="{{ site.baseurl }}/{{ site.image_root }}/{{ include.year.name }}/{{ include.location.name }}/{{ site.image_fulls_loc }}/{{ include.image.name }}" alt="{{ include.image.name }}" />
+  <picture>
+    {% if avif_exists %}<source srcset="{{ full_base_path }}{{ image_basename }}.avif" type="image/avif">{% endif %}
+    <img loading="lazy" src="{{ full_base_path }}{{ include.image.name }}" alt="{{ include.image.name }}" />
+  </picture>
 {% if include.lastYear and include.lastLoc and include.lastImage %}
 </figure>
 {% endif %}

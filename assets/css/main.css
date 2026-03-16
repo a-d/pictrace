@@ -608,6 +608,9 @@ ul.actions > li > input:hover {
    ======================================== */
 
 .map {
+    /* Fallback for browsers without image-set() support */
+    background-image: var(--bg-fallback);
+    /* Modern browsers with image-set() support will use AVIF with JPG fallback */
     background-image: var(--bg);
     background-size: cover;
     background-position: left bottom;
