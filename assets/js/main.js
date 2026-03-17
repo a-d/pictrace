@@ -53,8 +53,11 @@ if (window.journeyProgressData) {
   var supportsScrollTimeline = CSS.supports('animation-timeline', 'view()');
 
   var maps = [];
+  var gridLayoutInitialized = false;
+  var pathAnimationInitialized = false;
 
   /* Initialize all journey maps - runs for ALL browsers */
+  /* This only sets up data structures, no layout measurements */
   function initJourneyMaps() {
     document.querySelectorAll('.map[pathId]').forEach(function(mapElement) {
       if (mapElement.dataset.journeyInitialized) return;
@@ -70,38 +73,50 @@ if (window.journeyProgressData) {
       var mapData = {
         element: mapElement,
         path: path,
-        pathLength: 0,
+        pathLength: 0, /* Calculated lazily on first animation */
         count: parseInt(mapElement.getAttribute('count'), 10) || 10,
         progressFn: progressFn
       };
 
-      /* Only set up path animation for fallback browsers */
-      if (!supportsScrollTimeline && path) {
-        mapData.pathLength = path.getTotalLength();
-        path.style.strokeDasharray = mapData.pathLength;
-        path.style.strokeDashoffset = mapData.pathLength;
-      }
+      /* Path length calculation deferred to first animation frame */
 
       maps.push(mapData);
     });
   }
 
   /* Update grid layout - runs for ALL browsers */
+  /* Uses getComputedStyle - deferred until after images load */
   function updateGridLayout() {
     var gallery = document.querySelector('.gallery');
     var columns = gallery ? getComputedStyle(gallery).gridTemplateColumns.split(' ').length - 1 : 1;
     maps.forEach(function(map) {
       map.element.style.gridRow = 'span ' + Math.ceil(map.count / columns);
     });
+    gridLayoutInitialized = true;
+  }
+
+  /* Initialize path for animation - calculates path length on demand */
+  function ensurePathInitialized(mapData) {
+    if (!supportsScrollTimeline && mapData.path && mapData.pathLength === 0) {
+      mapData.pathLength = mapData.path.getTotalLength();
+      mapData.path.style.strokeDasharray = mapData.pathLength;
+      mapData.path.style.strokeDashoffset = mapData.pathLength;
+    }
   }
 
   /* Update path animation - only for fallback browsers */
+  /* Uses getBoundingClientRect - deferred until first scroll */
   function updatePathAnimation() {
     if (supportsScrollTimeline) return;
 
+    pathAnimationInitialized = true;
     var windowHeight = window.innerHeight;
     maps.forEach(function(map) {
-      if (!map.path || !map.pathLength) return;
+      if (!map.path) return;
+
+      /* Lazy initialization of path length */
+      ensurePathInitialized(map);
+      if (!map.pathLength) return;
 
       var rect = map.element.getBoundingClientRect();
       var totalDistance = rect.bottom - rect.top;
@@ -119,21 +134,46 @@ if (window.journeyProgressData) {
     });
   }
 
-  /* Initialize on DOM ready and handle dynamic content */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      initJourneyMaps();
-      updateGridLayout();
-      updatePathAnimation();
-    });
-  } else {
+  /* Initialize data structures on DOM ready (no layout measurements) */
+  function initOnDomReady() {
     initJourneyMaps();
-    updateGridLayout();
-    updatePathAnimation();
+  }
+
+  /* Initialize layout after images load (deferred layout measurements) */
+  function initOnLoad() {
+    /* Only run updateGridLayout if maps exist */
+    if (maps.length > 0 && !gridLayoutInitialized) {
+      updateGridLayout();
+    }
+  }
+
+  /* Initialize path animation on first scroll (deferred until interaction) */
+  function initOnFirstScroll() {
+    if (!pathAnimationInitialized && maps.length > 0) {
+      updatePathAnimation();
+    }
+  }
+
+  /* Initialize on DOM ready - only data structures, no measurements */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOnDomReady);
+  } else {
+    initOnDomReady();
+  }
+
+  /* Defer layout measurements until after images load */
+  if (document.readyState === 'complete') {
+    initOnLoad();
+  } else {
+    window.addEventListener('load', initOnLoad);
   }
 
   /* Event listeners */
-  window.addEventListener('scroll', updatePathAnimation); /* Only path animation on scroll */
+  window.addEventListener('scroll', function() {
+    initOnFirstScroll();
+    updatePathAnimation();
+  }, { passive: true });
+
   window.addEventListener('resize', function() {
     initJourneyMaps();
     updateGridLayout();
