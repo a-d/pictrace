@@ -11,7 +11,7 @@ layout: compress
 
 
   {% assign backgroundImage = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | last %}
-  <link rel="preload" as="image" type="image/avif" href="{{ backgroundImage.path }}">
+  <link rel="preload" as="image" type="image/jpeg" href="{{ backgroundImage.path }}">
 
   {%- comment -%} Preload first 12 thumbnail images for faster initial render {%- endcomment -%}
   {%- assign preload_images = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | where_exp: "file", "file.extname != '.avif'" -%}
