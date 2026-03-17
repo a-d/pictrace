@@ -91,8 +91,8 @@ body:has([popover]:popover-open)::before {
 	animation: fadeIn 0.5s forwards;
 	aspect-ratio: 4/3;
 
-  content-visibility: auto;
-  contain-intrinsic-size: 300px;
+  /* content-visibility: auto; */
+  /* contain-intrinsic-size: 300px; */
 }
 
 /* Sequential loading animation */
