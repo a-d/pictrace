@@ -7,8 +7,6 @@ layout: compress
   <title>{{ site.title }}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-  <style>{% capture css %}{% include_relative assets/css/main.css %}{% endcapture %}{{ css }}</style>
-
 
   {% assign backgroundImage = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | last %}
   <link rel="preload" as="image" type="image/jpeg" href="{{ backgroundImage.path }}">
@@ -31,6 +29,8 @@ layout: compress
       {%- endfor -%}
     {%- endfor -%}
   {%- endfor -%}
+
+  <style>{% capture css %}{% include_relative assets/css/main.css %}{% endcapture %}{{ css }}</style>
 </head>
 
 <body style="--bg:url('{{ backgroundImage.path }}')">
