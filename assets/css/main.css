@@ -54,6 +54,9 @@ body {
 	left: 0;
 	height: 100%;
 	width: 100%;
+	background-image: var(--bg);
+	background-size: cover;
+	background-attachment: fixed;
 }
 
 /* Click-blocking overlay - hidden by default */
@@ -79,9 +82,7 @@ body:has([popover]:popover-open)::before {
 	width: 100%;
 	grid-auto-flow: dense;
 	grid-template-columns: repeat(auto-fill, minmax(max(300px, 100% / 5), 1fr));
-	background-image: var(--bg);
-	background-size: cover;
-	background-attachment: fixed;
+	backdrop-filter: blur(0.5em);
 }
 
 .gallery-item {
@@ -639,6 +640,7 @@ ul.actions > li > input:hover {
 	background-size: cover;
 	background-position: left bottom;
 	letter-spacing: 0;
+	mask-image: linear-gradient(transparent 0vh, transparent 100vh, black 200vh, black 100%);
 }
 
 .map-container {
