@@ -16,7 +16,7 @@
 - name: Morocco
   pathId: path33
   progressFn: moroccoProgress
-  bgImageIndex: 98
+  bgImageIndex: 12
   progressCoords: # 5 stops: Agadir -> Marrakech -> Zagora -> Erfoud -> Ouarzazate -> Agadir
     - [0.0, 0.0]
     - [0.2, 0.2]

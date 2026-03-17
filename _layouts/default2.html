@@ -9,6 +9,10 @@ layout: compress
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
   <style>{% capture css %}{% include_relative assets/css/main.css %}{% endcapture %}{{ css }}</style>
 
+
+  {% assign backgroundImage = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | last %}
+  <link rel="preload" as="image" type="image/avif" href="{{ backgroundImage.path }}">
+
   {%- comment -%} Preload first 12 thumbnail images for faster initial render {%- endcomment -%}
   {%- assign preload_images = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | where_exp: "file", "file.extname != '.avif'" -%}
   {%- assign preload_years = preload_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" -%}
@@ -29,8 +33,7 @@ layout: compress
   {%- endfor -%}
 </head>
 
-{% assign image = site.static_files | where_exp: "file", "file.path contains 'fulls'" | last %}
-<body style="--bg:url('{{ image.path }}')">
+<body style="--bg:url('{{ backgroundImage.path }}')">
 
     {{ content }}
 
