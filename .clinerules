@@ -96,6 +96,7 @@ pictrace/
 image_root: "images"           # Base path for images
 image_fulls_loc: "fulls"       # Full-size subdirectory name
 image_thumbs_loc: "thumbs"     # Thumbnail subdirectory name
+preload_count: 12              # Number of images to load eagerly (no lazy loading)
 baseurl: ""                    # Set to "" for local, or domain for production
 ```
 
@@ -143,6 +144,7 @@ The `_includes/iterator.html` is the core component that:
 - `locationName` - Location without index (e.g., "Namibia")
 - `image.path` - Full path to image file
 - `image.name` - Image filename
+- `global_image_index` - Zero-based index across all images (used for conditional lazy loading)
 
 ## Journey Pages (Custom Location Content)
 
@@ -254,7 +256,9 @@ The `gallery_item.html` template generates the complete map structure from YAML 
     <section class="location" id="p-{year}-{location}">
       <article class="gallery-item">
         <a href="#{popup-id}" class="image">
-          <img src="{thumb-path}" loading="lazy" />
+          <!-- First preload_count images: no loading="lazy" -->
+          <!-- Remaining images: loading="lazy" -->
+          <img src="{thumb-path}" width="512" height="384" />
         </a>
       </article>
     </section>
