@@ -366,6 +366,36 @@ Example preferred structure:
 - `makeProgressMapper` must remain globally accessible for journey files
 - Test with and without CSS scroll-timeline support
 
+## Performance Optimization
+
+### Image Loading Strategy
+The site uses a coordinated preload + lazy loading strategy to optimize initial render:
+
+- **`preload_count`** (`_config.yml`): Number of above-the-fold images to load eagerly (default: 12)
+- **Preload tags** (`default2.html`): First N thumbnail images are preloaded via `<link rel="preload">`
+- **Lazy loading** (`gallery_item.html`): Images beyond the preload threshold use `loading="lazy"`
+
+**Key principle**: Don't use `loading="lazy"` on preloaded images - it creates conflicting signals to the browser.
+
+### Layout Shift Prevention
+To prevent Cumulative Layout Shift (CLS) during image loading:
+
+- **Explicit dimensions**: All `<img>` tags include `width` and `height` attributes
+- **Aspect ratio**: Thumbnail images use 512×384 (4:3 ratio) dimensions
+- **CSS containment**: Gallery items use `contain: layout style` to isolate layout calculations
+
+### Thumbnail Dimensions
+Standard thumbnail size: **512px width × 384px height** (4:3 aspect ratio)
+- Set in `resize.sh` during image processing
+- Reflected in `<img width="512" height="384">` in templates
+- Ensures browser reserves correct space before images load
+
+### Tuning `preload_count`
+Adjust based on viewport and grid layout:
+- Count images visible above the fold on typical viewport
+- For 5-column grid at ~300px thumbnails ≈ 10-15 images
+- Balance: too few = visible lazy-load pop-in; too many = wasted preload bandwidth
+
 ## Common Tasks
 
 ### Reorder Images in a Location
