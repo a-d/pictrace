@@ -90,9 +90,7 @@ body:has([popover]:popover-open)::before {
 	opacity: 0;
 	animation: fadeIn 0.5s forwards;
 	aspect-ratio: 4/3;
-
-  /* content-visibility: auto; */
-  /* contain-intrinsic-size: 300px; */
+	contain: layout style;
 }
 
 /* Sequential loading animation */
