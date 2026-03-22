@@ -1,4 +1,5 @@
 {% assign prev_id = "" %}
+{% assign global_image_index = 0 %}
 
 {%- comment -%} Filter for fulls directory, excluding .avif files (AVIF is served via <picture> element) {%- endcomment -%}
 {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" | where_exp: "file", "file.extname != '.avif'" %}
@@ -54,8 +55,9 @@
 {% assign lastImage = forloop.last %}
 {% capture current_id %}p-{{ year.name }}-{{ locationName }}-{{ image.name }}{% endcapture %}
 
-{% include {{ include.inner }} image=image year=year location=location locationName=locationName current_id=current_id prev_id=prev_id firstImage=firstImage firstLoc=firstLoc firstYear=firstYear lastImage=lastImage lastLoc=lastLoc lastYear=lastYear images_sorted=images_sorted %}
+{% include {{ include.inner }} image=image year=year location=location locationName=locationName current_id=current_id prev_id=prev_id firstImage=firstImage firstLoc=firstLoc firstYear=firstYear lastImage=lastImage lastLoc=lastLoc lastYear=lastYear images_sorted=images_sorted global_image_index=global_image_index %}
 {% assign prev_id = current_id %}
+{% assign global_image_index = global_image_index | plus: 1 %}
 
 {% endfor %}
 {% endfor %}

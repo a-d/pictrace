@@ -41,7 +41,7 @@ window.journeyProgressData['{{ journey.progressFn }}'] = [{% for coord in journe
   <a href="#{{ include.current_id }}" class="image">
     <picture>
       {% if avif_exists %}<source srcset="{{ thumb_base_path }}{{ image_basename }}.avif" type="image/avif">{% endif %}
-      <img loading="lazy" decoding="async" width="512" height="384" src="{{ thumb_base_path }}{{ include.image.name }}" alt="" data-name="{{ include.image.name }}"/>
+      <img {% if include.global_image_index >= site.preload_count %}loading="lazy" {% endif %}decoding="async" width="512" height="384" src="{{ thumb_base_path }}{{ include.image.name }}" alt="" data-name="{{ include.image.name }}"/>
     </picture>
   </a>
 </article>
