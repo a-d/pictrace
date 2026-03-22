@@ -37,13 +37,13 @@
 a {
 	text-decoration: none;
 	font-weight: 100;
-	font-family: "Source Sans Pro", Helvetica, sans-serif;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	color: #c4b9b9;
 }
 
 body {
 	color: #a0a0a1;
-	font-family: "Source Sans Pro", Helvetica, sans-serif;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	font-size: 13pt;
 	letter-spacing: .025em;
 	line-height: 1.65;
@@ -60,20 +60,15 @@ body {
 }
 
 /* Click-blocking overlay - hidden by default */
-body::before {
-	content: "";
+.click-blocker {
 	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 4em; /* Stop above the header */
+	inset: 0 0 4em 0; /* top right bottom left - stop above the header */
 	z-index: 10002; /* Above gallery, below popover and header */
 	pointer-events: none; /* Don't block clicks when hidden */
-	background: transparent;
 }
 
 /* Enable click blocking when popover is open */
-body:has([popover]:popover-open)::before {
+body:has([popover]:popover-open) .click-blocker {
 	pointer-events: auto;
 }
 
@@ -81,7 +76,7 @@ body:has([popover]:popover-open)::before {
 	display: grid;
 	width: 100%;
 	grid-auto-flow: dense;
-	grid-template-columns: repeat(auto-fill, minmax(max(300px, 100% / 5), 1fr));
+	grid-template-columns: repeat(5, 1fr);
 	backdrop-filter: blur(0.5em);
 }
 
@@ -300,11 +295,29 @@ body:has([popover]:popover-open)::before {
 	display: none;
 }
 
-/* Responsive breakpoints */
+/* Responsive breakpoints - fixed column counts to prevent layout reflow */
+@media (max-width: 1500px) {
+	.gallery {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
 @media (max-width: 1200px) {
+	.gallery {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 900px) {
+	.gallery {
+		grid-template-columns: repeat(2, 1fr);
+	}
 }
 
 @media (max-width: 768px) {
+	.gallery {
+		grid-template-columns: 1fr;
+	}
 	.lightbox {
 		padding: 3em;
 	}
