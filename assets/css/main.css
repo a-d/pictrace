@@ -657,6 +657,8 @@ ul.actions > li > input:hover {
 	background-position: left bottom;
 	letter-spacing: 0;
 	mask-image: linear-gradient(transparent 0vh, transparent 100vh, black 200vh, black 100%);
+	/* Create a named view timeline for scroll-driven path animation */
+	view-timeline: --map-timeline block;
 }
 
 .map-container {
@@ -687,8 +689,8 @@ ul.actions > li > input:hover {
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	animation: draw-path linear;
-	animation-timeline: view();
-	animation-range: entry 0% cover 100%;
+	animation-timeline: --map-timeline;
+	animation-range: cover 0% cover 100%;
 }
 
 @keyframes draw-path {
