@@ -49,8 +49,8 @@ if (window.journeyProgressData) {
   /* Default linear progress (can be overridden per journey) */
   var defaultProgress = function(t) { return t; };
 
-  /* Check if CSS scroll-driven animations are supported */
-  var supportsScrollTimeline = CSS.supports('animation-timeline', 'view()');
+  /* Check if CSS scroll-driven animations are supported (named view timeline) */
+  var supportsScrollTimeline = CSS.supports('view-timeline-name', '--test');
 
   var maps = [];
   var gridLayoutInitialized = false;
@@ -96,11 +96,17 @@ if (window.journeyProgressData) {
   }
 
   /* Initialize path for animation - calculates path length on demand */
+  /* Runs for ALL browsers to set up stroke-dasharray and --path-length */
   function ensurePathInitialized(mapData) {
-    if (!supportsScrollTimeline && mapData.path && mapData.pathLength === 0) {
+    if (mapData.path && mapData.pathLength === 0) {
       mapData.pathLength = mapData.path.getTotalLength();
       mapData.path.style.strokeDasharray = mapData.pathLength;
-      mapData.path.style.strokeDashoffset = mapData.pathLength;
+      /* Set CSS custom property for CSS scroll-driven animations */
+      mapData.path.style.setProperty('--path-length', mapData.pathLength);
+      /* For JS fallback: set initial offset to full length (hidden) */
+      if (!supportsScrollTimeline) {
+        mapData.path.style.strokeDashoffset = mapData.pathLength;
+      }
     }
   }
 
@@ -145,6 +151,8 @@ if (window.journeyProgressData) {
     if (maps.length > 0 && !gridLayoutInitialized) {
       updateGridLayout();
     }
+    /* Initialize path properties for ALL browsers (needed for CSS scroll animations) */
+    maps.forEach(ensurePathInitialized);
   }
 
   /* Initialize path animation on first scroll (deferred until interaction) */
