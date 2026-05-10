@@ -25,15 +25,19 @@ layout: default2
         <h2>By Location</h2>
         {%- comment -%} Optimized: Use group_by_exp instead of O(n²) nested loops {%- endcomment -%}
         {% assign spot_images = site.static_files | where_exp: "file", "file.path contains 'fulls'" %}
-        {% assign locations_with_years = spot_images | group_by_exp: "img", "img.path | split: '/' | slice: 3, 1 | first" | sort: "name" %}
+        {% assign locations_with_years = spot_images | group_by_exp: "img", "img.path | split: '/' | slice: 3, 1 | first | split: '_' | last" | sort: "name" %}
         
         {% for loc_group in locations_with_years %}
-        {% assign locationName = loc_group.name | split: "_" | last %}
+        {% assign locationName = loc_group.name %}
         {% assign loc_years = loc_group.items | group_by_exp: "img", "img.path | split: '/' | slice: 2, 1 | first" | sort: "name" | reverse %}
         <p>
+        {% if loc_years.size == 1 %}
+        <a href="#p-{{ loc_years[0].name }}-{{ locationName }}">{{ locationName }}</a>
+        {% else %}
         {% for year_group in loc_years %}
         <a href="#p-{{ year_group.name }}-{{ locationName }}">{% if forloop.first %}{{ locationName }} {% endif %}{{ year_group.name }}</a>{% unless forloop.last %} | {% endunless %}
         {% endfor %}
+        {% endif %}
         </p>
         {% endfor %}
       </section>
@@ -165,4 +169,3 @@ layout: default2
     </section>
   </article>
 </aside>
-
