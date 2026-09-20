@@ -11,7 +11,9 @@
 {%- assign bg_basename = bg_image.name | split: '.' | first -%}
 {%- assign bg_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' -%}
 {%- assign bg_avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' | append: bg_basename | append: '.avif' -%}
-{%- assign bg_avif_exists = site.static_files | where: "path", bg_avif_static_path | first -%}
+{%- assign bg_avif_exists = false -%}
+{%- assign bg_avif_needle = "|" | append: bg_avif_static_path | append: "|" -%}
+{%- if avif_set contains bg_avif_needle -%}{%- assign bg_avif_exists = true -%}{%- endif -%}
 <aside class="map" pathId="{{ journey.pathId }}" progressFn="{{ journey.progressFn }}" style="grid-column: 1; grid-row: span 10; --bg: {% if bg_avif_exists %}image-set(url('{{ bg_base_path }}{{ bg_basename }}.avif') type('image/avif'), url('{{ bg_base_path }}{{ bg_image.name }}') type('image/jpeg')){% else %}url('{{ bg_base_path }}{{ bg_image.name }}'){% endif %}" count="{{ include.images_sorted.size }}">
 <script>
 window.journeyProgressData = window.journeyProgressData || {};
@@ -37,7 +39,9 @@ window.journeyProgressData['{{ journey.progressFn }}'] = [{% for coord in journe
   {%- assign image_basename = include.image.name | split: '.' | first -%}
   {%- assign thumb_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' -%}
   {%- assign avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_thumbs_loc | append: '/' | append: image_basename | append: '.avif' -%}
-  {%- assign avif_exists = site.static_files | where: "path", avif_static_path | first -%}
+  {%- assign avif_exists = false -%}
+  {%- assign avif_needle = "|" | append: avif_static_path | append: "|" -%}
+  {%- if avif_set contains avif_needle -%}{%- assign avif_exists = true -%}{%- endif -%}
   <a href="#{{ include.current_id }}" class="image">
     <picture>
       {% if avif_exists %}<source srcset="{{ thumb_base_path }}{{ image_basename }}.avif" type="image/avif">{% endif %}
