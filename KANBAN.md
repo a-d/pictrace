@@ -8,7 +8,7 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT6 | P2 | A11y quick wins: allow pinch-zoom; label lightbox prev/next/close |
+| PT6 | P2 | Zoom policy: pinch-zoom in the lightbox only (meta + `touch-action` on the gallery); aria-labels for lightbox controls |
 | PT7 | P3 | Housekeeping: nested thumbs/_site junk (33 MB), stale _site (3.7 GB), .travis.yml, Jekyll excludes, gitignore, git gc |
 | PT8 | P3 | CSS/HTML hygiene: dead CSS block, `:nth-child(24+0)` typo, dead form attributes |
 | PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
@@ -66,6 +66,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT6 scope refined per owner: pinch-zoom is wanted **on the opened photo only** — overview stays fixed, big-screen layout scaling unchanged. Chosen mechanism: drop `user-scalable=no`, apply `touch-action: pan-x pan-y` to the gallery (works on modern iOS too; see .hermes/plan/PT6). |
 | 2026-09-20 | PT3 done — precomputed AVIF set replaces O(N·M) per-image scans (3,821-path equivalence test, 0 mismatches). Fix commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`. |
 | 2026-09-20 | PT4 done — thumb preloads guarded (AVIF if present, else JPG; no 404 preloads). Fix commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`. |
 | 2026-09-20 | PT5 done — resize.sh `-d` deletes only successfully processed originals (interrupted runs delete nothing; unknown flags warn). Fix commit `e2493c616f32b987200d282dc76854ed4d8d4755`. |
