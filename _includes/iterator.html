@@ -14,6 +14,7 @@
 {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
 {% for location in locations reversed %}
 {% assign locationName = location.name | split: "_" | last %}
+{% assign locnum = location.name | split: "_" | first %}
 {% assign images_with_tilde = "" | split: "" %}
 {% assign images_without_tilde = "" | split: "" %}
 {% for f in location.items %}
@@ -40,7 +41,7 @@
 {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
 {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
 {% for image in images_sorted %}
-{% capture current_id %}p-{{ year.name }}-{{ locationName }}-{{ image.name }}{% endcapture %}
+{% capture current_id %}p-{{ year.name | slice: 2, 2 }}-{{ locnum }}-{{ image.name | split: '.' | first }}{% endcapture %}
 {% assign all_ids = all_ids | push: current_id %}
 {% endfor %}
 {% endfor %}
@@ -58,6 +59,7 @@
 {% assign firstLoc = forloop.first %}
 {% assign lastLoc = forloop.last %}
 {% assign locationName = location.name | split: "_" | last %}
+{% assign locnum = location.name | split: "_" | first %}
 
 {% assign images_with_tilde = "" | split: "" %}
 {% assign images_without_tilde = "" | split: "" %}
@@ -96,7 +98,7 @@
 
 {% assign firstImage = forloop.first %}
 {% assign lastImage = forloop.last %}
-{% capture current_id %}p-{{ year.name }}-{{ locationName }}-{{ image.name }}{% endcapture %}
+{% capture current_id %}p-{{ year.name | slice: 2, 2 }}-{{ locnum }}-{{ image.name | split: '.' | first }}{% endcapture %}
 {% if global_image_index == 0 %}
 {% assign prev_id = "" %}
 {% else %}

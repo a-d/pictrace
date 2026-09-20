@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('touchstart', function(event) {
       touchTracking = false;
       if (event.touches.length !== 1) return; /* multi-touch = pinch/pan (PT6) */
-      if (event.target && event.target.closest && event.target.closest('.nav-arrow')) return; /* taps keep their own behaviour */
+      if (event.target && event.target.closest && event.target.closest('.nav-prev, .nav-next')) return; /* taps keep their own behaviour */
 
       touchTracking = true;
       touchStartX = event.touches[0].clientX;

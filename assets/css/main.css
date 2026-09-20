@@ -139,7 +139,7 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 /* Lightbox styles */
-/* Each slide lives inside its gallery <article>; the targeted slide becomes a
+/* Each slide lives inside its gallery item; the targeted slide becomes a
    viewport-centred overlay. The backdrop is painted by the figure's ::before,
    while the shared .close link provides the click-anywhere-to-close catcher. */
 .lightbox-container {
@@ -243,7 +243,8 @@ body:has(.lightbox-container:target) .close {
 }
 
 /* Navigation arrows */
-.nav-arrow {
+.nav-prev,
+.nav-next {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
@@ -263,17 +264,20 @@ body:has(.lightbox-container:target) .close {
 	transition: background 0.3s ease, opacity 0.3s ease;
 }
 
-.nav-arrow:hover {
+.nav-prev:hover,
+.nav-next:hover {
 	background: rgba(255, 255, 255, 0.3);
 }
 
-.lightbox-container.img-ready .nav-arrow {
+.lightbox-container.img-ready .nav-prev,
+.lightbox-container.img-ready .nav-next {
 	opacity: 1;
 }
 
 /* No-JS fallback: keep the arrows visible when scripting is unavailable */
 @media (scripting: none) {
-	.nav-arrow {
+	.nav-prev,
+	.nav-next {
 		opacity: 1;
 	}
 }

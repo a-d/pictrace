@@ -267,9 +267,11 @@ The `gallery_item.html` template generates the complete map structure from YAML 
 ```
 
 ### ID Conventions
-- Year anchors: `p-{year}` (e.g., `p-2025`)
-- Location anchors: `p-{year}-{locationName}` (e.g., `p-2025-Namibia`)
-- Image popup anchors: `p-{year}-{locationName}-{filename}`
+Fragment ids are deliberately compact (PT12) - every photo repeats them ~4x in the page, so keep the scheme short and stable:
+- Year anchors: `p-{yy}` (e.g., `p-25`)
+- Location anchors: `p-{yy}-{locnum}` (e.g., `p-25-36`; `locnum` = the directory's numeric prefix)
+- Image popup anchors: `p-{yy}-{locnum}-{basename}` (e.g., `p-25-36-DSCF0122`; `basename` = filename without extension)
+- The empty/closed state is `#p`. Renaming a file or its location breaks existing shared links - treat ids as stable.
 
 ## Development Workflow
 
