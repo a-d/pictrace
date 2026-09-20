@@ -13,6 +13,8 @@ pictrace/
 │   └── journeys.yml     # Journey map configurations (metadata + animation settings)
 ├── _layouts/
 │   └── default2.html    # Main page layout
+├── _locations/          # Per-location page stubs (generated: ./mklocations.sh)
+├── _years/              # Per-year page stubs (generated: ./mklocations.sh)
 ├── _includes/           # Reusable components
 │   ├── iterator.html    # Core iteration logic for images
 │   ├── gallery.html     # Gallery container
@@ -95,6 +97,12 @@ pictrace/
 ## Jekyll Configuration
 
 ### Key Config Variables (`_config.yml`)
+
+> The `locations` and `years` collections (each `output: true`) render the per-location
+> pages (`/{year}/{NN}_{Location}/`, PT16) and the per-year pages (`/{year}/`, PT20) from
+> front-matter-only stubs. Regenerate the stubs with `./mklocations.sh` after adding or
+> renaming a location (a missing stub = a 404).
+
 ```yaml
 image_root: "images"           # Base path for images
 image_fulls_loc: "fulls"       # Full-size subdirectory name
