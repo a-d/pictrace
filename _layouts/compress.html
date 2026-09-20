@@ -114,6 +114,17 @@
   {%- endfor -%}
 {%- endif -%}
 
+{%- comment -%} Collapse leftover multi-space runs between tags (tags with attributes escape the clipping passes above) {%- endcomment -%}
+{%- if _clippings -%}
+  {%- assign _spaces = "                                                                " -%}
+  {%- for _k in (2..64) -%}
+    {%- assign _desc = 66 | minus: _k -%}
+    {%- assign _run = _spaces | slice: 0, _desc -%}
+    {%- assign _needle = ">" | append: _run | append: "<" -%}
+    {%- assign _content = _content | replace: _needle, "> <" -%}
+  {%- endfor -%}
+{%- endif -%}
+
 {%- if _endings -%}
   {%- for _element in _endings -%}
     {%- assign _closeTag = "</" | append: _element | append: ">" -%}
