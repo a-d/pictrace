@@ -12,9 +12,7 @@
 
 ## 🔵 In progress
 
-| ID | Prio | Task |
-|---|---|---|
-| PT14 | P4 | Repo history: **executed locally** — `.git` 3.6 → 1.2 GB (2.2 GB cruft pruned, old `images/fulls/` stripped from history, Morocco sources rescued to `pictrace-morocco-sources/`); **owner force-push pending** — commands in `.hermes/plan/PT14-repo-history-size.md` |
+_(empty)_
 
 ## ⛔ Blocked
 
@@ -43,6 +41,7 @@ _(empty)_
 | PT8 | P3 | CSS/HTML hygiene: dead `::after` block + unmatched `#gallery-close` rules removed, `24+0`→`24n+0`, dead form attrs — ✅ done 2026-09-20 (commit `5a0e06b5878c1334a075c74bf946d339df19fba7`) |
 | PT9 | P3 | Self-host exifr + FontAwesome: exifr 7.1.3 (MIT) + FA 4.7.0 webfont (SIL OFL 1.1) vendored to `assets/js/vendor/` + `assets/fonts/` with license files; CDN refs removed — ✅ done 2026-09-20 (commit `81e7fc63c38804e73c2fab99c4b38bec1215ac37`) |
 | PT15 | P2 | Lightbox gestures: horizontal wheel/trackpad + swipe for prev/next (delegates to PT1's `.nav-prev`/`.nav-next`) — ✅ done 2026-09-20 (commit `4d2e37692e7df2037b95d22aed8e2f7cfae5a750`) |
+| PT14 | P4 | Repo history: rescue + prune + rewrite executed and **pushed 2026-09-20** — `.git` 3.6 → **1.2 GB**; 170 source files rescued to `pictrace-morocco-sources/`; old `images/fulls/` stripped from history; origin branches deleted; Pages rebuilt — ✅ done 2026-09-20 (commit `c0a35d6`) |
 
 ## Task details
 
@@ -64,13 +63,14 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — partially implemented 2026-09-20 (commits `1f1b98c`, `69ad0b1`) |
 | PT16 | [`.hermes/plan/PT16-per-location-pages.md`](.hermes/plan/PT16-per-location-pages.md) — planned |
 | PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — dormant (gated by PT10, 2026-09-20) |
-| PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — executed locally 2026-09-20; owner force-push pending |
+| PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — ✅ done 2026-09-20 (push verified) |
 | PT15 | [`.hermes/plan/PT15-lightbox-gestures.md`](.hermes/plan/PT15-lightbox-gestures.md) — ✅ done 2026-09-20 |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT14 push verified — owner force-pushed `master` (`c0a35d6`); origin branches `redesign`/`namibia`/`multi-map` deleted; remote tree matches local (`2da1d517…`); Pages rebuild for `c0a35d6` succeeded; `master` in sync with `origin/master`; fresh clone check passed. Local `.git` 1.2 GB. GitHub repo-size figure shrinks over time (server gc is eventual — was ~1.5 GB at push time). |
 | 2026-09-20 | PT14 executed (local) — (1) **Rescue first:** 170 files (163 full-size Morocco sources + 7 staged `P8010*`) → `IdeaProjects/pictrace-morocco-sources/`, md5-verified (2,319.6 MB), then the 7 staged phantoms unstaged. (2) **Prune:** `reflog expire` + `gc --prune=now` removed the 2.22 GB cruft pack (+63 MB phantoms) → `.git` 3.6 → 1.5 GB. (3) **Rewrite:** git-filter-repo `--path images/fulls/ --invert-paths --strip-blobs-bigger-than 2M` — the pre-restructure originals (~347 MB, 240 versions) removed from all history; content trees preserved (state commit tree byte-identical, `a157377a…`; `fsck` clean); `.git` now **1.2 GB** (single pack). Old→new commit hashes: `.hermes/plan/PT14-audit/filter-repo/commit-map` — the hashes previously listed on this board were remapped through it. (4) Local branches `redesign`/`namibia`/`multi-map` deleted (all merged; multi-map wip archived as `PT14-audit/multi-map-wip.patch`). (5) `origin` remote re-added (filter-repo removes it by design). Safety net: pre-rewrite bundle (1.57 GB, all refs) + WIP patches + untracked copies in `IdeaProjects/pictrace-backups/`. Notes: executed in place; a parallel session was committing during the operation (its PT12 blur-backdrop work is preserved — re-verified). **Remaining (owner):** `git push --force-with-lease=refs/heads/master:d809adac857028b69d10316617ec98ba36e3ffef origin master` + `git push origin --delete redesign namibia multi-map` (server-side gc afterwards is eventual). |
 | 2026-09-20 | PT16 opened — per-location pages + progressive single-page loading (owner-proposed: every location gets a page; the index prerenders N=5; a links block lists all pages in legacy order; JS inserts the next batch before the viewport reaches the end; lazy loading unchanged). Plan confirms the approach with must-solves: deep links into unloaded locations (the links block doubles as the id→page manifest), journey-map re-init for injected content (inline scripts do not run — move the data to `data-*` attributes), prev/next chain rewiring at batch boundaries, page generation via a Jekyll collection + generated stubs (no plugins on the default Pages build). Details: `.hermes/plan/PT16-per-location-pages.md`. |
 | 2026-09-20 | PT12 batch 2 done — fragment compaction: slide ids `p-{yy}-{locnum}-{basename}` (mean 32.8 → 21.4 chars), section anchors `p-{yy}` / `p-{yy}-{locnum}`, redundant `nav-arrow` class dropped; `.clinerules` documents the scheme. Verified: prev/next chain self-consistent, tile links match slide order, all in-page links resolve. 1.46 MB → 1.34 MB raw, gzip 72.4 KB; both batches together −20 % raw / −12.6 % gzip. Previously shared `#p-…` links break (fragments cannot redirect). Commit `69ad0b1`. |
