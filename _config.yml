@@ -35,6 +35,7 @@ exclude:
   - LICENSE
   - README.md
   - namib1.svg
+  - blur-bg.sh
   - mklocations.sh
   - rename.sh
   - resize.sh
