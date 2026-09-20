@@ -24,6 +24,7 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 
 ## Conventions (must-follow)
 
+- **Prefer CSS over JavaScript — no-JS must always work.** Solve with pure CSS where possible (`:target`, `:has()`, transitions, media queries); use JavaScript only for non-functional visual/UX improvements (e.g. EXIF display, image fade-ins, journey-map fallback). Everything must degrade gracefully — with scripting disabled the gallery, lightbox and navigation stay fully usable. When a JS enhancement gates something visible, ship a CSS fallback via `@media (scripting: none)` (see `.nav-arrow` in `main.css`).
 - **JS comments: `/* … */` only — never `//`.** The `compress.html` layout collapses the built HTML to single lines; a `//` comment would comment out the rest of that script. Applies to inline template scripts too.
 - **Semantic HTML** — prefer `<article>/<section>/<figure>/<aside>/<nav>` over `<div>/<span>`; vanilla JS; CSS custom properties. More in `.clinerules`.
 - **Commits:** Conventional Commits, scope = area — `feat(lightbox): …`, `fix(gallery): …`, `docs: …`. Commit **explicitly named files only** (`git commit --only -- <paths>`); the tree often carries unrelated WIP — never `git add -A`, never a bare `git commit`. End every completed task with a commit and report the message back to the owner.
