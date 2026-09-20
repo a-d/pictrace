@@ -8,6 +8,7 @@
 
 | ID | Prio | Task |
 |---|---|---|
+| PT15 | P2 | Lightbox gestures: horizontal mouse/trackpad scroll (PC) + swipe (mobile) for prev/next (mirrors PT1) |
 | PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
 
 ## 🔵 In progress
@@ -61,11 +62,13 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — deferred |
 | PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — deferred |
 | PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — deferred |
+| PT15 | [`.hermes/plan/PT15-lightbox-gestures.md`](.hermes/plan/PT15-lightbox-gestures.md) — open |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT15 opened — lightbox gestures: horizontal wheel (PC) + one-finger swipe (mobile) for prev/next, reusing PT1's delegation to the `.nav-prev`/`.nav-next` links. Details: `.hermes/plan/PT15-lightbox-gestures.md`. |
 | 2026-09-20 | PT8 done — dead CSS/HTML stripped (commented ::after block, unmatched #gallery-close rules), 24+0→24n+0 (no visual change), dead form attrs removed. Footer `Design:` credit + `.gitignore /assets/` line flagged for owner decision. Commit `46b8d48`. |
 | 2026-09-20 | PT7 done — `_site` junk (root 3.7 GB + nested 33 MB) deleted, dead `.travis.yml` removed, build excludes added, `/0/` ignores collapsed, `git gc` packed 6,913 loose objects (4.78 GiB → consolidated). Commit `b3044ab`. |
 | 2026-09-20 | PT6 done — pinch-zoom is lightbox-only (`user-scalable=no` removed; `touch-action: pan-x pan-y` on the gallery; works on modern iOS; desktop/layout unaffected). Aria labels on prev/next/close; owner phone test pending. Commit `223a1fcfb4758081b01ed19e77eca247f3511938`. |
