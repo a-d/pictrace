@@ -8,8 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT7 | P3 | Housekeeping: nested thumbs/_site junk (33 MB), stale _site (3.7 GB), .travis.yml, Jekyll excludes, gitignore, git gc |
-| PT8 | P3 | CSS/HTML hygiene: dead CSS block, `:nth-child(24+0)` typo, dead form attributes |
 | PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
 
 ## 🔵 In progress
@@ -40,6 +38,8 @@ _(empty)_
 | PT3 | P2 | Build: precomputed AVIF path set replaces per-image scans — ✅ done 2026-09-20 (commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`) |
 | PT4 | P2 | Preload: thumbs preload AVIF when present, else JPG — ✅ done 2026-09-20 (commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`) |
 | PT6 | P2 | Zoom: pinch-zoom in the lightbox only; lightbox controls labeled — ✅ done 2026-09-20 (commit `223a1fcfb4758081b01ed19e77eca247f3511938`) |
+| PT7 | P3 | Housekeeping: `_site` junk deleted (−3.7 GB), `.travis.yml` removed, Jekyll excludes added, `/0/` ignores collapsed, `git gc` — ✅ done 2026-09-20 (commit `b3044ab3fb8e7c982c81bf0bc024c1343a3f41e5`) |
+| PT8 | P3 | CSS/HTML hygiene: dead `::after` block + unmatched `#gallery-close` rules removed, `24+0`→`24n+0`, dead form attrs — ✅ done 2026-09-20 (commit `46b8d48b1d39d20ef965c9cdc82e876c247cf33a`) |
 
 ## Task details
 
@@ -53,8 +53,8 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT4 | [`.hermes/plan/PT4-preload-avif-guard.md`](.hermes/plan/PT4-preload-avif-guard.md) — ✅ done 2026-09-20 |
 | PT5 | [`.hermes/plan/PT5-resize-sh-delete-safety.md`](.hermes/plan/PT5-resize-sh-delete-safety.md) — ✅ done 2026-09-20 |
 | PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — ✅ done 2026-09-20 |
-| PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — open |
-| PT8 | [`.hermes/plan/PT8-css-html-hygiene.md`](.hermes/plan/PT8-css-html-hygiene.md) — open |
+| PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — ✅ done 2026-09-20 |
+| PT8 | [`.hermes/plan/PT8-css-html-hygiene.md`](.hermes/plan/PT8-css-html-hygiene.md) — ✅ done 2026-09-20 |
 | PT9 | [`.hermes/plan/PT9-self-host-external-assets.md`](.hermes/plan/PT9-self-host-external-assets.md) — open |
 | PT10 | [`.hermes/plan/PT10-github-actions-build.md`](.hermes/plan/PT10-github-actions-build.md) — deferred |
 | PT11 | [`.hermes/plan/PT11-image-pipeline-modernization.md`](.hermes/plan/PT11-image-pipeline-modernization.md) — deferred |
@@ -66,6 +66,8 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT8 done — dead CSS/HTML stripped (commented ::after block, unmatched #gallery-close rules), 24+0→24n+0 (no visual change), dead form attrs removed. Footer `Design:` credit + `.gitignore /assets/` line flagged for owner decision. Commit `46b8d48`. |
+| 2026-09-20 | PT7 done — `_site` junk (root 3.7 GB + nested 33 MB) deleted, dead `.travis.yml` removed, build excludes added, `/0/` ignores collapsed, `git gc` packed 6,913 loose objects (4.78 GiB → consolidated). Commit `b3044ab`. |
 | 2026-09-20 | PT6 done — pinch-zoom is lightbox-only (`user-scalable=no` removed; `touch-action: pan-x pan-y` on the gallery; works on modern iOS; desktop/layout unaffected). Aria labels on prev/next/close; owner phone test pending. Commit `223a1fcfb4758081b01ed19e77eca247f3511938`. |
 | 2026-09-20 | PT6 scope refined per owner: pinch-zoom is wanted **on the opened photo only** — overview stays fixed, big-screen layout scaling unchanged. Chosen mechanism: drop `user-scalable=no`, apply `touch-action: pan-x pan-y` to the gallery (works on modern iOS too; see .hermes/plan/PT6). |
 | 2026-09-20 | PT3 done — precomputed AVIF set replaces O(N·M) per-image scans (3,821-path equivalence test, 0 mismatches). Fix commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`. |
