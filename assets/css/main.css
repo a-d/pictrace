@@ -249,11 +249,24 @@ body:has([popover]:popover-open) .click-blocker {
 	background: rgba(255, 255, 255, 0.1);
 	border-radius: 50%;
 	z-index: 1010;
-	transition: background 0.3s ease;
+	/* Hidden until the slide image is laid out ('img-ready' added by main.js) */
+	opacity: 0;
+	transition: background 0.3s ease, opacity 0.3s ease;
 }
 
 .nav-arrow:hover {
 	background: rgba(255, 255, 255, 0.3);
+}
+
+.lightbox-container.img-ready .nav-arrow {
+	opacity: 1;
+}
+
+/* No-JS fallback: keep the arrows visible when scripting is unavailable */
+@media (scripting: none) {
+	.nav-arrow {
+		opacity: 1;
+	}
 }
 
 .nav-prev {

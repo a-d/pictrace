@@ -428,6 +428,26 @@ function formatExifValue(tag, value) {
     return value;
 }
 
+/* Reveal a slide's nav arrows once its image can be laid out */
+/* (the arrows are hidden until then - see .nav-arrow styles) */
+function armSlideImageReady(img) {
+  var itemDiv = img.closest('.lightbox-container');
+  if (!itemDiv || itemDiv.classList.contains('img-ready')) return;
+
+  /* Already loaded (e.g. cached): reveal immediately */
+  if (img.complete && img.naturalWidth > 0) {
+    itemDiv.classList.add('img-ready');
+    return;
+  }
+
+  /* Otherwise wait for the image to load (or fail), once */
+  if (itemDiv.dataset.imgReadyArmed) return;
+  itemDiv.dataset.imgReadyArmed = 'true';
+  var markImageReady = function() { itemDiv.classList.add('img-ready'); };
+  img.addEventListener('load', markImageReady, { once: true });
+  img.addEventListener('error', markImageReady, { once: true });
+}
+
 /* Handle hash change to load EXIF data for visible lightbox images */
 /* Uses async/await to ensure non-blocking behavior */
 async function handleHashChange() {
@@ -438,6 +458,9 @@ async function handleHashChange() {
   if (!targetElement) return;
 
   var images = targetElement.querySelectorAll('.lightbox-container img');
+
+  /* Reveal the nav arrows only once the slide's image is ready to lay out */
+  images.forEach(armSlideImageReady);
   
   /* Process each image asynchronously without blocking rendering */
   images.forEach(function(img) {
