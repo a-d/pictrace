@@ -9,7 +9,6 @@
 | ID | Prio | Task |
 |---|---|---|
 | PT15 | P2 | Lightbox gestures: horizontal mouse/trackpad scroll (PC) + swipe (mobile) for prev/next (mirrors PT1) |
-| PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
 
 ## 🔵 In progress
 
@@ -41,6 +40,7 @@ _(empty)_
 | PT6 | P2 | Zoom: pinch-zoom in the lightbox only; lightbox controls labeled — ✅ done 2026-09-20 (commit `223a1fcfb4758081b01ed19e77eca247f3511938`) |
 | PT7 | P3 | Housekeeping: `_site` junk deleted (−3.7 GB), `.travis.yml` removed, Jekyll excludes added, `/0/` ignores collapsed, `git gc` — ✅ done 2026-09-20 (commit `b3044ab3fb8e7c982c81bf0bc024c1343a3f41e5`) |
 | PT8 | P3 | CSS/HTML hygiene: dead `::after` block + unmatched `#gallery-close` rules removed, `24+0`→`24n+0`, dead form attrs — ✅ done 2026-09-20 (commit `46b8d48b1d39d20ef965c9cdc82e876c247cf33a`) |
+| PT9 | P3 | Self-host exifr + FontAwesome: exifr 7.1.3 (MIT) + FA 4.7.0 webfont (SIL OFL 1.1) vendored to `assets/js/vendor/` + `assets/fonts/` with license files; CDN refs removed — ✅ done 2026-09-20 (commit `6d0c261be85aee05d12a9a300406a0086aa42315`) |
 
 ## Task details
 
@@ -56,7 +56,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — ✅ done 2026-09-20 |
 | PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — ✅ done 2026-09-20 |
 | PT8 | [`.hermes/plan/PT8-css-html-hygiene.md`](.hermes/plan/PT8-css-html-hygiene.md) — ✅ done 2026-09-20 |
-| PT9 | [`.hermes/plan/PT9-self-host-external-assets.md`](.hermes/plan/PT9-self-host-external-assets.md) — open |
+| PT9 | [`.hermes/plan/PT9-self-host-external-assets.md`](.hermes/plan/PT9-self-host-external-assets.md) — ✅ done 2026-09-20 |
 | PT10 | [`.hermes/plan/PT10-github-actions-build.md`](.hermes/plan/PT10-github-actions-build.md) — deferred |
 | PT11 | [`.hermes/plan/PT11-image-pipeline-modernization.md`](.hermes/plan/PT11-image-pipeline-modernization.md) — deferred |
 | PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — deferred |
@@ -68,6 +68,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT9 done — exifr 7.1.3 (MIT) + FontAwesome 4.7.0 woff2 (SIL OFL 1.1) self-hosted (`assets/js/vendor/`, `assets/fonts/`) with license files; both verified byte-identical to upstream (sha256). License check: mirroring allowed (MIT/OFL); the EU GDPR risk (third-party CDN embedding) is removed by this change. Browser check: only first-party requests. Commit `6d0c261`. New `assets/` files committed via `git add -f` (`/assets/` ignore pending owner decision). |
 | 2026-09-20 | PT15 opened — lightbox gestures: horizontal wheel (PC) + one-finger swipe (mobile) for prev/next, reusing PT1's delegation to the `.nav-prev`/`.nav-next` links. Details: `.hermes/plan/PT15-lightbox-gestures.md`. |
 | 2026-09-20 | PT8 done — dead CSS/HTML stripped (commented ::after block, unmatched #gallery-close rules), 24+0→24n+0 (no visual change), dead form attrs removed. Footer `Design:` credit + `.gitignore /assets/` line flagged for owner decision. Commit `46b8d48`. |
 | 2026-09-20 | PT7 done — `_site` junk (root 3.7 GB + nested 33 MB) deleted, dead `.travis.yml` removed, build excludes added, `/0/` ignores collapsed, `git gc` packed 6,913 loose objects (4.78 GiB → consolidated). Commit `b3044ab`. |
