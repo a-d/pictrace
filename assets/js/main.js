@@ -32,14 +32,23 @@ function makeProgressMapper(points) {
   };
 }
 
-/* Process journey progress data stored by inline scripts */
-/* Inline scripts store coordinate arrays in window.journeyProgressData */
-/* This runs after main.js loads and creates the actual progress functions */
-if (window.journeyProgressData) {
-  Object.keys(window.journeyProgressData).forEach(function(name) {
-    window[name] = makeProgressMapper(window.journeyProgressData[name]);
+/* Register journey progress functions from data-progress attributes */
+/* (progressively injected location batches cannot run inline scripts, so the */
+/* coordinate arrays live in markup and are parsed here) */
+function registerJourneyProgress() {
+  document.querySelectorAll('.map[pathId][data-progress]').forEach(function(mapElement) {
+    if (mapElement.dataset.progressRegistered) return;
+    mapElement.dataset.progressRegistered = 'true';
+    var fnName = mapElement.getAttribute('progressFn');
+    if (!fnName) return;
+    try {
+      window[fnName] = makeProgressMapper(JSON.parse(mapElement.getAttribute('data-progress')));
+    } catch (err) {
+      window[fnName] = null;
+    }
   });
 }
+registerJourneyProgress();
 
 (function() {
   /* Only define once */
@@ -187,6 +196,14 @@ if (window.journeyProgressData) {
     updateGridLayout();
     updatePathAnimation();
   });
+
+  /* Re-init hook for progressively injected location batches (PT16) */
+  window.refreshJourneyMaps = function() {
+    registerJourneyProgress();
+    initJourneyMaps();
+    updateGridLayout();
+    updatePathAnimation();
+  };
 })();
 
 /* ========================================
@@ -209,8 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
   /* add location scrolling indicator */
   {
     var locationIndicator = document.getElementById("location-indicator");
-    var locationItems = document.querySelectorAll(".gallery .gallery-item");
-    if (locationIndicator && locationItems.length > 0) {
+    if (locationIndicator) {
       var locationObserver = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
           if (entry.isIntersecting) {
@@ -219,7 +235,16 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         });
       }, { threshold: 1 }); /* 100% visible */
-      locationItems.forEach(function(sec) { locationObserver.observe(sec); });
+
+      /* observe every gallery item once; injected batches re-use this (PT16) */
+      window.observeLocationItems = function(root) {
+        (root || document).querySelectorAll(".gallery .gallery-item").forEach(function(sec) {
+          if (sec.dataset.locationObserved) return;
+          sec.dataset.locationObserved = "true";
+          locationObserver.observe(sec);
+        });
+      };
+      window.observeLocationItems();
 
       var timer = setTimeout(function() { locationIndicator.style.opacity = 0; }, 100);
       window.addEventListener("scroll", function() {
@@ -578,3 +603,170 @@ if (document.readyState === 'loading') {
   scheduleInit(handleHashChange);
 }
 window.addEventListener('hashchange', handleHashChange);
+
+/* ========================================
+   Popover links to non-rendered locations (PT16)
+   ======================================== */
+
+/* Select-popover links are in-page anchors; when the target is not part of the */
+/* current page (a location that is not prerendered on the index, or another */
+/* location on a location page) the link falls back to that location's page. */
+function rewirePopoverLinks() {
+  document.querySelectorAll('[popover] a[data-page]').forEach(function(link) {
+    if (!link.dataset.hash) link.dataset.hash = link.getAttribute('href');
+    var hash = link.dataset.hash;
+    if (hash.charAt(0) !== '#') return;
+    if (document.getElementById(hash.slice(1))) {
+      link.setAttribute('href', hash);
+    } else {
+      link.setAttribute('href', link.getAttribute('data-page'));
+    }
+  });
+}
+rewirePopoverLinks();
+
+/* ========================================
+   Progressive per-location loading (PT16)
+   ======================================== */
+
+/* The index prerenders the first N locations (site.prerender_locations); this */
+/* loader appends the remaining location pages in order as the reader scrolls, */
+/* rewiring the prev/next chain across batch boundaries. Without JavaScript the */
+/* link list stays as plain navigation. */
+(function() {
+  var linksNav = document.querySelector('.location-links');
+  var gallery = document.querySelector('main.gallery');
+  if (!linksNav || !gallery) return;
+
+  var links = Array.prototype.slice.call(linksNav.querySelectorAll('a[data-year][data-loc]'));
+  if (links.length === 0) return;
+
+  var BATCH = 5;
+  var cursor = 0;
+  var loading = false;
+  var lastSlideId = null;
+  var loadedKeys = {};
+
+  function locKey(el) {
+    return el.getAttribute('data-year') + '-' + el.getAttribute('data-loc');
+  }
+
+  /* mark the prerendered locations as loaded */
+  document.querySelectorAll('main.gallery > .year > .location').forEach(function(sec) {
+    var parts = (sec.getAttribute('id') || '').split('-');
+    if (parts.length >= 3) loadedKeys[parts[1] + '-' + parts[2]] = true;
+  });
+  var renderedFigs = gallery.querySelectorAll('figure.lightbox-container');
+  if (renderedFigs.length) lastSlideId = renderedFigs[renderedFigs.length - 1].id;
+
+  function firstUnloadedIndex() {
+    while (cursor < links.length && loadedKeys[locKey(links[cursor])]) cursor++;
+    return cursor;
+  }
+
+  /* inject one fetched location page; keeps the global arrow chain intact */
+  function injectLocation(doc) {
+    var srcYear = doc.querySelector('main.gallery > .year');
+    if (!srcYear) return;
+    var srcLoc = srcYear.querySelector('section.location');
+    if (!srcLoc) return;
+
+    var yearName = srcYear.getAttribute('year');
+    var targetYear = gallery.querySelector('section.year[year="' + yearName + '"]');
+    var scope;
+    if (targetYear) {
+      targetYear.appendChild(srcLoc);
+      scope = srcLoc;
+    } else {
+      gallery.appendChild(srcYear);
+      scope = srcYear;
+    }
+
+    var figs = scope.querySelectorAll('figure.lightbox-container');
+    if (figs.length === 0) return;
+
+    /* previous location's last slide now continues into this location */
+    if (lastSlideId) {
+      var prevFig = document.getElementById(lastSlideId);
+      var prevNext = prevFig ? prevFig.querySelector('.nav-next') : null;
+      if (prevFig && !prevNext) {
+        prevNext = document.createElement('a');
+        prevNext.className = 'nav-next';
+        prevNext.setAttribute('aria-label', 'Next');
+        prevNext.textContent = '\u276f';
+        prevFig.appendChild(prevNext);
+      }
+      if (prevNext) prevNext.setAttribute('href', '#' + figs[0].id);
+      figs[0].querySelector('.nav-prev').setAttribute('href', '#' + lastSlideId);
+    }
+    lastSlideId = figs[figs.length - 1].id;
+  }
+
+  function prefetchNextBatch() {
+    links.slice(cursor, cursor + BATCH).forEach(function(link) {
+      var pre = document.createElement('link');
+      pre.rel = 'prefetch';
+      pre.href = link.href;
+      document.head.appendChild(pre);
+    });
+  }
+
+  function injectBatch() {
+    if (loading) return;
+    var start = firstUnloadedIndex();
+    if (start >= links.length) return;
+
+    loading = true;
+    var batch = links.slice(start, start + BATCH);
+    var chain = Promise.resolve();
+    batch.forEach(function(link) {
+      chain = chain.then(function() {
+        return fetch(link.href, { credentials: 'same-origin' })
+          .then(function(response) {
+            if (!response.ok) throw new Error('fetch failed: ' + response.status);
+            return response.text();
+          })
+          .then(function(html) {
+            injectLocation(new DOMParser().parseFromString(html, 'text/html'));
+            loadedKeys[locKey(link)] = true;
+            cursor = Math.max(cursor, links.indexOf(link) + 1);
+          });
+      });
+    });
+
+    chain.then(function() {
+      loading = false;
+      if (window.refreshJourneyMaps) window.refreshJourneyMaps();
+      if (window.observeLocationItems) window.observeLocationItems(gallery);
+      rewirePopoverLinks();
+      prefetchNextBatch();
+      /* if the sentinel is still close, keep going */
+      if (linksNav.getBoundingClientRect().top < window.innerHeight * 2.5) injectBatch();
+    }).catch(function() {
+      loading = false; /* keep the links as fallback; the observer retries on the next scroll */
+    });
+  }
+
+  var sentinelObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) injectBatch();
+    });
+  }, { rootMargin: '200% 0px' });
+  sentinelObserver.observe(linksNav);
+
+  /* deep links to a photo that is not prerendered: land on its location page */
+  (function handleDeepLink() {
+    var hash = location.hash;
+    if (!hash || hash === '#p' || hash.length < 4) return;
+    if (document.getElementById(hash.slice(1))) return;
+    var m = /^#p-(\d{2})-(\d+)-/.exec(hash);
+    if (!m) return;
+    var key = m[1] + '-' + m[2];
+    for (var i = 0; i < links.length; i++) {
+      if (locKey(links[i]) === key) {
+        location.replace(links[i].href + hash);
+        return;
+      }
+    }
+  })();
+})();
