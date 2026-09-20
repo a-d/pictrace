@@ -1,293 +1,431 @@
 #!/bin/bash
 # resize.sh - Image processing script for pictrace
 # Replaces gulpfile.js with pure bash + CLI tools
-# 
+#
 # Requirements:
 #   apt install imagemagick libavif-bin libimage-exiftool-perl
+#   bash 4.3+ (job pool via wait -n)
 #
-# Usage:
-#   ./resize.sh                    # Interactive mode (prompts for year/location)
-#   ./resize.sh 2026 "Paris"       # Direct mode with arguments
-#   ./resize.sh 2026 "Paris" -d    # Delete originals after processing
-#   ./resize.sh 2026 "Paris" -v    # Verbose mode (show avifenc output)
-#   ./resize.sh 2026 "Paris" -d -v # Combine flags
+# Modes:
+#   ./resize.sh                      # Interactive: process new originals in images/
+#   ./resize.sh 2026 "Paris"         # Process originals for one location
+#   ./resize.sh 2026 "Paris" -d      # ... and delete originals afterwards
+#   ./resize.sh --backfill           # Create missing AVIF from published JPGs (all years)
+#   ./resize.sh --backfill 2025      # ... one year ("Oberwiesenthal" etc. also match suffixes)
+#   ./resize.sh --backfill --force   # Re-encode every AVIF in scope (after settings changes)
+#   ./resize.sh --coverage           # AVIF coverage report only (changes nothing)
+#
+# Flags:
+#   -d, --delete    Delete original images after successful processing (normal mode)
+#   -v, --verbose   Note: avifenc output always goes to the log file (printed at end)
+#   -j N            Parallel jobs (default: number of CPUs)
+#   -f, --force     Backfill: re-encode existing AVIFs too ("rebuild all")
+#   -y, --yes       Skip confirmation prompts
+#   -h, --help      Show this help
+#
+# PT11 (2026-09-20): parallel job pool; --backfill/--coverage modes; AVIF
+# outputs no longer embed metadata (ICC/Exif/XMP) - the lightbox reads EXIF
+# from the JPG, the profile is plain sRGB, and it used to double thumb bytes.
+#
+# Note: not using 'set -e' - arithmetic + flaky tools caused surprise exits.
 
-# Note: Not using 'set -e' as it can cause unexpected exits with arithmetic operations
+set -u
 
-# Handle Ctrl+C gracefully
-INTERRUPTED=false
-trap 'INTERRUPTED=true; echo -e "\n${YELLOW}Interrupted! Finishing current image...${NC}"' INT
-
-# Configuration
+# ---------------------------------------------------------------- config
 FULL_WIDTH=1024
 THUMB_WIDTH=512
-FULL_QUALITY=95               # Base quality (used for JPG)
-THUMB_QUALITY=80              # Base quality (used for JPG)
-AVIF_QUALITY_MULTIPLIER=0.83  # AVIF uses lower quality number (more efficient codec)
+FULL_QUALITY=95                # JPG quality (fulls)
+THUMB_QUALITY=80               # JPG quality (thumbs)
+
+# AVIF quantizer (0-63, lower = better). Deliberately unchanged from the
+# pre-PT11 pipeline (proven, and the sweep showed near-flat SSIM ~0.98 with
+# 2-4% byte margin between settings). The PT11 wins are elsewhere: coverage,
+# metadata-free output, from-JPG backfill.
+AVIF_FULL_QMAX=14
+AVIF_THUMB_QMAX=22
+AVIF_SPEED=6                   # avifenc speed preset
+
 IMAGES_DIR="images"
+LOG_FILE="/tmp/resize_avif_$$.log"
 
-# Convert JPEG-style quality (0-100) to avifenc quantizer (0-63)
-# Higher quality = lower quantizer
-# Formula: quantizer = 63 - (quality * 63 / 100)
-quality_to_quantizer() {
-    local quality=$1
-    echo $(( 63 - (quality * 63 / 100) ))
-}
+# Colors
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 
-# Calculate AVIF quality (apply multiplier)
-# Using awk for floating-point math, then truncate to integer
-AVIF_FULL_QUALITY=$(awk "BEGIN {printf \"%.0f\", $FULL_QUALITY * $AVIF_QUALITY_MULTIPLIER}")
-AVIF_THUMB_QUALITY=$(awk "BEGIN {printf \"%.0f\", $THUMB_QUALITY * $AVIF_QUALITY_MULTIPLIER}")
-
-FULL_QUANTIZER=$(quality_to_quantizer $AVIF_FULL_QUALITY)
-THUMB_QUANTIZER=$(quality_to_quantizer $AVIF_THUMB_QUALITY)
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Parse arguments or prompt interactively
+# ---------------------------------------------------------------- args
+MODE="normal"
+YEAR=""; LOCATION=""
 DELETE_ORIGINALS=false
 VERBOSE=false
+FORCE=false
+ASSUME_YES=false
+JOBS=$(nproc 2>/dev/null || echo 4)
 
-if [ $# -ge 2 ]; then
-    YEAR="$1"
-    LOCATION="$2"
-    shift 2
-    # Parse remaining flags
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            -d|--delete) DELETE_ORIGINALS=true ;;
-            -v|--verbose) VERBOSE=true ;;
-            *) echo -e "${YELLOW}Warning: ignoring unknown option: $1${NC}" ;;
-        esac
-        shift
-    done
-else
-    read -p "Enter the year: " YEAR
-    read -p "Enter the location: " LOCATION
-    read -p "Delete original images after processing? [y/N]: " DELETE_CONFIRM
-    if [[ "$DELETE_CONFIRM" =~ ^[Yy]$ ]]; then
-        DELETE_ORIGINALS=true
-    fi
-fi
+usage() { sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; }
 
-# Validate inputs
-if [ -z "$YEAR" ] || [ -z "$LOCATION" ]; then
-    echo -e "${RED}Error: Year and location are required${NC}"
-    exit 1
-fi
-
-# Function to get indexed location directory
-get_indexed_location() {
-    local year="$1"
-    local location="$2"
-    local year_dir="$IMAGES_DIR/$year"
-    
-    # Create year directory if it doesn't exist
-    if [ ! -d "$year_dir" ]; then
-        mkdir -p "$year_dir"
-        echo "01_$location"
-        return
-    fi
-    
-    # Check if this location already exists (with any index)
-    local existing=$(find "$year_dir" -maxdepth 1 -type d -name "*_$location" 2>/dev/null | head -1)
-    if [ -n "$existing" ]; then
-        basename "$existing"
-        return
-    fi
-    
-    # Find the highest index currently in use
-    local highest_index=0
-    for dir in "$year_dir"/*/; do
-        [ -d "$dir" ] || continue
-        local dirname=$(basename "$dir")
-        if [[ "$dirname" =~ ^([0-9]+)_ ]]; then
-            local idx=${BASH_REMATCH[1]}
-            idx=$((10#$idx))  # Remove leading zeros for arithmetic
-            if [ $idx -gt $highest_index ]; then
-                highest_index=$idx
-            fi
-        fi
-    done
-    
-    # Use the next available index
-    local next_index=$((highest_index + 1))
-    printf "%02d_%s" $next_index "$location"
-}
-
-# Get the indexed directory name
-DIR=$(get_indexed_location "$YEAR" "$LOCATION")
-FULLS_DIR="$IMAGES_DIR/$YEAR/$DIR/fulls"
-THUMBS_DIR="$IMAGES_DIR/$YEAR/$DIR/thumbs"
-
-echo -e "${BLUE}Processing images for: $YEAR / $DIR${NC}"
-echo -e "Full-size: ${FULL_WIDTH}px @ ${FULL_QUALITY}% quality"
-echo -e "Thumbnails: ${THUMB_WIDTH}px @ ${THUMB_QUALITY}% quality"
-echo ""
-
-# Create output directories
-mkdir -p "$FULLS_DIR" "$THUMBS_DIR"
-
-# Find all images in the root images directory
-shopt -s nullglob nocaseglob
-IMAGE_FILES=("$IMAGES_DIR"/*.{jpg,jpeg,png,tiff,tif,webp})
-shopt -u nullglob nocaseglob
-
-if [ ${#IMAGE_FILES[@]} -eq 0 ]; then
-    echo -e "${YELLOW}No images found in $IMAGES_DIR/${NC}"
-    echo "Place your images in the '$IMAGES_DIR' directory and run again."
-    exit 0
-fi
-
-echo -e "${GREEN}Found ${#IMAGE_FILES[@]} image(s) to process${NC}"
-echo ""
-
-# Process each image
-PROCESSED=0
-FAILED=0
-PROCESSED_FILES=()
-
-for img in "${IMAGE_FILES[@]}"; do
-    # Check for Ctrl+C interrupt
-    [ "$INTERRUPTED" = true ] && break
-    [ -f "$img" ] || continue
-    
-    FILENAME=$(basename "$img")
-    BASENAME="${FILENAME%.*}"
-    
-    echo -e "${BLUE}Processing: $FILENAME${NC}"
-    
-    # Create temporary PNG files for lossless intermediate (avoids JPG→AVIF transcoding loss)
-    TEMP_FULL="/tmp/resize_full_$$.png"
-    TEMP_THUMB="/tmp/resize_thumb_$$.png"
-    
-    # Resize to lossless PNG intermediates (preserves quality for both JPG and AVIF encoding)
-    echo -n "  Resizing to ${FULL_WIDTH}px... "
-    if convert "$img" -resize "${FULL_WIDTH}x>" "$TEMP_FULL" 2>/dev/null; then
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${RED}FAILED${NC}"
-        FAILED=$((FAILED + 1))
-        rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
-        continue
-    fi
-    
-    echo -n "  Resizing to ${THUMB_WIDTH}px... "
-    if convert "$img" -resize "${THUMB_WIDTH}x>" "$TEMP_THUMB" 2>/dev/null; then
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${RED}FAILED${NC}"
-        FAILED=$((FAILED + 1))
-        rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
-        continue
-    fi
-    
-    # Full-size JPG (with essential EXIF metadata only)
-    echo -n "  Creating full-size JPG... "
-    if convert "$TEMP_FULL" -quality "$FULL_QUALITY" -interlace Plane "$FULLS_DIR/$BASENAME.jpg" 2>/dev/null; then
-        # Copy only essential EXIF tags (Model, FNumber, FocalLength, ExposureTime, ISO)
-        # This reduces metadata from ~77KB to ~1-2KB
-        exiftool -overwrite_original -TagsFromFile "$img" \
-            -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
-            -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
-            "$FULLS_DIR/$BASENAME.jpg" >/dev/null 2>&1
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${RED}FAILED${NC}"
-        FAILED=$((FAILED + 1))
-        rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
-        continue
-    fi
-    
-    # Full-size AVIF (encoded from lossless PNG, not from JPG)
-    echo -n "  Creating full-size AVIF... "
-    # --yuv 420 for better compression (same as JPEG uses)
-    # Encode directly from PNG to avoid generation loss
-    if [ "$VERBOSE" = true ]; then
-        avifenc --speed 6 --jobs all --yuv 420 --min 0 --max "$FULL_QUANTIZER" -- "$TEMP_FULL" "$FULLS_DIR/$BASENAME.avif"
-        AVIF_RESULT=$?
-    else
-        avifenc --speed 6 --jobs all --yuv 420 --min 0 --max "$FULL_QUANTIZER" -- "$TEMP_FULL" "$FULLS_DIR/$BASENAME.avif" >/dev/null 2>&1
-        AVIF_RESULT=$?
-    fi
-    if [ $AVIF_RESULT -eq 0 ]; then
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${YELLOW}SKIPPED (avifenc failed)${NC}"
-    fi
-    
-    # Thumbnail JPG (with essential EXIF metadata only)
-    echo -n "  Creating thumbnail JPG... "
-    if convert "$TEMP_THUMB" -quality "$THUMB_QUALITY" -interlace Plane "$THUMBS_DIR/$BASENAME.jpg" 2>/dev/null; then
-        # Copy only essential EXIF tags (Model, FNumber, FocalLength, ExposureTime, ISO)
-        # This reduces metadata from ~77KB to ~1-2KB
-        exiftool -overwrite_original -TagsFromFile "$img" \
-            -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
-            -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
-            "$THUMBS_DIR/$BASENAME.jpg" >/dev/null 2>&1
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${RED}FAILED${NC}"
-        FAILED=$((FAILED + 1))
-        rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
-        continue
-    fi
-    
-    # Thumbnail AVIF (encoded from lossless PNG, not from JPG)
-    echo -n "  Creating thumbnail AVIF... "
-    # --yuv 420 for better compression (same as JPEG uses)
-    if [ "$VERBOSE" = true ]; then
-        avifenc --speed 6 --jobs all --yuv 420 --min 0 --max "$THUMB_QUANTIZER" -- "$TEMP_THUMB" "$THUMBS_DIR/$BASENAME.avif"
-        AVIF_RESULT=$?
-    else
-        avifenc --speed 6 --jobs all --yuv 420 --min 0 --max "$THUMB_QUANTIZER" -- "$TEMP_THUMB" "$THUMBS_DIR/$BASENAME.avif" >/dev/null 2>&1
-        AVIF_RESULT=$?
-    fi
-    if [ $AVIF_RESULT -eq 0 ]; then
-        echo -e "${GREEN}OK${NC}"
-    else
-        echo -e "${YELLOW}SKIPPED (avifenc failed)${NC}"
-    fi
-    
-    # Cleanup temporary files
-    rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
-    
-    PROCESSED=$((PROCESSED + 1))
-    PROCESSED_FILES+=("$img")
-    echo ""
+args=("$@"); i=0
+while [ $i -lt ${#args[@]} ]; do
+  a="${args[$i]}"
+  case "$a" in
+    --backfill)  MODE="backfill" ;;
+    --coverage)  MODE="coverage" ;;
+    -d|--delete) DELETE_ORIGINALS=true ;;
+    -v|--verbose) VERBOSE=true ;;
+    -f|--force)  FORCE=true ;;
+    -y|--yes)    ASSUME_YES=true ;;
+    -h|--help)   usage; exit 0 ;;
+    -j|--jobs)   i=$((i+1)); JOBS="${args[$i]:-}" ;;
+    -j*)         JOBS="${a#-j}" ;;
+    -*)          echo -e "${YELLOW}Warning: ignoring unknown option: $a${NC}" ;;
+    *)
+      if   [ -z "$YEAR" ];     then YEAR="$a"
+      elif [ -z "$LOCATION" ]; then LOCATION="$a"
+      else echo -e "${YELLOW}Warning: ignoring extra argument: $a${NC}"
+      fi ;;
+  esac
+  i=$((i+1))
 done
 
-echo -e "${GREEN}Processed: $PROCESSED image(s)${NC}"
-if [ $FAILED -gt 0 ]; then
-    echo -e "${RED}Failed: $FAILED image(s)${NC}"
+case "$JOBS" in
+  ''|*[!0-9]*) echo -e "${RED}Error: -j needs a number${NC}"; exit 1 ;;
+esac
+[ "$JOBS" -lt 1 ] && JOBS=1
+# keep avifenc from oversubscribing when many images run in parallel
+AVIF_JOBS=$(( ($(nproc 2>/dev/null || echo 4) + JOBS - 1) / JOBS ))
+[ "$AVIF_JOBS" -lt 1 ] && AVIF_JOBS=1
+
+for c in convert avifenc exiftool; do
+  command -v "$c" >/dev/null 2>&1 || {
+    echo -e "${RED}Error: '$c' not found. apt install imagemagick libavif-bin libimage-exiftool-perl${NC}"; exit 1; }
+done
+
+if [ "$MODE" = "normal" ] && [ -z "$YEAR" ]; then
+  read -p "Enter the year: " YEAR
+  read -p "Enter the location: " LOCATION
+  read -p "Delete original images after processing? [y/N]: " DELETE_CONFIRM
+  if [[ "$DELETE_CONFIRM" =~ ^[Yy]$ ]]; then DELETE_ORIGINALS=true; fi
 fi
 
-# Delete originals if requested (only successfully processed files)
-if [ "$DELETE_ORIGINALS" = true ]; then
-    echo ""
-    if [ "$INTERRUPTED" = true ]; then
-        echo -e "${YELLOW}Run was interrupted - keeping all originals (nothing deleted).${NC}"
-    elif [ ${#PROCESSED_FILES[@]} -eq 0 ]; then
-        echo -e "${YELLOW}No originals to delete - no image was processed successfully.${NC}"
-    else
-        KEPT=$(( ${#IMAGE_FILES[@]} - ${#PROCESSED_FILES[@]} ))
-        echo -e "${YELLOW}Deleting ${#PROCESSED_FILES[@]} processed original(s)...${NC}"
-        for img in "${PROCESSED_FILES[@]}"; do
-            [ -f "$img" ] && rm "$img"
-        done
-        echo -e "${GREEN}Deleted ${#PROCESSED_FILES[@]} original(s).${NC}"
-        if [ "$KEPT" -gt 0 ]; then
-            echo -e "${YELLOW}Kept $KEPT original(s) that could not be processed - re-run to retry them.${NC}"
-        fi
+# ---------------------------------------------------------------- helpers
+# next free index for a new location (normal mode)
+get_indexed_location() {
+  local year="$1" location="$2"
+  local year_dir="$IMAGES_DIR/$year"
+  if [ ! -d "$year_dir" ]; then
+    mkdir -p "$year_dir"
+    echo "01_$location"
+    return
+  fi
+  local existing
+  existing=$(find "$year_dir" -maxdepth 1 -type d -name "*_$location" 2>/dev/null | head -1)
+  if [ -n "$existing" ]; then
+    basename "$existing"
+    return
+  fi
+  local highest_index=0 dir dirname idx
+  for dir in "$year_dir"/*/; do
+    [ -d "$dir" ] || continue
+    dirname=$(basename "$dir")
+    if [[ "$dirname" =~ ^([0-9]+)_ ]]; then
+      idx=${BASH_REMATCH[1]}
+      idx=$((10#$idx))
+      [ $idx -gt $highest_index ] && highest_index=$idx
     fi
-fi
+  done
+  printf "%02d_%s" $((highest_index + 1)) "$location"
+}
+
+# resolve YEAR + LOCATION to an existing directory (location matches *_suffix)
+resolve_location_dir() {
+  local year="$1" location="$2"
+  local year_dir="$IMAGES_DIR/$year"
+  [ -d "$year_dir" ] || return 1
+  [ -z "$location" ] && { echo "$year_dir"; return 0; }
+  local d
+  d=$(find "$year_dir" -maxdepth 1 -mindepth 1 -type d -name "*_${location}" 2>/dev/null | sort | head -1)
+  [ -n "$d" ] || return 1
+  echo "$d"
+}
+
+list_year_dirs() {
+  if [ -n "$YEAR" ]; then
+    [ -d "$IMAGES_DIR/$YEAR" ] && echo "$IMAGES_DIR/$YEAR"
+  else
+    for y in "$IMAGES_DIR"/*/; do
+      [ -d "$y" ] || continue
+      case "$(basename "$y")" in *[!0-9]*) continue ;; esac
+      echo "$y"
+    done
+  fi
+}
+
+# JPG files (any extension case) directly under a dir
+find_jpgs() {
+  find "$1" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) 2>/dev/null | sort
+}
+
+# ---------------------------------------------------------------- coverage
+coverage_report() {
+  local year year_dir loc_dir n fulls_avif thumbs_avif t
+  local t_photos=0 t_fulls=0 t_thumbs=0 t_incomplete=0 y_photos y_fulls y_thumbs
+  echo -e "${BLUE}AVIF coverage${NC} (scope: ${YEAR:-all years})"
+  printf "%-44s %6s %7s %8s\n" "location (incomplete only)" "photos" "fulls%" "thumbs%"
+  for year_dir in $(list_year_dirs); do
+    year=$(basename "$year_dir")
+    y_photos=0; y_fulls=0; y_thumbs=0
+    for loc_dir in "$year_dir"/*/; do
+      [ -d "$loc_dir" ] || continue
+      n=0; fulls_avif=0; thumbs_avif=0
+      while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        n=$((n+1))
+        [ -f "${f%.*}.avif" ] && fulls_avif=$((fulls_avif+1))
+        t="${f/\/fulls\//\/thumbs\/}"
+        [ -f "${t%.*}.avif" ] && thumbs_avif=$((thumbs_avif+1))
+      done < <(find_jpgs "$loc_dir/fulls")
+      [ "$n" -eq 0 ] && continue
+      y_photos=$((y_photos+n)); y_fulls=$((y_fulls+fulls_avif)); y_thumbs=$((y_thumbs+thumbs_avif))
+      if [ "$fulls_avif" -lt "$n" ] || [ "$thumbs_avif" -lt "$n" ]; then
+        printf "%-44s %6d %6d%% %7d%%\n" "$year/$(basename "$loc_dir")" "$n" \
+          $((fulls_avif*100/n)) $((thumbs_avif*100/n))
+        t_incomplete=$((t_incomplete+1))
+      fi
+    done
+    printf -- "-- %s: %d photos, fulls AVIF %d%%, thumbs AVIF %d%%\n" "$year" "$y_photos" \
+      $(( y_photos ? y_fulls*100/y_photos : 100 )) $(( y_photos ? y_thumbs*100/y_photos : 100 ))
+    t_photos=$((t_photos+y_photos)); t_fulls=$((t_fulls+y_fulls)); t_thumbs=$((t_thumbs+y_thumbs))
+  done
+  echo "TOTAL: $t_photos photos - fulls AVIF $t_fulls ($(( t_photos ? t_fulls*100/t_photos : 100 ))%)," \
+       "thumbs AVIF $t_thumbs ($(( t_photos ? t_thumbs*100/t_photos : 100 ))%)," \
+       "incomplete locations: $t_incomplete"
+}
+
+# ---------------------------------------------------------------- workers
+# normal mode: one original -> full JPG+AVIF, thumb JPG+AVIF
+process_original() {
+  local n="$1" total="$2" img="$3"
+  local FILENAME BASENAME tmp_full tmp_thumb result stage detail
+  FILENAME=$(basename "$img")
+  BASENAME="${FILENAME%.*}"
+  tmp_full="/tmp/resize_$$_${n}_full.png"
+  tmp_thumb="/tmp/resize_$$_${n}_thumb.png"
+  detail=""; stage=""
+
+  if ! convert "$img" -resize "${FULL_WIDTH}x>" "$tmp_full" 2>/dev/null; then
+    result=FAIL; stage="resize-full"
+  elif ! convert "$img" -resize "${THUMB_WIDTH}x>" "$tmp_thumb" 2>/dev/null; then
+    result=FAIL; stage="resize-thumb"
+  elif ! convert "$tmp_full" -quality "$FULL_QUALITY" -interlace Plane "$FULLS_DIR/$BASENAME.jpg" 2>/dev/null; then
+    result=FAIL; stage="jpg-full"
+  else
+    exiftool -overwrite_original -TagsFromFile "$img" \
+      -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
+      -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
+      "$FULLS_DIR/$BASENAME.jpg" >/dev/null 2>&1
+    avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_FULL_QMAX" \
+      --ignore-icc --ignore-exif --ignore-xmp -- "$tmp_full" "$FULLS_DIR/$BASENAME.avif" \
+      >>"$LOG_FILE" 2>&1 || detail="${detail}avif-full-warn "
+    if ! convert "$tmp_thumb" -quality "$THUMB_QUALITY" -interlace Plane "$THUMBS_DIR/$BASENAME.jpg" 2>/dev/null; then
+      result=FAIL; stage="jpg-thumb"
+    else
+      exiftool -overwrite_original -TagsFromFile "$img" \
+        -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
+        -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
+        "$THUMBS_DIR/$BASENAME.jpg" >/dev/null 2>&1
+      avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_THUMB_QMAX" \
+        --ignore-icc --ignore-exif --ignore-xmp -- "$tmp_thumb" "$THUMBS_DIR/$BASENAME.avif" \
+        >>"$LOG_FILE" 2>&1 || detail="${detail}avif-thumb-warn "
+      result=OK
+    fi
+  fi
+  rm -f "$tmp_full" "$tmp_thumb" 2>/dev/null
+
+  if [ "$result" = OK ]; then
+    printf "[%3d/%-3d] ${GREEN}OK${NC}   %s ${YELLOW}%s${NC}\n" "$n" "$total" "$FILENAME" "$detail"
+    printf 'OK\toriginal\t%s\t%s\n' "$img" "$detail" >>"$RESULTS_FILE"
+  else
+    printf "[%3d/%-3d] ${RED}FAIL${NC} %s (%s)\n" "$n" "$total" "$FILENAME" "$stage"
+    printf 'FAIL\toriginal\t%s\t%s\n' "$img" "$stage" >>"$RESULTS_FILE"
+  fi
+}
+
+# backfill: one published JPG -> missing AVIF
+process_backfill() {
+  local n="$1" total="$2" jpg="$3"
+  local avif="${jpg%.*}.avif" qmax
+  case "$jpg" in
+    */thumbs/*) qmax="$AVIF_THUMB_QMAX" ;;
+    *)          qmax="$AVIF_FULL_QMAX" ;;
+  esac
+  if avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$qmax" \
+      --ignore-icc --ignore-exif --ignore-xmp -- "$jpg" "$avif" >>"$LOG_FILE" 2>&1; then
+    printf "[%3d/%-3d] ${GREEN}OK${NC}   %s\n" "$n" "$total" "${jpg#$IMAGES_DIR/}"
+    printf 'OK\tbackfill\t%s\t\n' "$jpg" >>"$RESULTS_FILE"
+  else
+    printf "[%3d/%-3d] ${RED}FAIL${NC} %s\n" "$n" "$total" "${jpg#$IMAGES_DIR/}"
+    printf 'FAIL\tbackfill\t%s\tavifenc\n' "$jpg" >>"$RESULTS_FILE"
+  fi
+}
+
+# bounded job pool; workers ignore SIGINT (bash does this for async jobs
+# anyway) so the current image finishes; the launcher stops handing out work
+run_pool() {
+  local -n tasks_ref=$1
+  local total=${#tasks_ref[@]}
+  local n=0 running=0 task kind path
+  echo -e "${BLUE}Processing $total file(s) with $JOBS parallel job(s)${NC}"
+  echo ""
+  for task in "${tasks_ref[@]}"; do
+    [ "$INTERRUPTED" = true ] && break
+    IFS=$'\t' read -r kind path <<<"$task"
+    n=$((n+1))
+    ( process_"$kind" "$n" "$total" "$path" ) &
+    running=$((running+1))
+    if [ "$running" -ge "$JOBS" ]; then
+      wait -n 2>/dev/null
+      running=$((running-1))
+    fi
+  done
+  wait
+}
+
+# ---------------------------------------------------------------- main
+INTERRUPTED=false
+trap 'INTERRUPTED=true; echo -e "\n${YELLOW}Interrupted - finishing in-flight images, no new work will start.${NC}"' INT
+
+RESULTS_FILE=$(mktemp /tmp/resize_results.XXXXXX)
+TASKS=()
+
+case "$MODE" in
+  coverage)
+    coverage_report
+    rm -f "$RESULTS_FILE"; exit 0 ;;
+
+  backfill)
+    scope_dirs=()
+    if [ -n "$YEAR" ] && [ -n "$LOCATION" ]; then
+      d=$(resolve_location_dir "$YEAR" "$LOCATION") || {
+        echo -e "${RED}Error: no location matching '*_${LOCATION}' under $IMAGES_DIR/$YEAR${NC}"
+        rm -f "$RESULTS_FILE"; exit 1; }
+      scope_dirs=("$d")
+    elif [ -n "$YEAR" ]; then
+      [ -d "$IMAGES_DIR/$YEAR" ] || { echo -e "${RED}Error: $IMAGES_DIR/$YEAR not found${NC}"; rm -f "$RESULTS_FILE"; exit 1; }
+      for d in "$IMAGES_DIR/$YEAR"/*/; do [ -d "$d" ] && scope_dirs+=("${d%/}"); done
+    else
+      for y in $(list_year_dirs); do
+        for d in "$y"/*/; do [ -d "$d" ] && scope_dirs+=("${d%/}"); done
+      done
+    fi
+    [ ${#scope_dirs[@]} -eq 0 ] && { echo -e "${RED}Error: no locations in scope${NC}"; rm -f "$RESULTS_FILE"; exit 1; }
+
+    # thumbs first (first paint), then fulls; only missing AVIF unless --force
+    for loc_dir in "${scope_dirs[@]}"; do
+      for f in $(find_jpgs "$loc_dir/thumbs"); do
+        if [ "$FORCE" = true ] || [ ! -f "${f%.*}.avif" ]; then
+          TASKS+=("backfill"$'\t'"$f")
+        fi
+      done
+    done
+    for loc_dir in "${scope_dirs[@]}"; do
+      for f in $(find_jpgs "$loc_dir/fulls"); do
+        if [ "$FORCE" = true ] || [ ! -f "${f%.*}.avif" ]; then
+          TASKS+=("backfill"$'\t'"$f")
+        fi
+      done
+    done
+
+    if [ "${#TASKS[@]}" -eq 0 ]; then
+      echo -e "${GREEN}Nothing to do - every photo in scope already has AVIF coverage.${NC}"
+      rm -f "$RESULTS_FILE"; exit 0
+    fi
+
+    echo -e "${BLUE}Backfill: ${#TASKS[@]} AVIF to create${NC} (from published JPGs, thumbs first)"
+    if [ "$FORCE" = true ]; then
+      n_existing=$(find "${scope_dirs[@]}" -maxdepth 2 -type f -iname '*.avif' 2>/dev/null | wc -l)
+      echo -e "${YELLOW}--force: re-encodes $n_existing existing AVIF file(s) too${NC}"
+      if [ "$ASSUME_YES" != true ]; then
+        if [ -t 0 ]; then
+          read -p "Re-encode ALL AVIF in scope (overwrites existing)? [y/N]: " CONFIRM
+          [[ "$CONFIRM" =~ ^[Yy]$ ]] || { echo "Aborted."; rm -f "$RESULTS_FILE"; exit 0; }
+        else
+          echo -e "${RED}Refusing --force without -y in non-interactive mode.${NC}"; rm -f "$RESULTS_FILE"; exit 1
+        fi
+      fi
+    fi
+    run_pool TASKS
+    ;;
+
+  normal)
+    if [ -z "$YEAR" ] || [ -z "$LOCATION" ]; then
+      echo -e "${RED}Error: Year and location are required${NC}"; rm -f "$RESULTS_FILE"; exit 1
+    fi
+    DIR=$(resolve_location_dir "$YEAR" "$LOCATION") || DIR=""
+    if [ -z "$DIR" ]; then
+      DIR="$IMAGES_DIR/$YEAR/$(get_indexed_location "$YEAR" "$LOCATION")"
+    fi
+    FULLS_DIR="$DIR/fulls"; THUMBS_DIR="$DIR/thumbs"
+    mkdir -p "$FULLS_DIR" "$THUMBS_DIR"
+    echo -e "${BLUE}Processing images for: $YEAR / $(basename "$DIR")${NC}"
+    echo -e "Fulls: ${FULL_WIDTH}px JPG q$FULL_QUALITY + AVIF max $AVIF_FULL_QMAX | Thumbs: ${THUMB_WIDTH}px JPG q$THUMB_QUALITY + AVIF max $AVIF_THUMB_QMAX"
+
+    shopt -s nullglob nocaseglob
+    IMAGE_FILES=("$IMAGES_DIR"/*.{jpg,jpeg,png,tiff,tif,webp})
+    shopt -u nullglob nocaseglob
+    if [ ${#IMAGE_FILES[@]} -eq 0 ]; then
+      echo -e "${YELLOW}No images found in $IMAGES_DIR/${NC}"
+      echo "Place your images in the '$IMAGES_DIR' directory and run again."
+      rm -f "$RESULTS_FILE"; exit 0
+    fi
+    for img in "${IMAGE_FILES[@]}"; do
+      [ -f "$img" ] && TASKS+=("original"$'\t'"$img")
+    done
+    run_pool TASKS
+    ;;
+esac
+
+# ---------------------------------------------------------------- summary
+PROCESSED=0; FAILED=0; WARNED=0; FAILURES=()
+while IFS=$'\t' read -r status kind path detail; do
+  case "$status" in
+    OK)
+      PROCESSED=$((PROCESSED+1))
+      if [ "$MODE" = "normal" ] && [ -n "${detail:-}" ]; then WARNED=$((WARNED+1)); fi
+      ;;
+    FAIL) FAILED=$((FAILED+1)); FAILURES+=("[$kind] $path (${detail:-?})") ;;
+  esac
+done <"$RESULTS_FILE"
 
 echo ""
-echo -e "${GREEN}Done! Images saved to:${NC}"
-echo "  Full-size: $FULLS_DIR"
-echo "  Thumbnails: $THUMBS_DIR"
+echo -e "${GREEN}Done: $PROCESSED succeeded${NC}$( [ $FAILED -gt 0 ] && echo -e " ${RED}· $FAILED failed${NC}")$( [ $WARNED -gt 0 ] && echo -e " ${YELLOW}· $WARNED with avif warnings${NC}")"
+if [ ${#FAILURES[@]} -gt 0 ]; then
+  echo -e "${RED}Failures:${NC}"
+  for f in "${FAILURES[@]}"; do echo "  - $f"; done
+fi
+
+# -d: delete only successfully processed originals, never after an interrupt
+if [ "$MODE" = "normal" ] && [ "$DELETE_ORIGINALS" = true ]; then
+  echo ""
+  if [ "$INTERRUPTED" = true ]; then
+    echo -e "${YELLOW}Run was interrupted - keeping all originals (nothing deleted).${NC}"
+  else
+    DELETED=0
+    while IFS=$'\t' read -r status kind path detail; do
+      if [ "$status" = OK ] && [ "$kind" = original ] && [ -f "$path" ]; then
+        rm "$path"; DELETED=$((DELETED+1))
+      fi
+    done <"$RESULTS_FILE"
+    if [ "$DELETED" -eq 0 ]; then
+      echo -e "${YELLOW}No originals to delete - no image was processed successfully.${NC}"
+    else
+      echo -e "${GREEN}Deleted $DELETED original(s).${NC}"
+    fi
+  fi
+fi
+
+if [ "$MODE" = "backfill" ]; then
+  echo ""
+  coverage_report
+fi
+
+rm -f "$RESULTS_FILE"
+if [ "$FAILED" -gt 0 ]; then exit 1; fi
+exit 0
