@@ -154,7 +154,11 @@ body:has(.lightbox-container:target) .gallery {
 /* Lightbox styles */
 /* Each slide lives inside its gallery item; the targeted slide becomes a
    viewport-centred overlay. The backdrop is painted by the figure's ::before,
-   while the shared .close link provides the click-anywhere-to-close catcher. */
+   while the shared .close link provides the click-anywhere-to-close catcher.
+   The fade-in lives on the slide's img, not on the figure or its ::before: an
+   animation on the figure fades its whole subtree (the backdrop included), and
+   both animations restart on every prev/next step (a fresh figure becomes
+   :target), so the dark blur visibly reset on each navigation (PT21). */
 .lightbox-container {
 	position: relative;
 	width: auto;
@@ -174,7 +178,6 @@ body:has(.lightbox-container:target) .gallery {
 	max-width: calc(100vw - 10em);
 	max-height: calc(100vh - 2em);
 	z-index: 20010;
-	animation: lbFade 0.5s ease;
 }
 
 .lightbox-container:target::before {
@@ -185,7 +188,6 @@ body:has(.lightbox-container:target) .gallery {
 	background-color: rgba(0, 0, 0, 0.8);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px); /* For Safari */
-	animation: lbFade 0.5s ease;
 	pointer-events: none; /* desktop: clicks fall through to the .close catcher */
 }
 
@@ -231,7 +233,9 @@ body:has(.lightbox-container:target) .gallery-item {
 	to { opacity: 1; }
 }
 
+/* The slide's own fade-in (see the Lightbox styles note above) */
 .lightbox-container img {
+	animation: lbFade 0.5s ease;
 	max-width: 100%;
 	max-height: calc(100vh - 2em);
 	object-fit: contain;
