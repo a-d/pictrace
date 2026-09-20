@@ -16,11 +16,11 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 | Area | State |
 |---|---|
 | Live site | https://pictrace.de — GitHub Pages, publishes from default branch `master` |
-| Repo | `github.com/a-d/pictrace` (origin). `master` ahead of `origin/master` by the two local doc commits (KANBAN.md, AGENTS.md) — unpushed |
+| Repo | `github.com/a-d/pictrace` (origin). `master` ahead of `origin/master` by local commits (board/docs + PT9 self-hosted assets) — unpushed |
 | Branches | `master` (default) · `redesign` · `multi-map` · `namibia` (feature branches, local + origin) |
 | Working tree | **Dirty — active WIP** (~190 pending entries): ~170 staged adds of raw photos under `images/_2026-morocco/` + ~27 modified files (templates/JS/CSS/data/scripts) + 2 untracked. Do not bulk-commit, do not discard, do not unstage without the owner's call. |
 | Untracked | `.agentbridge/` (local agent state) · `namib1.svg` (working file) — leave as-is |
-| Task board | `KANBAN.md` — open: PT1, PT2 |
+| Task board | `KANBAN.md` — open: PT15 (lightbox gestures); PT10–PT14 deferred |
 
 ## Conventions (must-follow)
 
@@ -36,12 +36,12 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 ## How the site is built (orientation)
 
 - **Config** `_config.yml`: `image_root: images`, `image_fulls_loc: fulls`, `image_thumbs_loc: thumbs`, `preload_count: 12`, `exif:` display list, `baseurl: ""`.
-- **Layouts:** `_layouts/default2.html` (page shell — inlines `main.css` into a `<style>` tag, preloads the first N thumbnails, loads exifr from CDN + `main.js`, both deferred) wrapped by `_layouts/compress.html` (jekyll-compress-html — the reason for the `//` ban).
+- **Layouts:** `_layouts/default2.html` (page shell — inlines `main.css` into a `<style>` tag, preloads the first N thumbnails, loads vendored exifr (`assets/js/vendor/exifr-7.1.3.lite.umd.js`) + `main.js`, both deferred) wrapped by `_layouts/compress.html` (jekyll-compress-html — the reason for the `//` ban).
 - **Image pipeline:** originals → `./resize.sh` (ImageMagick + avifenc + exiftool) → `images/{year}/{NN}_{Location}/fulls` (1024px) + `/thumbs` (512px), JPG + AVIF, EXIF preserved. `rename.sh` stamps EXIF timestamps into filenames (`name~YYYYMMDD_HHMMSS.ext`).
 - **Gallery:** `_includes/iterator.html` walks `site.static_files` under `fulls/` (skips `.avif`), groups year → location (newest first), sorts by `~` sort-key then natural name, and renders every image twice: `gallery_item.html` (grid thumbnails 512×384; first `preload_count` eager, rest `loading="lazy"`) and `popup_item.html` (lightbox slides).
 - **Lightbox ("popup"):** pure CSS `:target`. `section.lightbox` shows when it contains `:target`; each slide is `figure.lightbox-container#p-{year}-{location}-{filename}`; prev/next are ordinary hash links; `#p` is the empty "closed" state; oversized `::before` hit zones make clicks on the left/right half of the screen navigate. EXIF is fetched on `hashchange` in `main.js` (range request of the first 64 KB of the JPG, parsed by exifr).
 - **Journey maps:** `_data/journeys.yml` + `_includes/journeys/{Name}.svg`; travel path animates on scroll via `makeProgressMapper` (CSS scroll-timeline where supported, JS fallback); map tiles hidden ≤899px.
-- **Assets:** all site CSS in `assets/css/main.css`, all site JS in `assets/js/main.js` — keep additions there (the only inline script is the journey progress bootstrap, generated from YAML).
+- **Assets:** all site CSS in `assets/css/main.css`, all site JS in `assets/js/main.js` — keep additions there (the only inline script is the journey progress bootstrap, generated from YAML). Third-party vendored files (self-hosted, PT9) live in `assets/js/vendor/` + `assets/fonts/` with their license files.
 
 ## Workflow
 
