@@ -6,7 +6,15 @@
 
 ## 📋 Open
 
-_(empty)_
+| ID | Prio | Task |
+|---|---|---|
+| PT3 | P2 | Build-time: precompute the AVIF existence lookup (currently O(images × static_files) in Liquid) |
+| PT4 | P2 | Preload: guard thumb AVIF preloads with an existence check (latent 404 preloads) |
+| PT5 | P2 | resize.sh: `-d` must only delete originals whose outputs were created (data-loss risk) |
+| PT6 | P2 | A11y quick wins: allow pinch-zoom; label lightbox prev/next/close |
+| PT7 | P3 | Housekeeping: nested thumbs/_site junk (33 MB), stale _site (3.7 GB), .travis.yml, Jekyll excludes, gitignore, git gc |
+| PT8 | P3 | CSS/HTML hygiene: dead CSS block, `:nth-child(24+0)` typo, dead form attributes |
+| PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
 
 ## 🔵 In progress
 
@@ -18,7 +26,13 @@ _(empty)_
 
 ## ⏸️ Deferred
 
-_(empty)_
+| ID | Prio | Task |
+|---|---|---|
+| PT10 | P3 | Build via GitHub Actions (Jekyll 4 + plugins: responsive images, SEO) — deploy pipeline change |
+| PT11 | P3 | Image pipeline: AVIF for 2024–25 (1468 photos), parallelize resize.sh, quality re-tune, optional srcset |
+| PT12 | P4 | Scaling: single-page payload (≈1.5 MB HTML, ~3.8k blocks at 1.9k photos) — split/paginate strategy |
+| PT13 | P4 | Framework evaluation spike: Astro vs Eleventy vs Jekyll-4 (prototype first) |
+| PT14 | P4 | Repo history: .git ≈ 5.2 GB — audit + optional filter-repo rewrite (high risk) |
 
 ## ✅ Done
 
@@ -35,11 +49,24 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 |---|---|
 | PT1 | [`.hermes/plan/PT1.md`](.hermes/plan/PT1.md) — ✅ done 2026-09-20 |
 | PT2 | [`.hermes/plan/PT2.md`](.hermes/plan/PT2.md) — ✅ done 2026-09-20 |
+| PT3 | [`.hermes/plan/PT3-build-time-liquid-avif-lookup.md`](.hermes/plan/PT3-build-time-liquid-avif-lookup.md) — open |
+| PT4 | [`.hermes/plan/PT4-preload-avif-guard.md`](.hermes/plan/PT4-preload-avif-guard.md) — open |
+| PT5 | [`.hermes/plan/PT5-resize-sh-delete-safety.md`](.hermes/plan/PT5-resize-sh-delete-safety.md) — open |
+| PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — open |
+| PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — open |
+| PT8 | [`.hermes/plan/PT8-css-html-hygiene.md`](.hermes/plan/PT8-css-html-hygiene.md) — open |
+| PT9 | [`.hermes/plan/PT9-self-host-external-assets.md`](.hermes/plan/PT9-self-host-external-assets.md) — open |
+| PT10 | [`.hermes/plan/PT10-github-actions-build.md`](.hermes/plan/PT10-github-actions-build.md) — deferred |
+| PT11 | [`.hermes/plan/PT11-image-pipeline-modernization.md`](.hermes/plan/PT11-image-pipeline-modernization.md) — deferred |
+| PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — deferred |
+| PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — deferred |
+| PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — deferred |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | Source review completed (templates, JS, CSS, scripts, assets, history). Findings + plans in `.hermes/plan/2026-09-20-source-review.md`; PT3–PT9 opened (quick wins), PT10–PT14 deferred (refactors / higher risk). |
 | 2026-09-20 | PT2 done — nav arrows hidden until the slide image is ready (`img-ready` + opacity fade; `@media (scripting: none)` keeps them visible without JS; links stay clickable while hidden). Fix commit `f0df932b064c0f7b036e4831aa60c5b762130a9b`. |
 | 2026-09-20 | PT1 done — keyboard navigation via arrow keys (`8e6e8706a6cfde36e4710954a5511abb8d7a25df`). Task details moved to `.hermes/plan/` (one file per task). |
 | 2026-09-20 | AGENTS.md + KANBAN.md created; PT1/PT2 opened (P2). Lightbox stays hash/`:target`-based — enhancements go through `main.js` + arrow CSS, no re-architecture. |
