@@ -23,7 +23,7 @@ _(empty)_
 | PT10 | P3 | Build via GitHub Actions (Jekyll 4 + plugins) — parked 2026-09-20: keep the default Pages build (trigger-based escape hatch, see plan) |
 | PT11 | P3 | Image pipeline: AVIF for 2024–25 (1468 photos), parallelize resize.sh, quality re-tune, optional srcset |
 | PT12 | P4 | Scaling: single-page payload (≈1.5 MB HTML, ~3.8k blocks at 1.9k photos) — split/paginate strategy |
-| PT13 | P4 | Framework evaluation spike: Astro vs Eleventy vs Jekyll-4 (prototype first) |
+| PT13 | P4 | Framework evaluation spike: Astro vs Eleventy vs Jekyll-4 (prototype first) — dormant 2026-09-20: gated by the PT10 decision — every outcome except staying on Jekyll requires reopening the deploy question (see plan) |
 | PT14 | P4 | Repo history: .git ≈ 5.2 GB — audit + optional filter-repo rewrite (high risk) |
 
 ## ✅ Done
@@ -59,7 +59,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT10 | [`.hermes/plan/PT10-github-actions-build.md`](.hermes/plan/PT10-github-actions-build.md) — parked (decision 2026-09-20) |
 | PT11 | [`.hermes/plan/PT11-image-pipeline-modernization.md`](.hermes/plan/PT11-image-pipeline-modernization.md) — deferred |
 | PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — deferred |
-| PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — deferred |
+| PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — dormant (gated by PT10, 2026-09-20) |
 | PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — deferred |
 | PT15 | [`.hermes/plan/PT15-lightbox-gestures.md`](.hermes/plan/PT15-lightbox-gestures.md) — ✅ done 2026-09-20 |
 
@@ -67,6 +67,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT13 set dormant — gated by the PT10 decision (native build stays): Jekyll-4 can't run on the native builder (env pins Jekyll 3.10.0 / github-pages 232) and Astro/Eleventy can't be built natively at all; any outcome requires reopening the deploy question first (custom build / prebuilt output / other host). If it reopens, decide PT10 + PT13 together. Plan note added: `.hermes/plan/PT13-framework-spike.md`. |
 | 2026-09-20 | **PT10 parked — stay on the default Pages build** (owner call: stick with the current solution). Findings: the site is already built by a vendor-owned Actions workflow (`pages-build-deployment`; run #131 success, 2m22s; build job = `ghcr.io/actions/jekyll-build-pages:v1.0.13`; env Jekyll 3.10.0 / github-pages 232 / ruby 3.3.4). Original rationale corrected: SEO plugins already whitelisted (jekyll-seo-tag 2.8.0, jekyll-sitemap 1.4.0); the 10-min limit is a deploy timeout that applies to custom workflows too; the run page already shows jobs + annotations. Revisit triggers: a non-whitelisted plugin or custom build actually wanted · vendor pipeline failing · 10 builds/h soft throttle hit (worst burst so far ≈5/h) · branch-deploy deprecation signals · PT13 keeps Jekyll and adds build needs. Side findings: deploy warns "artifact 1.03 GB exceeds the allowed size of 1 GB — deployment might fail" → weight reduction is the PT11 lever (pipeline-independent); Gemfile pins were behind the live env → aligned (commit `000e300`). Plan: `.hermes/plan/PT10-github-actions-build.md`. |
 | 2026-09-20 | PT15 done — lightbox gestures: horizontal trackpad/wheel (≥45 px cumulative, 220 ms quiet-lock absorbs inertia, ctrl/meta+wheel ignored) + one-finger swipe (≥50 px, 1.5× ratio, single-touch only — pinch/pan & touchcancel safe); both delegate to PT1's `.nav-prev`/`.nav-next`. 24/24 stub-DOM harness tests (`.hermes/plan/PT15-tests.js`); owner phone test pending (rides with PT6). Commit `69ff666`. |
 | 2026-09-20 | PT9 done — exifr 7.1.3 (MIT) + FontAwesome 4.7.0 woff2 (SIL OFL 1.1) self-hosted (`assets/js/vendor/`, `assets/fonts/`) with license files; both verified byte-identical to upstream (sha256). License check: mirroring allowed (MIT/OFL); the EU GDPR risk (third-party CDN embedding) is removed by this change. Browser check: only first-party requests. Commit `6d0c261`. New `assets/` files committed via `git add -f` (`/assets/` ignore pending owner decision). |
