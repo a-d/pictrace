@@ -79,7 +79,7 @@ body:has([popover]:popover-open) .click-blocker {
 	width: 100%;
 	grid-auto-flow: dense;
 	grid-template-columns: repeat(5, 1fr);
-	backdrop-filter: blur(0.5em);
+	/* Backdrop is the pre-blurred images/bg-blurred.jpg (./blur-bg.sh) - no runtime blur */
 }
 
 /* Touch: no pinch/double-tap zoom on the overview; the lightbox stays zoomable */
@@ -177,12 +177,8 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 /* While a slide is open, neutralise containment that would re-anchor the
-   fixed-position overlay (contain: layout and backdrop-filter both create
-   containing blocks for fixed descendants). */
-body:has(.lightbox-container:target) .gallery {
-	backdrop-filter: none;
-}
-
+   fixed-position overlay (contain: layout creates a containing block for
+   fixed descendants). */
 body:has(.lightbox-container:target) .gallery-item {
 	contain: none;
 }
