@@ -11,6 +11,10 @@ layout: compress
   {% assign backgroundImage = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | last %}
   <link rel="preload" as="image" type="image/jpeg" href="{{ backgroundImage.path }}">
 
+  {%- comment -%} AVIF path set for preload existence checks (same pattern as iterator.html) {%- endcomment -%}
+  {%- assign avif_set = site.static_files | where: "extname", ".avif" | map: "path" | join: "|" -%}
+  {%- assign avif_set = "|" | append: avif_set | append: "|" -%}
+
   {%- comment -%} Preload first N thumbnail images for faster initial render (configured via site.preload_count) {%- endcomment -%}
   {%- assign preload_images = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | where_exp: "file", "file.extname != '.avif'" -%}
   {%- assign preload_years = preload_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" -%}
@@ -24,7 +28,12 @@ layout: compress
       {%- for thumb in sorted_thumbs -%}
         {%- if preload_counter >= site.preload_count -%}{%- break -%}{%- endif -%}
         {%- assign avif_path = thumb.path | replace: '.jpg', '.avif' | replace: '.JPG', '.avif' | replace: '.jpeg', '.avif' | replace: '.JPEG', '.avif' | replace: '.png', '.avif' | replace: '.PNG', '.avif' -%}
+        {%- assign avif_needle = "|" | append: avif_path | append: "|" -%}
+        {%- if avif_set contains avif_needle -%}
         <link rel="preload" as="image" type="image/avif" href="{{ avif_path }}">
+        {%- else -%}
+        <link rel="preload" as="image" type="image/jpeg" href="{{ thumb.path }}">
+        {%- endif -%}
         {%- assign preload_counter = preload_counter | plus: 1 -%}
       {%- endfor -%}
     {%- endfor -%}
