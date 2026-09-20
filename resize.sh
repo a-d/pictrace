@@ -23,9 +23,17 @@
 #   -y, --yes       Skip confirmation prompts
 #   -h, --help      Show this help
 #
-# PT11 (2026-09-20): parallel job pool; --backfill/--coverage modes; AVIF
-# outputs no longer embed metadata (ICC/Exif/XMP) - the lightbox reads EXIF
-# from the JPG, the profile is plain sRGB, and it used to double thumb bytes.
+# PT11 (2026-09-20): parallel job pool; --backfill/--coverage modes.
+#
+# EXIF DISCIPLINE - owner rule, must never regress:
+#  * The JPGs are the masters: never strip or alter their EXIF (Orientation
+#    drives display and the lightbox EXIF panel reads them).
+#  * Every AVIF encode copies the source metadata (ICC/EXIF/XMP) - no
+#    --ignore-* flags.
+#  * A source with a non-normal Orientation tag (e.g. "Rotate 270 CW") is
+#    auto-oriented before encoding, so the rotation is baked into the pixels
+#    and the copied orientation tag is normalised ("Horizontal (normal)").
+#    Viewers can never double-rotate; derivatives render exactly like the JPG.
 #
 # Note: not using 'set -e' - arithmetic + flaky tools caused surprise exits.
 
@@ -212,9 +220,9 @@ process_original() {
   tmp_thumb="/tmp/resize_$$_${n}_thumb.png"
   detail=""; stage=""
 
-  if ! convert "$img" -resize "${FULL_WIDTH}x>" "$tmp_full" 2>/dev/null; then
+  if ! convert "$img" -auto-orient -resize "${FULL_WIDTH}x>" "$tmp_full" 2>/dev/null; then
     result=FAIL; stage="resize-full"
-  elif ! convert "$img" -resize "${THUMB_WIDTH}x>" "$tmp_thumb" 2>/dev/null; then
+  elif ! convert "$img" -auto-orient -resize "${THUMB_WIDTH}x>" "$tmp_thumb" 2>/dev/null; then
     result=FAIL; stage="resize-thumb"
   elif ! convert "$tmp_full" -quality "$FULL_QUALITY" -interlace Plane "$FULLS_DIR/$BASENAME.jpg" 2>/dev/null; then
     result=FAIL; stage="jpg-full"
@@ -224,7 +232,7 @@ process_original() {
       -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
       "$FULLS_DIR/$BASENAME.jpg" >/dev/null 2>&1
     avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_FULL_QMAX" \
-      --ignore-icc --ignore-exif --ignore-xmp -- "$tmp_full" "$FULLS_DIR/$BASENAME.avif" \
+      -- "$tmp_full" "$FULLS_DIR/$BASENAME.avif" \
       >>"$LOG_FILE" 2>&1 || detail="${detail}avif-full-warn "
     if ! convert "$tmp_thumb" -quality "$THUMB_QUALITY" -interlace Plane "$THUMBS_DIR/$BASENAME.jpg" 2>/dev/null; then
       result=FAIL; stage="jpg-thumb"
@@ -234,7 +242,7 @@ process_original() {
         -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
         "$THUMBS_DIR/$BASENAME.jpg" >/dev/null 2>&1
       avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_THUMB_QMAX" \
-        --ignore-icc --ignore-exif --ignore-xmp -- "$tmp_thumb" "$THUMBS_DIR/$BASENAME.avif" \
+        -- "$tmp_thumb" "$THUMBS_DIR/$BASENAME.avif" \
         >>"$LOG_FILE" 2>&1 || detail="${detail}avif-thumb-warn "
       result=OK
     fi
@@ -253,19 +261,33 @@ process_original() {
 # backfill: one published JPG -> missing AVIF
 process_backfill() {
   local n="$1" total="$2" jpg="$3"
-  local avif="${jpg%.*}.avif" qmax
+  local avif="${jpg%.*}.avif" qmax orient src tmp_orient note
   case "$jpg" in
     */thumbs/*) qmax="$AVIF_THUMB_QMAX" ;;
     *)          qmax="$AVIF_FULL_QMAX" ;;
   esac
+  # EXIF discipline: if the JPG carries a non-normal orientation, bake the
+  # rotation into pixels first (the copied tag is normalised as a side effect)
+  src="$jpg"; tmp_orient=""; note=""
+  orient=$(exiftool -s3 -Orientation "$jpg" 2>/dev/null)
+  if [ -n "$orient" ] && [ "$orient" != "Horizontal (normal)" ]; then
+    tmp_orient="/tmp/resize_$$_${n}_orient.png"
+    if ! convert "$jpg" -auto-orient "$tmp_orient" 2>/dev/null; then
+      printf "[%3d/%-3d] ${RED}FAIL${NC} %s (auto-orient)\n" "$n" "$total" "${jpg#$IMAGES_DIR/}"
+      printf 'FAIL\tbackfill\t%s\tauto-orient\n' "$jpg" >>"$RESULTS_FILE"
+      rm -f "$tmp_orient"; return
+    fi
+    src="$tmp_orient"; note="[baked orientation]"
+  fi
   if avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$qmax" \
-      --ignore-icc --ignore-exif --ignore-xmp -- "$jpg" "$avif" >>"$LOG_FILE" 2>&1; then
-    printf "[%3d/%-3d] ${GREEN}OK${NC}   %s\n" "$n" "$total" "${jpg#$IMAGES_DIR/}"
-    printf 'OK\tbackfill\t%s\t\n' "$jpg" >>"$RESULTS_FILE"
+      -- "$src" "$avif" >>"$LOG_FILE" 2>&1; then
+    printf "[%3d/%-3d] ${GREEN}OK${NC}   %s%s\\n" "$n" "$total" "${jpg#$IMAGES_DIR/}" "${note:+ $note}"
+    printf 'OK\tbackfill\t%s\t%s\n' "$jpg" "$note" >>"$RESULTS_FILE"
   else
     printf "[%3d/%-3d] ${RED}FAIL${NC} %s\n" "$n" "$total" "${jpg#$IMAGES_DIR/}"
     printf 'FAIL\tbackfill\t%s\tavifenc\n' "$jpg" >>"$RESULTS_FILE"
   fi
+  rm -f "$tmp_orient"
 }
 
 # bounded job pool; workers ignore SIGINT (bash does this for async jobs
