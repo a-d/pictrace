@@ -184,11 +184,38 @@ body:has([popover]:popover-open) .click-blocker {
 
 /* While a slide is open, neutralise containment that would re-anchor the
    fixed-position overlay (contain: layout creates a containing block for
-   fixed descendants). content-visibility: auto implies the same containment,
-   so it must be reset as well - contain: none alone does not. */
+   fixed descendants; the ≤899px brightness filter does the same).
+   content-visibility: auto implies the same containment, so it must be
+   reset as well - contain: none alone does not. */
 body:has(.lightbox-container:target) .gallery-item {
 	contain: none;
 	content-visibility: visible;
+	filter: none;
+}
+
+/* The tile fade-in animation keeps a stacking context alive even after it has
+   finished, which clamps the fixed overlay to its own grid item: items after
+   the open slide then paint above the backdrop and the shared .close link
+   (the click-anywhere catcher) paints above the arrows. Raising the item that
+   owns the open slide restores the overlay's intended place in the paint
+   order, whatever creates that context (dropping the animation instead would
+   restart the fade on every close). */
+.gallery-item:has(.lightbox-container:target) {
+	z-index: 20011;
+}
+
+/* While a slide is open, the slide (image, EXIF bar) and its grid item (tile,
+   labels) are click-transparent so clicks fall through to the .close catcher;
+   only the prev/next arrows stay hit-testable, together with their oversized
+   ::before navigation zones (the left/right screen halves). */
+.lightbox-container:target,
+.gallery-item:has(.lightbox-container:target) {
+	pointer-events: none;
+}
+
+.lightbox-container:target .nav-prev,
+.lightbox-container:target .nav-next {
+	pointer-events: auto;
 }
 
 @keyframes lbFade {
