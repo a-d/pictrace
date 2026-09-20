@@ -1,5 +1,8 @@
 {% assign prev_id = "" %}
 {% assign global_image_index = 0 %}
+{%- comment -%} Precomputed AVIF path set for fast existence checks {%- endcomment -%}
+{%- assign avif_set = site.static_files | where: "extname", ".avif" | map: "path" | join: "|" -%}
+{%- assign avif_set = "|" | append: avif_set | append: "|" -%}
 
 {%- comment -%} Filter for fulls directory, excluding .avif files (AVIF is served via <picture> element) {%- endcomment -%}
 {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" | where_exp: "file", "file.extname != '.avif'" %}

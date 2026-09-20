@@ -5,7 +5,9 @@
 {%- assign image_basename = include.image.name | split: '.' | first -%}
 {%- assign full_base_path = site.baseurl | append: '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_fulls_loc | append: '/' -%}
 {%- assign avif_static_path = '/' | append: site.image_root | append: '/' | append: include.year.name | append: '/' | append: include.location.name | append: '/' | append: site.image_fulls_loc | append: '/' | append: image_basename | append: '.avif' -%}
-{%- assign avif_exists = site.static_files | where: "path", avif_static_path | first -%}
+{%- assign avif_exists = false -%}
+{%- assign avif_needle = "|" | append: avif_static_path | append: "|" -%}
+{%- if avif_set contains avif_needle -%}{%- assign avif_exists = true -%}{%- endif -%}
 <figure class="lightbox-container" id="{{ include.current_id }}">
   <a href="#{{ include.prev_id }}" class="nav-arrow nav-prev">&#10094;</a>
   <picture>
