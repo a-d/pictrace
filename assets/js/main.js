@@ -257,6 +257,81 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  /* Horizontal scroll navigation for the lightbox (trackpad swipes / horizontal wheel) */
+  {
+    var wheelSum = 0;
+    var wheelLocked = false;
+    var wheelQuiet = null;
+
+    document.addEventListener('wheel', function(event) {
+      if (event.ctrlKey || event.metaKey) return; /* pinch-zoom / browser gestures */
+
+      var dx = event.deltaX;
+      if (event.shiftKey && Math.abs(dx) < Math.abs(event.deltaY)) dx = event.deltaY; /* classic mouse: shift+wheel is horizontal */
+      if (event.deltaMode === 1) dx = dx * 16; /* line-based deltas (Firefox): ~16 px per line */
+      if (Math.abs(dx) < 4) return;
+      if (!event.shiftKey && Math.abs(dx) <= Math.abs(event.deltaY)) return;
+
+      var slide = document.querySelector('.lightbox-container:target');
+      if (!slide) return;
+
+      if (!wheelLocked) {
+        wheelSum += dx;
+        if (Math.abs(wheelSum) >= 45) {
+          wheelLocked = true; /* one step per gesture - absorb the trackpad inertia tail */
+          var arrow = slide.querySelector(wheelSum > 0 ? '.nav-next' : '.nav-prev');
+          wheelSum = 0;
+          if (arrow) arrow.click();
+        }
+      }
+
+      window.clearTimeout(wheelQuiet);
+      wheelQuiet = window.setTimeout(function() {
+        wheelSum = 0;
+        wheelLocked = false;
+      }, 220);
+    }, { passive: true });
+  }
+
+  /* Swipe navigation for the lightbox (one-finger horizontal swipes on touch screens) */
+  {
+    var SWIPE_MIN_X = 50; /* px a gesture must travel horizontally to count */
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var touchTracking = false;
+
+    document.addEventListener('touchstart', function(event) {
+      touchTracking = false;
+      if (event.touches.length !== 1) return; /* multi-touch = pinch/pan (PT6) */
+      if (event.target && event.target.closest && event.target.closest('.nav-arrow')) return; /* taps keep their own behaviour */
+
+      touchTracking = true;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchcancel', function() {
+      touchTracking = false; /* the browser took the gesture over (scroll / zoom) */
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(event) {
+      if (!touchTracking) return;
+      touchTracking = false;
+      if (event.touches.length !== 0) return;
+
+      var touch = event.changedTouches[0];
+      var dx = touch.clientX - touchStartX;
+      var dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) < SWIPE_MIN_X || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+      var slide = document.querySelector('.lightbox-container:target');
+      if (!slide) return;
+
+      var arrow = slide.querySelector(dx < 0 ? '.nav-next' : '.nav-prev');
+      if (arrow) arrow.click();
+    }, { passive: true });
+  }
+
   /* ========================================
      Hover-based popover for mouse devices
      ======================================== */
