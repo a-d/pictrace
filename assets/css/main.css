@@ -100,7 +100,7 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 /* Apply different animation delays for each image */
-.gallery-item:nth-child(24+0) { animation-delay: 0ms; }
+.gallery-item:nth-child(24n+0) { animation-delay: 0ms; }
 .gallery-item:nth-child(24n+1) { animation-delay: 50ms; }
 .gallery-item:nth-child(24n+2) { animation-delay: 100ms; }
 .gallery-item:nth-child(24n+3) { animation-delay: 150ms; }
@@ -135,27 +135,6 @@ body:has([popover]:popover-open) .click-blocker {
 	cursor: pointer;
 	border: 0.1em solid black;
 }
-
-/*
-.gallery-item::after {
-	background-image: -moz-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
-	background-image: -webkit-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
-	background-image: -ms-linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
-	background-image: linear-gradient(to top, rgba(10,17,25,0.35) 5%, rgba(10,17,25,0) 35%);
-	-moz-pointer-events: none;
-	-webkit-pointer-events: none;
-	-ms-pointer-events: none;
-	pointer-events: none;
-	background-size: cover;
-	content: "";
-	display: block;
-	height: 100%;
-	left: 0;
-	position: absolute;
-	top: 0;
-	width: 100%;
-}
-*/
 
 /* Lightbox styles */
 .lightbox {
@@ -303,16 +282,6 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 /* Empty lightbox for clean closing */
-#gallery-close {
-	background-color: transparent;
-	backdrop-filter: none;
-	-webkit-backdrop-filter: none;
-}
-
-#gallery-close:target {
-	display: none;
-}
-
 /* Responsive breakpoints - fixed column counts to prevent layout reflow */
 @media (max-width: 1500px) {
 	.gallery {
