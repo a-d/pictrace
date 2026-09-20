@@ -93,10 +93,12 @@ esac
 AVIF_JOBS=$(( ($(nproc 2>/dev/null || echo 4) + JOBS - 1) / JOBS ))
 [ "$AVIF_JOBS" -lt 1 ] && AVIF_JOBS=1
 
-for c in convert avifenc exiftool; do
-  command -v "$c" >/dev/null 2>&1 || {
-    echo -e "${RED}Error: '$c' not found. apt install imagemagick libavif-bin libimage-exiftool-perl${NC}"; exit 1; }
-done
+if [ "$MODE" != "coverage" ]; then
+  for c in convert avifenc exiftool; do
+    command -v "$c" >/dev/null 2>&1 || {
+      echo -e "${RED}Error: '$c' not found. apt install imagemagick libavif-bin libimage-exiftool-perl${NC}"; exit 1; }
+  done
+fi
 
 if [ "$MODE" = "normal" ] && [ -z "$YEAR" ]; then
   read -p "Enter the year: " YEAR
