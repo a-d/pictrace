@@ -6,9 +6,7 @@
 
 ## 📋 Open
 
-| ID | Prio | Task |
-|---|---|---|
-| PT2 | P2 | Lightbox: prev/next buttons visibly jump while an uncached image loads — show them only once the image is ready, keep the links functional |
+_(empty)_
 
 ## 🔵 In progress
 
@@ -27,6 +25,7 @@ _(empty)_
 | ID | Prio | Task |
 |---|---|---|
 | PT1 | P2 | Lightbox: navigate with ← / → arrow keys — ✅ done 2026-09-20 (commit `8e6e8706a6cfde36e4710954a5511abb8d7a25df`) |
+| PT2 | P2 | Lightbox: arrows revealed only once the slide image is ready — ✅ done 2026-09-20 (commit `f0df932b064c0f7b036e4831aa60c5b762130a9b`) |
 
 ## Task details
 
@@ -35,12 +34,13 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | Task | Details |
 |---|---|
 | PT1 | [`.hermes/plan/PT1.md`](.hermes/plan/PT1.md) — ✅ done 2026-09-20 |
-| PT2 | [`.hermes/plan/PT2.md`](.hermes/plan/PT2.md) — open |
+| PT2 | [`.hermes/plan/PT2.md`](.hermes/plan/PT2.md) — ✅ done 2026-09-20 |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT2 done — nav arrows hidden until the slide image is ready (`img-ready` + opacity fade; `@media (scripting: none)` keeps them visible without JS; links stay clickable while hidden). Fix commit `f0df932b064c0f7b036e4831aa60c5b762130a9b`. |
 | 2026-09-20 | PT1 done — keyboard navigation via arrow keys (`8e6e8706a6cfde36e4710954a5511abb8d7a25df`). Task details moved to `.hermes/plan/` (one file per task). |
 | 2026-09-20 | AGENTS.md + KANBAN.md created; PT1/PT2 opened (P2). Lightbox stays hash/`:target`-based — enhancements go through `main.js` + arrow CSS, no re-architecture. |
 | 2026-09-20 | PT2 direction: fade arrows in on image load (opacity, links stay functional) as the primary approach; viewport-anchored arrows kept as fallback if the fade proves insufficient. |
