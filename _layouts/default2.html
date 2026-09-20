@@ -4,7 +4,7 @@ layout: compress
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <title>{{ site.title }}</title>
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
@@ -17,6 +17,10 @@ layout: compress
 
   {%- comment -%} Preload first N thumbnail images for faster initial render (configured via site.preload_count) {%- endcomment -%}
   {%- assign preload_images = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | where_exp: "file", "file.extname != '.avif'" -%}
+  {%- if page.locdir -%}
+    {%- assign preload_scope = '/' | append: page.year | append: '/' | append: page.locdir | append: '/' -%}
+    {%- assign preload_images = preload_images | where_exp: "file", "file.path contains preload_scope" -%}
+  {%- endif -%}
   {%- assign preload_years = preload_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" -%}
   {%- assign preload_counter = 0 -%}
   {%- for year in preload_years reversed -%}
@@ -39,7 +43,9 @@ layout: compress
     {%- endfor -%}
   {%- endfor -%}
 
-  <style>{% capture css %}{% include_relative assets/css/main.css %}{% endcapture %}{{ css }}</style>
+  {%- comment -%} Inline the stylesheet: main.css carries front matter so every page (root or collection) can read it here {%- endcomment -%}
+  {%- assign css_page = site.pages | where_exp: "p", "p.path contains 'assets/css/main.css'" | first -%}
+  <style>{{ css_page.content }}</style>
 </head>
 
 <body style="--bg:url('/images/bg-blurred.jpg')">

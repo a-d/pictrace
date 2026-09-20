@@ -8,11 +8,19 @@
 {% assign images = site.static_files | where_exp: "file", "file.path contains 'fulls'" | where_exp: "file", "file.extname != '.avif'" %}
 {% assign years = images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
 
-{%- comment -%} Pass 1: collect every slide id in render order, so each photo can link to its neighbours (the prev/next chain spans locations and years) {%- endcomment -%}
+{%- comment -%} Scope (PT16): a location page renders exactly one location (only_year + only_location); the index prerenders the first N locations (limit_locations) {%- endcomment -%}
+{% assign loc_limit = include.limit_locations %}
+
+{%- comment -%} Pass 1: collect the ids of the rendered set in order, so each photo can link to its neighbours (the prev/next chain stays inside the set) {%- endcomment -%}
 {% assign all_ids = "" | split: "" %}
+{% assign loc_index = 0 %}
 {% for year in years reversed %}
+{% if include.only_year and year.name != include.only_year %}{% continue %}{% endif %}
 {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
 {% for location in locations reversed %}
+{% if include.only_location and location.name != include.only_location %}{% continue %}{% endif %}
+{% if loc_limit and loc_index >= loc_limit %}{% continue %}{% endif %}
+{% assign loc_index = loc_index | plus: 1 %}
 {% assign locationName = location.name | split: "_" | last %}
 {% assign locnum = location.name | split: "_" | first %}
 {% assign images_with_tilde = "" | split: "" %}
@@ -49,21 +57,30 @@
 
 {%- comment -%} Pass 2: render every photo once - the gallery tile and the lightbox slide share one <article> {%- endcomment -%}
 {% assign global_image_index = 0 %}
+{% assign loc_index = 0 %}
 {% for year in years reversed %}
-
-{% assign firstYear = forloop.first %}
-{% assign lastYear = forloop.last %}
+{% if include.only_year and year.name != include.only_year %}{% continue %}{% endif %}
 {% assign locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
 
 {% for location in locations reversed %}
+{% if include.only_location and location.name != include.only_location %}{% continue %}{% endif %}
+{% if loc_limit and loc_index >= loc_limit %}{% continue %}{% endif %}
 {% assign firstLoc = forloop.first %}
 {% assign lastLoc = forloop.last %}
+{% if include.only_location %}
+{% assign firstLoc = true %}
+{% assign lastLoc = true %}
+{% endif %}
+{% if loc_limit %}
+{% assign limit_last = loc_limit | minus: 1 %}
+{% if loc_index == limit_last %}{% assign lastLoc = true %}{% endif %}
+{% endif %}
+{% assign loc_index = loc_index | plus: 1 %}
 {% assign locationName = location.name | split: "_" | last %}
 {% assign locnum = location.name | split: "_" | first %}
 
 {% assign images_with_tilde = "" | split: "" %}
 {% assign images_without_tilde = "" | split: "" %}
-
 {% for f in location.items %}
 {% if f.name contains '~' %}
 {% assign images_with_tilde = images_with_tilde | push: f %}
@@ -71,8 +88,6 @@
 {% assign images_without_tilde = images_without_tilde | push: f %}
 {% endif %}
 {% endfor %}
-
-{%- comment -%} Create sortable strings: "sortkey|index" {%- endcomment -%}
 {% assign tilde_sortable = "" | split: "" %}
 {% for f in images_with_tilde %}
 {% assign parts = f.name | split: "~" %}
@@ -80,17 +95,13 @@
 {% assign sortable = key | append: "|" | append: forloop.index0 %}
 {% assign tilde_sortable = tilde_sortable | push: sortable %}
 {% endfor %}
-
 {% assign tilde_sortable_sorted = tilde_sortable | sort_natural %}
-
-{%- comment -%} Rebuild sorted array using indices {%- endcomment -%}
 {% assign images_with_tilde_sorted = "" | split: "" %}
 {% for sortable in tilde_sortable_sorted %}
 {% assign parts = sortable | split: "|" %}
 {% assign idx = parts[1] | plus: 0 %}
 {% assign images_with_tilde_sorted = images_with_tilde_sorted | push: images_with_tilde[idx] %}
 {% endfor %}
-
 {% assign images_without_tilde_sorted = images_without_tilde | sort_natural: "name" %}
 {% assign images_sorted = images_with_tilde_sorted | concat: images_without_tilde_sorted %}
 
@@ -108,7 +119,7 @@
 {% assign next_idx = global_image_index | plus: 1 %}
 {% assign next_id = all_ids[next_idx] %}
 
-{% include gallery_item.html image=image year=year location=location locationName=locationName current_id=current_id prev_id=prev_id next_id=next_id firstImage=firstImage firstLoc=firstLoc firstYear=firstYear lastImage=lastImage lastLoc=lastLoc lastYear=lastYear images_sorted=images_sorted global_image_index=global_image_index %}
+{% include gallery_item.html image=image year=year location=location locationName=locationName current_id=current_id prev_id=prev_id next_id=next_id firstImage=firstImage firstLoc=firstLoc lastImage=lastImage lastLoc=lastLoc images_sorted=images_sorted global_image_index=global_image_index %}
 {% assign global_image_index = global_image_index | plus: 1 %}
 
 {% endfor %}

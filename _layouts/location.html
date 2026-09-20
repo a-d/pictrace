@@ -4,10 +4,10 @@ layout: default2
 
 {% include site-header.html %}
 
-{% include gallery.html %}
+<main class="gallery">
+  {% include iterator.html only_year=page.year only_location=page.locdir %}
+</main>
 
 {% include popup.html %}
-
-{% include location-links.html %}
 
 {% include site-popovers.html %}

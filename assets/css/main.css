@@ -1,3 +1,5 @@
+---
+---
 :root {
 	color-scheme: only light;
 }
@@ -93,6 +95,10 @@ body:has([popover]:popover-open) .click-blocker {
 	animation: fadeIn 0.5s forwards;
 	aspect-ratio: 4/3;
 	contain: layout style;
+	/* Skip rendering of offscreen tiles; keep the placeholder size in sync with the
+	   grid column count below (100vw / columns, x0.75 for the 4:3 ratio). */
+	content-visibility: auto;
+	contain-intrinsic-size: auto calc(100vw / 5) calc(100vw / 5 * 0.75);
 }
 
 /* Sequential loading animation */
@@ -178,9 +184,11 @@ body:has([popover]:popover-open) .click-blocker {
 
 /* While a slide is open, neutralise containment that would re-anchor the
    fixed-position overlay (contain: layout creates a containing block for
-   fixed descendants). */
+   fixed descendants). content-visibility: auto implies the same containment,
+   so it must be reset as well - contain: none alone does not. */
 body:has(.lightbox-container:target) .gallery-item {
 	contain: none;
+	content-visibility: visible;
 }
 
 @keyframes lbFade {
@@ -312,11 +320,17 @@ body:has(.lightbox-container:target) .close {
 	.gallery {
 		grid-template-columns: repeat(4, 1fr);
 	}
+	.gallery-item {
+		contain-intrinsic-size: auto calc(100vw / 4) calc(100vw / 4 * 0.75);
+	}
 }
 
 @media (max-width: 1200px) {
 	.gallery {
 		grid-template-columns: repeat(3, 1fr);
+	}
+	.gallery-item {
+		contain-intrinsic-size: auto calc(100vw / 3) calc(100vw / 3 * 0.75);
 	}
 }
 
@@ -324,11 +338,17 @@ body:has(.lightbox-container:target) .close {
 	.gallery {
 		grid-template-columns: repeat(2, 1fr);
 	}
+	.gallery-item {
+		contain-intrinsic-size: auto calc(100vw / 2) calc(100vw / 2 * 0.75);
+	}
 }
 
 @media (max-width: 768px) {
 	.gallery {
 		grid-template-columns: 1fr;
+	}
+	.gallery-item {
+		contain-intrinsic-size: auto calc(100vw / 1) calc(100vw / 1 * 0.75);
 	}
 	.lightbox-container:target {
 		max-width: calc(100vw - 4em);
@@ -724,4 +744,34 @@ ul.actions > li > input:hover {
 
 #about p {
 	margin: 1em 0;
+}
+
+/* All-location links (PT16): no-JS navigation + progressive-loader manifest */
+.location-links {
+	background: rgba(31, 34, 36, 0.85);
+	color: #a0a0a1;
+	padding: 2em 2em 4em;
+}
+.location-links h2 {
+	font-size: 1.2em;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: #fff;
+}
+.location-links h3 {
+	font-size: 1em;
+	margin-top: 0.8em;
+	color: #c4b9b9;
+}
+.location-links ul {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.2em 1.2em;
+}
+.location-links a {
+	color: #c4b9b9;
+}
+.location-links a:hover {
+	color: #fff;
 }
