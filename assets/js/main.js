@@ -240,6 +240,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  /* Keyboard navigation for the lightbox (arrow keys mirror the nav buttons) */
+  {
+    document.addEventListener('keydown', function(event) {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+
+      var slide = document.querySelector('.lightbox-container:target');
+      if (!slide) return;
+
+      /* A slide is open: own the arrow keys, then follow the matching link */
+      event.preventDefault();
+
+      var arrow = slide.querySelector(event.key === 'ArrowLeft' ? '.nav-prev' : '.nav-next');
+      if (arrow) arrow.click();
+    });
+  }
+
   /* ========================================
      Hover-based popover for mouse devices
      ======================================== */
