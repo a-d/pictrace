@@ -17,6 +17,14 @@ image_root: "images"
 image_fulls_loc: "fulls"
 image_thumbs_loc: "thumbs"
 preload_count: 12
+# Build excludes: local tooling / staging files that should not be deployed
+exclude:
+  - 0
+  - LICENSE
+  - README.md
+  - namib1.svg
+  - rename.sh
+  - resize.sh
 #google_analytics: ""
 
 contact: "https://script.google.com/macros/s/AKfycbxbdT2UtNF7rD1fwgbFgd2f02hyOtUTMCQwDAKBTQwA0nUUlSwrvwO4p2hE9zd6_nPq/exec"
