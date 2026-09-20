@@ -214,7 +214,8 @@ body:has(.lightbox-container:target) .gallery-item {
 /* While a slide is open, the slide (image, EXIF bar) and its grid item (tile,
    labels) are click-transparent so clicks fall through to the .close catcher;
    only the prev/next arrows stay hit-testable, together with their oversized
-   ::before navigation zones (the left/right screen halves). */
+   ::before navigation zones (the left/right screen halves). On phones the
+   zones give up their pointer events and the catcher takes every tap (PT17). */
 .lightbox-container:target,
 .gallery-item:has(.lightbox-container:target) {
 	pointer-events: none;
@@ -388,14 +389,15 @@ body:has(.lightbox-container:target) .close {
 		max-width: calc(100vw - 4em);
 	}
 	.lightbox-container:target::before {
-		pointer-events: auto; /* no tap-to-close on touch (as before) */
+		pointer-events: none; /* taps fall through to the .close catcher (PT17) */
 	}
 	ul.exif-data,
 	#header > h1 > a > strong,
-	.nav-prev,
-	.close::before {
+	.nav-prev {
 		display: none !important;
 	}
+	/* .close::before stays visible on phones (PT17): with the arrow zone's
+	   pointer events gone it is the tap-anywhere-to-close catcher */
 	#header nav > ul > li {
 		width: 5em;
 		overflow: hidden;
@@ -414,6 +416,7 @@ body:has(.lightbox-container:target) .close {
 		left: -100vw;
 		right: -100vw;
 		bottom: -100vh;
+		pointer-events: none; /* taps close instead of advancing (PT17); one-finger swipes still navigate (main.js) */
 	}
 	.lightbox-container {
 		z-index: 1;
