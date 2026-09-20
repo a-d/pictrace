@@ -80,6 +80,11 @@ body:has([popover]:popover-open) .click-blocker {
 	backdrop-filter: blur(0.5em);
 }
 
+/* Touch: no pinch/double-tap zoom on the overview; the lightbox stays zoomable */
+.gallery {
+	touch-action: pan-x pan-y;
+}
+
 .gallery-item {
 	position: relative;
 	opacity: 0;
