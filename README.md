@@ -37,10 +37,19 @@ Place your images in the `images/` directory, then run:
 ./resize.sh 2026 "Paris" -d    # Delete originals after processing
 ```
 
+Maintenance modes:
+```bash
+./resize.sh --coverage         # AVIF coverage report (no changes)
+./resize.sh --backfill         # Create missing AVIF from the published JPGs
+./resize.sh --backfill --force # Re-encode existing AVIF (after settings changes)
+```
+
+Images are processed in parallel (`-j N`, default: CPU count).
+
 The script generates:
 - **Full-size images**: 1024px width, 95% quality (AVIF + JPG fallback)
 - **Thumbnails**: 512px width, 80% quality (AVIF + JPG fallback)
-- **EXIF metadata**: Preserved in both formats
+- **EXIF metadata**: preserved in the JPGs (AVIF files carry pixels only)
 
 
 # Photography 

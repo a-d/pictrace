@@ -65,8 +65,8 @@ pictrace/
    - Creates `images/{year}/{index}_{location}/fulls/` and `thumbs/` directories
    - Resizes images to 1024px width for `fulls/`
    - Resizes images to 512px width for `thumbs/`
-   - Generates both JPG and AVIF formats
-   - Preserves essential EXIF metadata
+   - Generates both JPG and AVIF formats (AVIF is metadata-free: plain sRGB, no ICC/Exif/XMP)
+   - Preserves essential EXIF metadata in the JPGs (the lightbox EXIF panel reads them)
    - Auto-assigns the next available index for new locations
 
 ### Command Line Options
@@ -75,7 +75,10 @@ pictrace/
 ./resize.sh 2026 "Paris"       # Direct mode with arguments
 ./resize.sh 2026 "Paris" -d    # Delete originals after processing
 ./resize.sh 2026 "Paris" -v    # Verbose mode (show avifenc output)
-./resize.sh 2026 "Paris" -d -v # Combine flags
+./resize.sh 2026 "Paris" -j 8  # Parallel jobs (default: CPU count)
+./resize.sh --coverage         # AVIF coverage report (no changes)
+./resize.sh --backfill         # Create missing AVIF from the published JPGs (thumbs first)
+./resize.sh --backfill --force # Re-encode every AVIF in scope (after settings changes)
 ```
 
 ### Image Sizes
