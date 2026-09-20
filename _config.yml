@@ -17,12 +17,25 @@ image_root: "images"
 image_fulls_loc: "fulls"
 image_thumbs_loc: "thumbs"
 preload_count: 12
+url: "https://pictrace.de"
+
+# PT16: per-location pages + progressive single-page loading
+# (the index prerenders the first N locations; JS appends the rest on scroll)
+prerender_locations: 5
+
+collections:
+  locations:
+    output: true
+
+plugins:
+  - jekyll-sitemap
 # Build excludes: local tooling / staging files that should not be deployed
 exclude:
   - 0
   - LICENSE
   - README.md
   - namib1.svg
+  - mklocations.sh
   - rename.sh
   - resize.sh
 #google_analytics: ""

@@ -1,0 +1,19 @@
+{%- comment -%} All-location links (PT16): no-JS fallback navigation and the manifest for the progressive loader {%- endcomment -%}
+{% assign link_images = site.static_files | where_exp: "file", "file.path contains 'fulls'" | where_exp: "file", "file.extname != '.avif'" %}
+{% assign link_years = link_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
+<nav class="location-links" aria-label="All locations">
+  <h2>All locations</h2>
+  {% for year in link_years reversed %}
+  {% assign link_locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
+  <section>
+    <h3>{{ year.name }}</h3>
+    <ul>
+      {% for location in link_locations reversed %}
+      {% assign locname = location.name | split: "_" | last %}
+      {% assign locnum = location.name | split: "_" | first %}
+      <li><a href="/{{ year.name }}/{{ location.name }}/" data-year="{{ year.name | slice: 2, 2 }}" data-loc="{{ locnum }}">{{ locname }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+</nav>
