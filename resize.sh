@@ -62,6 +62,7 @@ if [ $# -ge 2 ]; then
         case "$1" in
             -d|--delete) DELETE_ORIGINALS=true ;;
             -v|--verbose) VERBOSE=true ;;
+            *) echo -e "${YELLOW}Warning: ignoring unknown option: $1${NC}" ;;
         esac
         shift
     done
@@ -149,6 +150,7 @@ echo ""
 # Process each image
 PROCESSED=0
 FAILED=0
+PROCESSED_FILES=()
 
 for img in "${IMAGE_FILES[@]}"; do
     # Check for Ctrl+C interrupt
@@ -256,6 +258,7 @@ for img in "${IMAGE_FILES[@]}"; do
     rm -f "$TEMP_FULL" "$TEMP_THUMB" 2>/dev/null
     
     PROCESSED=$((PROCESSED + 1))
+    PROCESSED_FILES+=("$img")
     echo ""
 done
 
@@ -264,14 +267,24 @@ if [ $FAILED -gt 0 ]; then
     echo -e "${RED}Failed: $FAILED image(s)${NC}"
 fi
 
-# Delete originals if requested
+# Delete originals if requested (only successfully processed files)
 if [ "$DELETE_ORIGINALS" = true ]; then
     echo ""
-    echo -e "${YELLOW}Deleting original images...${NC}"
-    for img in "${IMAGE_FILES[@]}"; do
-        [ -f "$img" ] && rm "$img"
-    done
-    echo -e "${GREEN}Original images deleted${NC}"
+    if [ "$INTERRUPTED" = true ]; then
+        echo -e "${YELLOW}Run was interrupted - keeping all originals (nothing deleted).${NC}"
+    elif [ ${#PROCESSED_FILES[@]} -eq 0 ]; then
+        echo -e "${YELLOW}No originals to delete - no image was processed successfully.${NC}"
+    else
+        KEPT=$(( ${#IMAGE_FILES[@]} - ${#PROCESSED_FILES[@]} ))
+        echo -e "${YELLOW}Deleting ${#PROCESSED_FILES[@]} processed original(s)...${NC}"
+        for img in "${PROCESSED_FILES[@]}"; do
+            [ -f "$img" ] && rm "$img"
+        done
+        echo -e "${GREEN}Deleted ${#PROCESSED_FILES[@]} original(s).${NC}"
+        if [ "$KEPT" -gt 0 ]; then
+            echo -e "${YELLOW}Kept $KEPT original(s) that could not be processed - re-run to retry them.${NC}"
+        fi
+    fi
 fi
 
 echo ""
