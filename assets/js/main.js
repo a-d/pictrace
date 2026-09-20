@@ -370,6 +370,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: true });
   }
 
+  /* Reset the page pinch-zoom when the lightbox closes: zoom is allowed on the
+     opened image only, and the gallery blocks pinch, so a leftover zoom could
+     not be undone by the visitor. A brief viewport-meta flip (maximum-scale=1)
+     clamps the page scale back to 1; it must land BEFORE the close navigation
+     runs (hence the click capture - a hashchange-time flip comes too late for
+     tap closes), and the restore is deferred a tick because same-tick flips
+     are coalesced away. */
+  {
+    var viewportMeta = document.querySelector('meta[name="viewport"]');
+    var viewportBase = viewportMeta ? viewportMeta.getAttribute('content') : '';
+    var zoomRestoreTimer = null;
+
+    var resetPageZoom = function() {
+      if (!viewportMeta) return;
+      viewportMeta.setAttribute('content', viewportBase + ', maximum-scale=1');
+      window.clearTimeout(zoomRestoreTimer);
+      zoomRestoreTimer = window.setTimeout(function() {
+        viewportMeta.setAttribute('content', viewportBase);
+      }, 120);
+    };
+
+    /* Every lightbox close is a click on the .close catcher (tap or mouse) */
+    document.addEventListener('click', function(event) {
+      if (event.target && event.target.closest && event.target.closest('a.close')) resetPageZoom();
+    }, true);
+
+    /* Fallback for closes that bypass the catcher (e.g. back navigation) */
+    var slideWasOpen = !!document.querySelector('.lightbox-container:target');
+    window.addEventListener('hashchange', function() {
+      var slideOpen = !!document.querySelector('.lightbox-container:target');
+      if (slideWasOpen && !slideOpen) resetPageZoom();
+      slideWasOpen = slideOpen;
+    });
+  }
+
   /* ========================================
      Hover-based popover for mouse devices
      ======================================== */
