@@ -15,10 +15,13 @@ layout: compress
   {%- assign avif_set = site.static_files | where: "extname", ".avif" | map: "path" | join: "|" -%}
   {%- assign avif_set = "|" | append: avif_set | append: "|" -%}
 
-  {%- comment -%} Preload first N thumbnail images for faster initial render (configured via site.preload_count) {%- endcomment -%}
+  {%- comment -%} Preload first N thumbnail images for faster initial render (configured via site.preload_count; scoped to the page's location or year when the page has one) {%- endcomment -%}
   {%- assign preload_images = site.static_files | where_exp: "file", "file.path contains 'thumbs'" | where_exp: "file", "file.extname != '.avif'" -%}
   {%- if page.locdir -%}
     {%- assign preload_scope = '/' | append: page.year | append: '/' | append: page.locdir | append: '/' -%}
+    {%- assign preload_images = preload_images | where_exp: "file", "file.path contains preload_scope" -%}
+  {%- elsif page.year -%}
+    {%- assign preload_scope = '/' | append: page.year | append: '/' -%}
     {%- assign preload_images = preload_images | where_exp: "file", "file.path contains preload_scope" -%}
   {%- endif -%}
   {%- assign preload_years = preload_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" -%}
