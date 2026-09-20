@@ -89,6 +89,13 @@ body:has([popover]:popover-open) .click-blocker {
 	touch-action: pan-x pan-y;
 }
 
+/* While a slide is open, release the overview's touch restriction: the slide
+   lives inside the gallery, so its ancestor's touch-action (pan-x pan-y)
+   would otherwise block pinch-zoom on the opened image (PT6). */
+body:has(.lightbox-container:target) .gallery {
+	touch-action: auto;
+}
+
 .gallery-item {
 	position: relative;
 	opacity: 0;
