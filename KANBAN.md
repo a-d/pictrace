@@ -8,7 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT6 | P2 | Zoom policy: pinch-zoom in the lightbox only (meta + `touch-action` on the gallery); aria-labels for lightbox controls |
 | PT7 | P3 | Housekeeping: nested thumbs/_site junk (33 MB), stale _site (3.7 GB), .travis.yml, Jekyll excludes, gitignore, git gc |
 | PT8 | P3 | CSS/HTML hygiene: dead CSS block, `:nth-child(24+0)` typo, dead form attributes |
 | PT9 | P3 | Self-host exifr + FontAwesome (currently CDN; no SRI) |
@@ -40,6 +39,7 @@ _(empty)_
 | PT5 | P2 | resize.sh: `-d` deletes only originals whose outputs were created — ✅ done 2026-09-20 (commit `e2493c616f32b987200d282dc76854ed4d8d4755`) |
 | PT3 | P2 | Build: precomputed AVIF path set replaces per-image scans — ✅ done 2026-09-20 (commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`) |
 | PT4 | P2 | Preload: thumbs preload AVIF when present, else JPG — ✅ done 2026-09-20 (commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`) |
+| PT6 | P2 | Zoom: pinch-zoom in the lightbox only; lightbox controls labeled — ✅ done 2026-09-20 (commit `223a1fcfb4758081b01ed19e77eca247f3511938`) |
 
 ## Task details
 
@@ -52,7 +52,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT3 | [`.hermes/plan/PT3-build-time-liquid-avif-lookup.md`](.hermes/plan/PT3-build-time-liquid-avif-lookup.md) — ✅ done 2026-09-20 |
 | PT4 | [`.hermes/plan/PT4-preload-avif-guard.md`](.hermes/plan/PT4-preload-avif-guard.md) — ✅ done 2026-09-20 |
 | PT5 | [`.hermes/plan/PT5-resize-sh-delete-safety.md`](.hermes/plan/PT5-resize-sh-delete-safety.md) — ✅ done 2026-09-20 |
-| PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — open |
+| PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — ✅ done 2026-09-20 |
 | PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — open |
 | PT8 | [`.hermes/plan/PT8-css-html-hygiene.md`](.hermes/plan/PT8-css-html-hygiene.md) — open |
 | PT9 | [`.hermes/plan/PT9-self-host-external-assets.md`](.hermes/plan/PT9-self-host-external-assets.md) — open |
@@ -66,6 +66,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT6 done — pinch-zoom is lightbox-only (`user-scalable=no` removed; `touch-action: pan-x pan-y` on the gallery; works on modern iOS; desktop/layout unaffected). Aria labels on prev/next/close; owner phone test pending. Commit `223a1fcfb4758081b01ed19e77eca247f3511938`. |
 | 2026-09-20 | PT6 scope refined per owner: pinch-zoom is wanted **on the opened photo only** — overview stays fixed, big-screen layout scaling unchanged. Chosen mechanism: drop `user-scalable=no`, apply `touch-action: pan-x pan-y` to the gallery (works on modern iOS too; see .hermes/plan/PT6). |
 | 2026-09-20 | PT3 done — precomputed AVIF set replaces O(N·M) per-image scans (3,821-path equivalence test, 0 mismatches). Fix commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`. |
 | 2026-09-20 | PT4 done — thumb preloads guarded (AVIF if present, else JPG; no 404 preloads). Fix commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`. |
