@@ -2,10 +2,12 @@
 	color-scheme: only light;
 }
 
-/* Font Awesome subset - only icons used in this project */
+/* Font Awesome 4.7.0 icon subset - only icons used in this project.
+   Webfont: assets/fonts/fontawesome-webfont.woff2, self-hosted (SIL OFL 1.1;
+   license text: assets/fonts/LICENSE-font-awesome-4.7.0.txt). */
 @font-face {
 	font-family: 'FontAwesome';
-	src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2');
+	src: url('/assets/fonts/fontawesome-webfont.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
