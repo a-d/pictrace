@@ -6,9 +6,7 @@
 
 ## 📋 Open
 
-| ID | Prio | Task |
-|---|---|---|
-| PT15 | P2 | Lightbox gestures: horizontal mouse/trackpad scroll (PC) + swipe (mobile) for prev/next (mirrors PT1) |
+_(empty)_
 
 ## 🔵 In progress
 
@@ -41,6 +39,7 @@ _(empty)_
 | PT7 | P3 | Housekeeping: `_site` junk deleted (−3.7 GB), `.travis.yml` removed, Jekyll excludes added, `/0/` ignores collapsed, `git gc` — ✅ done 2026-09-20 (commit `b3044ab3fb8e7c982c81bf0bc024c1343a3f41e5`) |
 | PT8 | P3 | CSS/HTML hygiene: dead `::after` block + unmatched `#gallery-close` rules removed, `24+0`→`24n+0`, dead form attrs — ✅ done 2026-09-20 (commit `46b8d48b1d39d20ef965c9cdc82e876c247cf33a`) |
 | PT9 | P3 | Self-host exifr + FontAwesome: exifr 7.1.3 (MIT) + FA 4.7.0 webfont (SIL OFL 1.1) vendored to `assets/js/vendor/` + `assets/fonts/` with license files; CDN refs removed — ✅ done 2026-09-20 (commit `6d0c261be85aee05d12a9a300406a0086aa42315`) |
+| PT15 | P2 | Lightbox gestures: horizontal wheel/trackpad + swipe for prev/next (delegates to PT1's `.nav-prev`/`.nav-next`) — ✅ done 2026-09-20 (commit `69ff666514769629f4d90c83216aa3fc360bf68f`) |
 
 ## Task details
 
@@ -62,12 +61,13 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT12 | [`.hermes/plan/PT12-scaling-architecture.md`](.hermes/plan/PT12-scaling-architecture.md) — deferred |
 | PT13 | [`.hermes/plan/PT13-framework-spike.md`](.hermes/plan/PT13-framework-spike.md) — deferred |
 | PT14 | [`.hermes/plan/PT14-repo-history-size.md`](.hermes/plan/PT14-repo-history-size.md) — deferred |
-| PT15 | [`.hermes/plan/PT15-lightbox-gestures.md`](.hermes/plan/PT15-lightbox-gestures.md) — open |
+| PT15 | [`.hermes/plan/PT15-lightbox-gestures.md`](.hermes/plan/PT15-lightbox-gestures.md) — ✅ done 2026-09-20 |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT15 done — lightbox gestures: horizontal trackpad/wheel (≥45 px cumulative, 220 ms quiet-lock absorbs inertia, ctrl/meta+wheel ignored) + one-finger swipe (≥50 px, 1.5× ratio, single-touch only — pinch/pan & touchcancel safe); both delegate to PT1's `.nav-prev`/`.nav-next`. 24/24 stub-DOM harness tests (`.hermes/plan/PT15-tests.js`); owner phone test pending (rides with PT6). Commit `69ff666`. |
 | 2026-09-20 | PT9 done — exifr 7.1.3 (MIT) + FontAwesome 4.7.0 woff2 (SIL OFL 1.1) self-hosted (`assets/js/vendor/`, `assets/fonts/`) with license files; both verified byte-identical to upstream (sha256). License check: mirroring allowed (MIT/OFL); the EU GDPR risk (third-party CDN embedding) is removed by this change. Browser check: only first-party requests. Commit `6d0c261`. New `assets/` files committed via `git add -f` (`/assets/` ignore pending owner decision). |
 | 2026-09-20 | PT15 opened — lightbox gestures: horizontal wheel (PC) + one-finger swipe (mobile) for prev/next, reusing PT1's delegation to the `.nav-prev`/`.nav-next` links. Details: `.hermes/plan/PT15-lightbox-gestures.md`. |
 | 2026-09-20 | PT8 done — dead CSS/HTML stripped (commented ::after block, unmatched #gallery-close rules), 24+0→24n+0 (no visual change), dead form attrs removed. Footer `Design:` credit + `.gitignore /assets/` line flagged for owner decision. Commit `46b8d48`. |
