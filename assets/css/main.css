@@ -244,25 +244,24 @@ body:has(.lightbox-container:target) .gallery-item {
 	padding: 0;
 }
 
+/* Functional hit box for the close action (same spot as the painted X). The
+   visible glyph is painted by the open slide itself (see
+   .lightbox-container:target::after): this link must stay *below* the raised
+   slide item, or its full-viewport ::before zone would swallow the arrows. */
 .close {
 	display: none;
 	position: fixed;
 	top: 1.5em;
 	right: 1.5em;
-	color: white;
-	font-size: 2em;
-	text-decoration: none;
 	width: 1.5em;
 	height: 1.5em;
-	text-align: center;
-	line-height: 1.5em;
-	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.2);
+	font-size: 2em;
+	color: transparent; /* the glyph is the slide's painted ::after */
 	z-index: 20005;
-	animation: lbFade 0.5s ease;
 }
 
-/* Shown only while a slide is open; also the click-anywhere-to-close catcher */
+/* Shown only while a slide is open; also the click-anywhere-to-close catcher
+   (its visible X is painted by the open slide - see below) */
 body:has(.lightbox-container:target) .close {
 	display: block;
 }
@@ -277,8 +276,39 @@ body:has(.lightbox-container:target) .close {
 	z-index: 0;
 }
 
-.close:hover {
+/* The visible X: painted by the open slide so it lives in the slide's stacking
+   context - above the blurred backdrop, the image and the grid tile. The .close
+   link above cannot paint it (it must stay below the raised slide item to keep
+   the catcher/arrow hit order, PT12/PT17), so the glyph is drawn here instead;
+   clicks on it fall through to the link's hit box (pointer-events: none). */
+.lightbox-container:target::after {
+	content: "\00d7";
+	position: fixed;
+	top: 1.5em;
+	right: 1.5em;
+	width: 1.5em;
+	height: 1.5em;
+	font-size: 2em;
+	font-weight: 100; /* mirrors the `a` rule - the same thin glyph as before */
+	line-height: 1.5em;
+	text-align: center;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50%;
+	z-index: 20012;
+	pointer-events: none;
+	animation: lbFade 0.5s ease;
+}
+
+/* Hover/focus feedback stays on the .close link (it owns the hit box and the
+   focus ring position) and is mirrored onto the painted X. */
+body:has(.close:hover) .lightbox-container:target::after {
 	background: rgba(255, 255, 255, 0.3);
+}
+
+body:has(.close:focus-visible) .lightbox-container:target::after {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
 }
 
 /* Navigation arrows */
