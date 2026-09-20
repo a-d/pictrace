@@ -1,9 +1,11 @@
 {%- comment -%} locationName is now passed from iterator.html - no need to recalculate {%- endcomment -%}
+{%- assign year_short = include.year.name | slice: 2, 2 -%}
+{%- assign locnum = include.location.name | split: "_" | first -%}
 {% if include.firstLoc and include.firstImage %}
-<section class="year" year="{{ include.year.name }}" id="p-{{ include.year.name }}">
+<section class="year" year="{{ include.year.name }}" id="p-{{ year_short }}">
 {% endif %}
 {% if include.firstImage %}
-<section class="location" location="{{ include.locationName }}" id="p-{{ include.year.name }}-{{ include.locationName }}">
+<section class="location" location="{{ include.locationName }}" id="p-{{ year_short }}-{{ locnum }}">
 {%- comment -%} Journey map: check if this location has a journey configuration {%- endcomment -%}
 {% assign journey = site.data.journeys | where: "name", include.locationName | first %}
 {% if journey %}
@@ -31,9 +33,9 @@ window.journeyProgressData['{{ journey.progressFn }}'] = [{% for coord in journe
 
 <article class="gallery-item" location="{{ include.locationName }}" year="{{ include.year.name }}">
   {% if include.firstImage %}
-  <a href="#p-{{ include.year.name }}-{{ include.locationName }}" class="location" location="{{ include.locationName }}">{{ include.locationName }}</a>
+  <a href="#p-{{ year_short }}-{{ locnum }}" class="location" location="{{ include.locationName }}">{{ include.locationName }}</a>
   {% if include.firstLoc %}
-  <a href="#p-{{ include.year.name }}" class="year" year="{{ include.year.name }}">{{ include.year.name }}</a>
+  <a href="#p-{{ year_short }}" class="year" year="{{ include.year.name }}">{{ include.year.name }}</a>
   {% endif %}
   {% endif %}
   {%- assign image_basename = include.image.name | split: '.' | first -%}
