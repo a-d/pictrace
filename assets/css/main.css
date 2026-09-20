@@ -127,7 +127,7 @@ body:has([popover]:popover-open) .click-blocker {
 .gallery-item:nth-child(24n+22) { animation-delay: 1100ms; }
 .gallery-item:nth-child(24n+23) { animation-delay: 1150ms; }
 
-.gallery-item img {
+.gallery-item > a.image img {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -139,34 +139,9 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 /* Lightbox styles */
-.lightbox {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	background-color: rgba(0, 0, 0, 0.8);
-	z-index: 20000;
-	padding: 5em;
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px); /* For Safari */
-	opacity: 0;
-	transition: opacity 0.5s ease, visibility 0s linear 0.5s;
-}
-
-.lightbox:has(:target) {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	opacity: 1;
-	transition: opacity 0.5s ease, visibility 0s linear;
-}
-
-.lightbox-container:target {
-	display: flex;
-}
-
+/* Each slide lives inside its gallery <article>; the targeted slide becomes a
+   viewport-centred overlay. The backdrop is painted by the figure's ::before,
+   while the shared .close link provides the click-anywhere-to-close catcher. */
 .lightbox-container {
 	position: relative;
 	width: auto;
@@ -174,6 +149,47 @@ body:has([popover]:popover-open) .click-blocker {
 	display: none;
 	justify-content: center;
 	align-items: center;
+}
+
+.lightbox-container:target {
+	display: flex;
+	position: fixed;
+	inset: 0;
+	margin: auto;
+	width: fit-content;
+	height: fit-content;
+	max-width: calc(100vw - 10em);
+	max-height: calc(100vh - 2em);
+	z-index: 20010;
+	animation: lbFade 0.5s ease;
+}
+
+.lightbox-container:target::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background-color: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px); /* For Safari */
+	animation: lbFade 0.5s ease;
+	pointer-events: none; /* desktop: clicks fall through to the .close catcher */
+}
+
+/* While a slide is open, neutralise containment that would re-anchor the
+   fixed-position overlay (contain: layout and backdrop-filter both create
+   containing blocks for fixed descendants). */
+body:has(.lightbox-container:target) .gallery {
+	backdrop-filter: none;
+}
+
+body:has(.lightbox-container:target) .gallery-item {
+	contain: none;
+}
+
+@keyframes lbFade {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 
 .lightbox-container img {
@@ -190,7 +206,8 @@ body:has([popover]:popover-open) .click-blocker {
 }
 
 .close {
-	position: absolute;
+	display: none;
+	position: fixed;
 	top: 1.5em;
 	right: 1.5em;
 	color: white;
@@ -202,7 +219,13 @@ body:has([popover]:popover-open) .click-blocker {
 	line-height: 1.5em;
 	border-radius: 50%;
 	background: rgba(255, 255, 255, 0.2);
-	z-index: 1010;
+	z-index: 20005;
+	animation: lbFade 0.5s ease;
+}
+
+/* Shown only while a slide is open; also the click-anywhere-to-close catcher */
+body:has(.lightbox-container:target) .close {
+	display: block;
 }
 
 .close::before {
@@ -307,8 +330,11 @@ body:has([popover]:popover-open) .click-blocker {
 	.gallery {
 		grid-template-columns: 1fr;
 	}
-	.lightbox {
-		padding: 3em;
+	.lightbox-container:target {
+		max-width: calc(100vw - 4em);
+	}
+	.lightbox-container:target::before {
+		pointer-events: auto; /* no tap-to-close on touch (as before) */
 	}
 	ul.exif-data,
 	#header > h1 > a > strong,
@@ -347,12 +373,10 @@ body:has([popover]:popover-open) .click-blocker {
 	.gallery-item {
 		filter: brightness(1.1);
 	}
-	.gallery-item img {
+	.gallery-item > a.image img {
 		border-color: white;
 	}
-	.lightbox {
-		padding: 2em;
-	}
+
 	* {
 		background-image: none !important;
 	}
@@ -436,7 +460,7 @@ ul.exif-data > li[tag="DateTimeOriginal"] {
 	display: contents;
 }
 
-.gallery:has(:target) > .year > .location {
+.gallery:has(> .year:target, > .year > .location:target) > .year > .location {
 	display: none;
 }
 
