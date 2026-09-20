@@ -1,9 +1,10 @@
-{%- comment -%} All-location links (PT16): no-JS fallback navigation and the manifest for the progressive loader {%- endcomment -%}
+{%- comment -%} All-location links (PT16/PT20): no-JS fallback navigation and the manifest for the progressive loader; on a year page (include.only_year) the list is scoped to that year {%- endcomment -%}
 {% assign link_images = site.static_files | where_exp: "file", "file.path contains 'fulls'" | where_exp: "file", "file.extname != '.avif'" %}
 {% assign link_years = link_images | group_by_exp: "image", "image.path | split: '/' | slice: 2, 1 | first" %}
-<nav class="location-links" aria-label="All locations">
-  <h2>All locations</h2>
+<nav class="location-links" aria-label="{% if include.only_year %}Locations in {{ include.only_year }}{% else %}All locations{% endif %}">
+  <h2>{% if include.only_year %}Locations in {{ include.only_year }}{% else %}All locations{% endif %}</h2>
   {% for year in link_years reversed %}
+  {% if include.only_year and year.name != include.only_year %}{% continue %}{% endif %}
   {% assign link_locations = year.items | group_by_exp: "image", "image.path | split: '/' | slice: 3, 1 | first" %}
   <section>
     <h3>{{ year.name }}</h3>

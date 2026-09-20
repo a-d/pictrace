@@ -211,18 +211,6 @@ registerJourneyProgress();
    ======================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
-  /* close spot popover when clicking location/year links */
-  {
-    var sel = document.getElementById('spot');
-    if (sel) {
-      sel.querySelectorAll('a[href^="#"]').forEach(function(n) {
-        n.addEventListener('click', function(e) {
-          sel.hidePopover();
-        });
-      });
-    }
-  }
-
   /* add location scrolling indicator */
   {
     var locationIndicator = document.getElementById("location-indicator");
@@ -653,34 +641,13 @@ if (document.readyState === 'loading') {
 window.addEventListener('hashchange', handleHashChange);
 
 /* ========================================
-   Popover links to non-rendered locations (PT16)
+   Progressive per-location loading (PT16/PT20)
    ======================================== */
 
-/* Select-popover links are in-page anchors; when the target is not part of the */
-/* current page (a location that is not prerendered on the index, or another */
-/* location on a location page) the link falls back to that location's page. */
-function rewirePopoverLinks() {
-  document.querySelectorAll('[popover] a[data-page]').forEach(function(link) {
-    if (!link.dataset.hash) link.dataset.hash = link.getAttribute('href');
-    var hash = link.dataset.hash;
-    if (hash.charAt(0) !== '#') return;
-    if (document.getElementById(hash.slice(1))) {
-      link.setAttribute('href', hash);
-    } else {
-      link.setAttribute('href', link.getAttribute('data-page'));
-    }
-  });
-}
-rewirePopoverLinks();
-
-/* ========================================
-   Progressive per-location loading (PT16)
-   ======================================== */
-
-/* The index prerenders the first N locations (site.prerender_locations); this */
-/* loader appends the remaining location pages in order as the reader scrolls, */
-/* rewiring the prev/next chain across batch boundaries. Without JavaScript the */
-/* link list stays as plain navigation. */
+/* The index and the year pages prerender the first N locations of their scope */
+/* (site.prerender_locations); this loader appends the remaining location pages */
+/* in order as the reader scrolls, rewiring the prev/next chain across batch */
+/* boundaries. Without JavaScript the link list stays as plain navigation. */
 (function() {
   var linksNav = document.querySelector('.location-links');
   var gallery = document.querySelector('main.gallery');
@@ -786,7 +753,6 @@ rewirePopoverLinks();
       loading = false;
       if (window.refreshJourneyMaps) window.refreshJourneyMaps();
       if (window.observeLocationItems) window.observeLocationItems(gallery);
-      rewirePopoverLinks();
       prefetchNextBatch();
       /* if the sentinel is still close, keep going */
       if (linksNav.getBoundingClientRect().top < window.innerHeight * 2.5) injectBatch();

@@ -21,10 +21,13 @@ url: "https://pictrace.de"
 
 # PT16: per-location pages + progressive single-page loading
 # (the index prerenders the first N locations; JS appends the rest on scroll)
+# PT20: per-year pages (/2026/) reuse the same prerender + loader, scoped to the year
 prerender_locations: 5
 
 collections:
   locations:
+    output: true
+  years:
     output: true
 
 plugins:

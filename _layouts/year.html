@@ -1,0 +1,15 @@
+---
+layout: default2
+---
+
+{% include site-header.html %}
+
+<main class="gallery">
+  {% include iterator.html only_year=page.year limit_locations=site.prerender_locations %}
+</main>
+
+{% include popup.html %}
+
+{% include location-links.html only_year=page.year %}
+
+{% include site-popovers.html %}
