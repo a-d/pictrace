@@ -46,6 +46,12 @@ Maintenance modes:
 
 Images are processed in parallel (`-j N`, default: CPU count).
 
+> **EXIF & orientation:** AVIF outputs keep the source's ICC/EXIF/XMP
+> metadata, and any EXIF rotation is baked into the pixels before encoding
+> (portrait photos with an `Orientation` tag render correctly in every viewer —
+> no double-rotation). The JPGs keep the full EXIF; the lightbox EXIF panel
+> reads them. Never strip metadata or skip the orientation step.
+
 The script generates:
 - **Full-size images**: 1024px width, 95% quality (AVIF + JPG fallback)
 - **Thumbnails**: 512px width, 80% quality (AVIF + JPG fallback)
