@@ -328,11 +328,24 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('touchstart', function(event) {
       touchTracking = false;
       if (event.touches.length !== 1) return; /* multi-touch = pinch/pan (PT6) */
-      if (event.target && event.target.closest && event.target.closest('.nav-prev, .nav-next')) return; /* taps keep their own behaviour */
+
+      /* Only a touch that starts on the arrow's own (visible) box keeps tap
+         behaviour: the arrows' oversized ::before zones cover most of the
+         screen on touch devices, so matching them here swallowed every swipe
+         (on phones the mobile zone is the whole viewport and the arrow box is
+         0 x 0, so swipes are always tracked there). */
+      var touch = event.touches[0];
+      var arrow = (event.target && event.target.closest) ? event.target.closest('.nav-prev, .nav-next') : null;
+      if (arrow) {
+        var box = arrow.getBoundingClientRect();
+        if (box.width > 0 && box.height > 0 &&
+            touch.clientX >= box.left && touch.clientX <= box.right &&
+            touch.clientY >= box.top && touch.clientY <= box.bottom) return;
+      }
 
       touchTracking = true;
-      touchStartX = event.touches[0].clientX;
-      touchStartY = event.touches[0].clientY;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
     }, { passive: true });
 
     document.addEventListener('touchcancel', function() {
