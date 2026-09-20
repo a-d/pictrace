@@ -8,8 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT3 | P2 | Build-time: precompute the AVIF existence lookup (currently O(images × static_files) in Liquid) |
-| PT4 | P2 | Preload: guard thumb AVIF preloads with an existence check (latent 404 preloads) |
 | PT6 | P2 | A11y quick wins: allow pinch-zoom; label lightbox prev/next/close |
 | PT7 | P3 | Housekeeping: nested thumbs/_site junk (33 MB), stale _site (3.7 GB), .travis.yml, Jekyll excludes, gitignore, git gc |
 | PT8 | P3 | CSS/HTML hygiene: dead CSS block, `:nth-child(24+0)` typo, dead form attributes |
@@ -40,6 +38,8 @@ _(empty)_
 | PT1 | P2 | Lightbox: navigate with ← / → arrow keys — ✅ done 2026-09-20 (commit `8e6e8706a6cfde36e4710954a5511abb8d7a25df`) |
 | PT2 | P2 | Lightbox: arrows revealed only once the slide image is ready — ✅ done 2026-09-20 (commit `f0df932b064c0f7b036e4831aa60c5b762130a9b`) |
 | PT5 | P2 | resize.sh: `-d` deletes only originals whose outputs were created — ✅ done 2026-09-20 (commit `e2493c616f32b987200d282dc76854ed4d8d4755`) |
+| PT3 | P2 | Build: precomputed AVIF path set replaces per-image scans — ✅ done 2026-09-20 (commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`) |
+| PT4 | P2 | Preload: thumbs preload AVIF when present, else JPG — ✅ done 2026-09-20 (commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`) |
 
 ## Task details
 
@@ -49,8 +49,8 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 |---|---|
 | PT1 | [`.hermes/plan/PT1.md`](.hermes/plan/PT1.md) — ✅ done 2026-09-20 |
 | PT2 | [`.hermes/plan/PT2.md`](.hermes/plan/PT2.md) — ✅ done 2026-09-20 |
-| PT3 | [`.hermes/plan/PT3-build-time-liquid-avif-lookup.md`](.hermes/plan/PT3-build-time-liquid-avif-lookup.md) — open |
-| PT4 | [`.hermes/plan/PT4-preload-avif-guard.md`](.hermes/plan/PT4-preload-avif-guard.md) — open |
+| PT3 | [`.hermes/plan/PT3-build-time-liquid-avif-lookup.md`](.hermes/plan/PT3-build-time-liquid-avif-lookup.md) — ✅ done 2026-09-20 |
+| PT4 | [`.hermes/plan/PT4-preload-avif-guard.md`](.hermes/plan/PT4-preload-avif-guard.md) — ✅ done 2026-09-20 |
 | PT5 | [`.hermes/plan/PT5-resize-sh-delete-safety.md`](.hermes/plan/PT5-resize-sh-delete-safety.md) — ✅ done 2026-09-20 |
 | PT6 | [`.hermes/plan/PT6-a11y-quick-wins.md`](.hermes/plan/PT6-a11y-quick-wins.md) — open |
 | PT7 | [`.hermes/plan/PT7-housekeeping.md`](.hermes/plan/PT7-housekeeping.md) — open |
@@ -66,6 +66,8 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-20 | PT3 done — precomputed AVIF set replaces O(N·M) per-image scans (3,821-path equivalence test, 0 mismatches). Fix commit `e20295ed08a93dc8ee6c49583ca5718c002ee15b`. |
+| 2026-09-20 | PT4 done — thumb preloads guarded (AVIF if present, else JPG; no 404 preloads). Fix commit `afcea8f43836c9b0737efa2bd28551ea325b7b6c`. |
 | 2026-09-20 | PT5 done — resize.sh `-d` deletes only successfully processed originals (interrupted runs delete nothing; unknown flags warn). Fix commit `e2493c616f32b987200d282dc76854ed4d8d4755`. |
 | 2026-09-20 | Source review completed (templates, JS, CSS, scripts, assets, history). Findings + plans in `.hermes/plan/2026-09-20-source-review.md`; PT3–PT9 opened (quick wins), PT10–PT14 deferred (refactors / higher risk). |
 | 2026-09-20 | PT2 done — nav arrows hidden until the slide image is ready (`img-ready` + opacity fade; `@media (scripting: none)` keeps them visible without JS; links stay clickable while hidden). Fix commit `f0df932b064c0f7b036e4831aa60c5b762130a9b`. |
