@@ -8,7 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT26 | P3 | Drop `gallery-item` / `location` / `year` / `lightbox-container` classes; `nav-prev`/`nav-next` → `rel="prev"/"next"` |
 | PT27 | P2 | Deep links: eagerly load batches until the anchor exists, then pop the slide (replaces the page hop) |
 
 ## 🔵 In progress
@@ -53,6 +52,7 @@ _(empty)_
 | PT23 | P2 | JS minification: committed terser build (`main.min.js`) + `minify.sh` drift check — −4,436 B gzip per first visit — ✅ done 2026-09-24 (commit `854d656`) |
 | PT24 | P3 | Drop `class="image"` from tile links (structure-based CSS `.gallery-item > a > picture > img` + JS wiring) — ✅ done 2026-09-24 (commit `dec1fa4`) |
 | PT25 | P3 | Tile `<img>`: dropped the inert `width`/`height` (kept `alt=""`) — layout proven identical @1280/800/375 — ✅ done 2026-09-24 (commit `48c07a5`) |
+| PT26 | P3 | Drop structural classes (`gallery-item`, `location`, `year`, `lightbox-container`; arrows → `rel="prev"/"next"`) — byte-proven + full browser matrix — ✅ done 2026-09-24 (commit `23f4a1e`) |
 
 ## Task details
 
@@ -85,13 +85,14 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT23 | [`.hermes/plan/PT23-js-minification.md`](.hermes/plan/PT23-js-minification.md) — ✅ done 2026-09-24 |
 | PT24 | [`.hermes/plan/PT24-image-class-removal.md`](.hermes/plan/PT24-image-class-removal.md) — ✅ done 2026-09-24 |
 | PT25 | [`.hermes/plan/PT25-tile-img-attributes.md`](.hermes/plan/PT25-tile-img-attributes.md) — ✅ done 2026-09-24 |
-| PT26 | [`.hermes/plan/PT26-class-removal.md`](.hermes/plan/PT26-class-removal.md) — open (2026-09-24) |
+| PT26 | [`.hermes/plan/PT26-class-removal.md`](.hermes/plan/PT26-class-removal.md) — ✅ done 2026-09-24 |
 | PT27 | [`.hermes/plan/PT27-deeplink-eager-load.md`](.hermes/plan/PT27-deeplink-eager-load.md) — open (2026-09-24) |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-24 | **PT26 done — the DOM lost its structural classes.** No more `gallery-item` / `location` / `year` / `lightbox-container` / `nav-prev` / `nav-next` in the shipped markup: CSS + JS target `.gallery article`, `section[year]`, `section[location]`, `article > figure`, `a[rel=prev]` / `a[rel=next]` (rel is the semantic form; aria-labels kept; the loader creates rewired arrows via `setAttribute('rel','next')`). Verified three ways: (1) applying the same replacement pass to the PT25 build reproduces **all 60 pages byte-for-byte**; (2) PT15 harness **26/26** — stubs updated, and the harness itself repaired (it had been broken since PT18's zoom block joined the extracted snippet — a missing `window.addEventListener` stub); (3) browser matrix (Chromium over HTTP): left/right zone clicks, keyboard ←/→, wheel, centre-click close, hit-test map, open-state guards (article z 20011, gallery touch-action auto, content-visibility), loader 76 → 160 with boundary rewiring (`fig[75]` next → `#p-26-10-…`), mobile tap-close + swipe, no-JS `:target` + visible arrows, **zero console errors**. min regenerated (11,489 B raw / 4,042 B gzip). Commit `23f4a1e`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT25 done — the tile `<img>` lost its `width`/`height`.** The hardcoded 512×384 was inert (tiles are fixed 4:3 CSS boxes; the img fills them with `object-fit: cover`) and wrong for non-4:3 photos. `alt=""` deliberately kept — removing the attribute is the bad practice (screen readers fall back to filenames). Verified: 60/60 pages byte-identical after re-inserting the attributes (2,522 tile imgs); browser geometry identical to PT24 at 1280/800/375 px (page heights, tile counts, 60 tile rects each); every tile still carries `alt=""`; zero errors. A11y note: the tile link still has no accessible name (pre-existing; a photo-name alt/aria-label stays an open option at ≈0 gzip). Commit `48c07a5`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT24 done — the tile links lost `class="image"`.** CSS derives the tile styling structurally (`.gallery-item > a > picture > img`; base + ≤899 px border rule); `main.js` binds the close-href wiring to the picture's parent `<a>`; min regenerated (11,488 B raw / 4,047 B gzip). Verified: 60/60 built pages byte-identical after reconstructing the change (76 tile anchors on the index, 227 on Namibia; 2 CSS selectors/page); browser (Chromium over HTTP): tile img computed style unchanged (absolute · cover · 1px black), ≤899 px border flips white as before, close href = the pre-click hash after a tile click, real mouse click on a tile opens its slide, zero console errors. Commit `dec1fa4`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT23 done — the site ships minified JS.** `assets/js/main.js` stays the editable source; `minify.sh` (terser 5.44.0, deterministic, `--check` drift guard, `src-sha256` marker) writes `assets/js/main.min.js`; the layout loads the minified file (fallback to `main.js` if absent). Sizes: **28,719 → 11,470 B raw, 8,471 → 4,036 B gzip (−4,436 B per first visit)**. Verified: all 60 built pages byte-identical to the PT22 build once the script ref is reverted; browser smoke (Chromium over HTTP, real CDP) on the built site ran the minified bundle — lightbox open/next/close, EXIF 7 items, arrows armed, loader 76 → 160 slides, **zero console errors**. Note: `main.min.js` needs `git add -f` (`/assets/` ignore) — documented in .clinerules. Commit `854d656`. **Unpushed — owner push pending.** |
