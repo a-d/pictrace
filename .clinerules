@@ -267,7 +267,7 @@ The `gallery_item.html` template generates the complete map structure from YAML 
   <section class="year" id="p-{year}">
     <section class="location" id="p-{year}-{location}">
       <article class="gallery-item">
-        <a href="#{popup-id}" class="image">
+        <a href="#{popup-id}">
           <!-- First preload_count images: no loading="lazy" -->
           <!-- Remaining images: loading="lazy" -->
           <img src="{thumb-path}" width="512" height="384" />

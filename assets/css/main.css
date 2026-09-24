@@ -140,7 +140,7 @@ body:has(.lightbox-container:target) .gallery {
 .gallery-item:nth-child(24n+22) { animation-delay: 1100ms; }
 .gallery-item:nth-child(24n+23) { animation-delay: 1150ms; }
 
-.gallery-item > a.image img {
+.gallery-item > a > picture > img {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -464,7 +464,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery-item {
 		filter: brightness(1.1);
 	}
-	.gallery-item > a.image img {
+	.gallery-item > a > picture > img {
 		border-color: white;
 	}
 
