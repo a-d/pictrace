@@ -246,8 +246,8 @@ document.addEventListener('DOMContentLoaded', function() {
   /* Add click event listeners to all gallery links */
   var closeLink = document.querySelector('a.close');
   if (closeLink) {
-    document.querySelectorAll('.gallery-item > a.image').forEach(function(link) {
-      link.addEventListener('click', function(event) {
+    document.querySelectorAll('.gallery-item > a > picture').forEach(function(pic) {
+      pic.parentElement.addEventListener('click', function(event) {
         closeLink.setAttribute('href', window.location.hash || '#p');
       });
     });
