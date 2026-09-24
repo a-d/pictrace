@@ -726,10 +726,12 @@ window.addEventListener('hashchange', handleHashChange);
     });
   }
 
+  var inFlight = null;
+
   function injectBatch() {
-    if (loading) return;
+    if (loading) return inFlight || Promise.resolve(false); /* join the batch in progress */
     var start = firstUnloadedIndex();
-    if (start >= links.length) return;
+    if (start >= links.length) return Promise.resolve(false);
 
     loading = true;
     var batch = links.slice(start, start + BATCH);
@@ -749,16 +751,19 @@ window.addEventListener('hashchange', handleHashChange);
       });
     });
 
-    chain.then(function() {
+    inFlight = chain.then(function() {
       loading = false;
       if (window.refreshJourneyMaps) window.refreshJourneyMaps();
       if (window.observeLocationItems) window.observeLocationItems(gallery);
       prefetchNextBatch();
       /* if the sentinel is still close, keep going */
       if (linksNav.getBoundingClientRect().top < window.innerHeight * 2.5) injectBatch();
+      return true;
     }).catch(function() {
       loading = false; /* keep the links as fallback; the observer retries on the next scroll */
+      return false;
     });
+    return inFlight;
   }
 
   var sentinelObserver = new IntersectionObserver(function(entries) {
@@ -768,19 +773,52 @@ window.addEventListener('hashchange', handleHashChange);
   }, { rootMargin: '200% 0px' });
   sentinelObserver.observe(linksNav);
 
-  /* deep links to a photo that is not prerendered: land on its location page */
+  /* deep links to a photo that is not prerendered: eagerly load batches until the
+     anchor exists, then let :target open it; the location-page hop stays as the
+     fallback for anchors the manifest cannot resolve */
   (function handleDeepLink() {
     var hash = location.hash;
     if (!hash || hash === '#p' || hash.length < 4) return;
-    if (document.getElementById(hash.slice(1))) return;
+    var targetId = hash.slice(1);
+    if (document.getElementById(targetId)) return;
     var m = /^#p-(\d{2})-(\d+)-/.exec(hash);
     if (!m) return;
-    var key = m[1] + '-' + m[2];
-    for (var i = 0; i < links.length; i++) {
-      if (locKey(links[i]) === key) {
-        location.replace(links[i].href + hash);
-        return;
+
+    function hopToLocationPage() {
+      var key = m[1] + '-' + m[2];
+      for (var i = 0; i < links.length; i++) {
+        if (locKey(links[i]) === key) {
+          location.replace(links[i].href + hash);
+          return;
+        }
       }
     }
+
+    function onTargetFound() {
+      var fig = document.getElementById(targetId);
+      var item = fig && fig.closest('article');
+      if (item) item.scrollIntoView({ block: 'center' });
+      /* Chromium does not re-evaluate :target for elements inserted after the
+         fragment was set (settled empirically) - re-assert the hash so the slide
+         opens; location.replace keeps the back-button history clean */
+      if (!document.querySelector('figure:target')) {
+        location.replace('#p');
+        location.replace(hash);
+      } else {
+        handleHashChange(); /* hashchange does not fire for injected content */
+      }
+    }
+
+    var attempts = 0;
+    var maxAttempts = Math.ceil(links.length / BATCH) + 1;
+    (function step() {
+      if (document.getElementById(targetId)) { onTargetFound(); return; }
+      if (attempts++ >= maxAttempts) { hopToLocationPage(); return; }
+      injectBatch().then(function(didLoad) {
+        if (document.getElementById(targetId)) { onTargetFound(); return; }
+        if (!didLoad) { hopToLocationPage(); return; }
+        step();
+      });
+    })();
   })();
 })();
