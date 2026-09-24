@@ -6,8 +6,7 @@
 
 ## 📋 Open
 
-| ID | Prio | Task |
-|---|---|---|
+_(empty)_
 
 ## 🔵 In progress
 
