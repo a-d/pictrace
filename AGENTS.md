@@ -53,7 +53,7 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 - **Local dev:** `bundle exec jekyll serve --host 0.0.0.0` (deps/Docker one-liner in README).
 - **Local build:** `jekyll build -s . -d /tmp/site` (Jekyll 3.10 + jekyll-sitemap; ~80 s for ~1 900 photos + 56 location pages).
 - **Deploy:** push to `master` → GitHub Pages rebuilds. No manual deploy.
-- **Images:** `./resize.sh` (interactive) or `./resize.sh 2026 "Paris" [-d] [-v] [-j N]`; `--backfill` / `--coverage` for AVIF maintenance; `./mklocations.sh` after adding locations.
+- **Images:** `./resize.sh` (interactive) or `./resize.sh 2026 "Paris" [-d] [-v] [-j N]`; `--backfill` / `--coverage` for AVIF maintenance; `./mklocations.sh` after adding locations; `./blur-bg.sh` refreshes the baked backdrop (not automatic — commit the result).
 - **Testing:** no test suite — verify visually with `jekyll serve`; check responsive breakpoints (grid 5/4/3/2/1 columns; lightbox mobile rules ≤768px) and cold-cache behavior for image-loading changes. For the PT16 loader, a `file://` fixture (index + a few location pages) works: fetch the pages over `file://` and stub `window.fetch` if the browser blocks it.
 
 ## Directory map
@@ -72,7 +72,7 @@ images/                {year}/{NN}_{Location}/{fulls,thumbs} · LICENSE.photos �
 index.html             Page entry: header, prerendered gallery, popovers, all-locations links
 mklocations.sh         Regenerates the _locations/ and _years/ stubs from images/
 0/ · _p1/              Raw-photo staging dirs (mostly gitignored, never deployed)
-resize.sh · rename.sh  Image processing / renaming helpers
+resize.sh · blur-bg.sh · rename.sh  Image processing / backdrop / renaming helpers
 _site/                 Generated output (gitignored)
 .clinerules            Detailed project rulebook — read before editing content/templates
 KANBAN.md              Task board

@@ -24,6 +24,8 @@ docker run -it --rm -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -v ${pwd}:/work -w /work -
 apt update && apt install jekyll ruby-dev imagemagick libavif-bin libimage-exiftool-perl -y
 ```
 
+> Run the sections below (Jekyll server, `resize.sh`, `blur-bg.sh`) **inside this container** — it carries the toolchain (ImageMagick, avifenc, exiftool).
+
 ## Run Jekyll Server
 ```bash
 LANG=C.UTF-8 LC_ALL=C.UTF-8 bundle exec jekyll serve --host 0.0.0.0
@@ -56,6 +58,15 @@ The script generates:
 - **Full-size images**: 1024px width, 95% quality (AVIF + JPG fallback)
 - **Thumbnails**: 512px width, 80% quality (AVIF + JPG fallback)
 - **EXIF metadata**: preserved in the JPGs (AVIF files carry pixels only)
+
+## Refresh the backdrop
+The page/lightbox backdrop (`images/bg-blurred.jpg`) is a pre-blurred 96px derivative of a single
+photo. It is **not** rebuilt automatically — rerun this only when you want a new look, then commit
+the file:
+```bash
+./blur-bg.sh                    # default source: the last thumbnail in the images tree
+./blur-bg.sh path/to/photo.jpg  # or pass an explicit photo
+```
 
 
 # Photography 
