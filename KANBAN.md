@@ -8,7 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT27 | P2 | Deep links: eagerly load batches until the anchor exists, then pop the slide (replaces the page hop) |
 
 ## 🔵 In progress
 
@@ -53,6 +52,7 @@ _(empty)_
 | PT24 | P3 | Drop `class="image"` from tile links (structure-based CSS `.gallery-item > a > picture > img` + JS wiring) — ✅ done 2026-09-24 (commit `dec1fa4`) |
 | PT25 | P3 | Tile `<img>`: dropped the inert `width`/`height` (kept `alt=""`) — layout proven identical @1280/800/375 — ✅ done 2026-09-24 (commit `48c07a5`) |
 | PT26 | P3 | Drop structural classes (`gallery-item`, `location`, `year`, `lightbox-container`; arrows → `rel="prev"/"next"`) — byte-proven + full browser matrix — ✅ done 2026-09-24 (commit `23f4a1e`) |
+| PT27 | P2 | Deep links: eager batch loading until the anchor exists, then the slide opens (hash re-assert; hop = fallback) — ✅ done 2026-09-24 (commit `3fb3c8e`) |
 
 ## Task details
 
@@ -86,12 +86,13 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT24 | [`.hermes/plan/PT24-image-class-removal.md`](.hermes/plan/PT24-image-class-removal.md) — ✅ done 2026-09-24 |
 | PT25 | [`.hermes/plan/PT25-tile-img-attributes.md`](.hermes/plan/PT25-tile-img-attributes.md) — ✅ done 2026-09-24 |
 | PT26 | [`.hermes/plan/PT26-class-removal.md`](.hermes/plan/PT26-class-removal.md) — ✅ done 2026-09-24 |
-| PT27 | [`.hermes/plan/PT27-deeplink-eager-load.md`](.hermes/plan/PT27-deeplink-eager-load.md) — open (2026-09-24) |
+| PT27 | [`.hermes/plan/PT27-deeplink-eager-load.md`](.hermes/plan/PT27-deeplink-eager-load.md) — ✅ done 2026-09-24 |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-09-24 | **PT27 done — deep links eagerly load instead of hopping.** A `#p-…` anchor that is not prerendered sends the loader down the same sequential batch path as scrolling (arrow-chain rewiring intact) until the anchor exists, scrolls the tile into view and opens the slide. **Settled empirically: Chromium does not re-evaluate `:target` for elements inserted after the fragment was set** (the PT16 open question) — the handler re-asserts the hash via two `location.replace` calls (back-button history stays clean, `history.length` = 1). The location-page hop remains the fallback for anchors the manifest cannot resolve. Verified (built site, Chromium over HTTP): prerendered link → opens, no eager loading (76 slides); Namibia link → overlay in **0.6 s**, hash kept, EXIF 7 items, arrows armed, close lands at the tile, loader continues 821 → 884; invalid basename → hop parity (`/2025/36_Namibia/`); cross-year anchor on a year page → settles at 462 slides, no navigation; **zero console errors**. min regenerated (11,976 B raw / 4,180 B gzip). Commit `3fb3c8e`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT26 done — the DOM lost its structural classes.** No more `gallery-item` / `location` / `year` / `lightbox-container` / `nav-prev` / `nav-next` in the shipped markup: CSS + JS target `.gallery article`, `section[year]`, `section[location]`, `article > figure`, `a[rel=prev]` / `a[rel=next]` (rel is the semantic form; aria-labels kept; the loader creates rewired arrows via `setAttribute('rel','next')`). Verified three ways: (1) applying the same replacement pass to the PT25 build reproduces **all 60 pages byte-for-byte**; (2) PT15 harness **26/26** — stubs updated, and the harness itself repaired (it had been broken since PT18's zoom block joined the extracted snippet — a missing `window.addEventListener` stub); (3) browser matrix (Chromium over HTTP): left/right zone clicks, keyboard ←/→, wheel, centre-click close, hit-test map, open-state guards (article z 20011, gallery touch-action auto, content-visibility), loader 76 → 160 with boundary rewiring (`fig[75]` next → `#p-26-10-…`), mobile tap-close + swipe, no-JS `:target` + visible arrows, **zero console errors**. min regenerated (11,489 B raw / 4,042 B gzip). Commit `23f4a1e`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT25 done — the tile `<img>` lost its `width`/`height`.** The hardcoded 512×384 was inert (tiles are fixed 4:3 CSS boxes; the img fills them with `object-fit: cover`) and wrong for non-4:3 photos. `alt=""` deliberately kept — removing the attribute is the bad practice (screen readers fall back to filenames). Verified: 60/60 pages byte-identical after re-inserting the attributes (2,522 tile imgs); browser geometry identical to PT24 at 1280/800/375 px (page heights, tile counts, 60 tile rects each); every tile still carries `alt=""`; zero errors. A11y note: the tile link still has no accessible name (pre-existing; a photo-name alt/aria-label stays an open option at ≈0 gzip). Commit `48c07a5`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT24 done — the tile links lost `class="image"`.** CSS derives the tile styling structurally (`.gallery-item > a > picture > img`; base + ≤899 px border rule); `main.js` binds the close-href wiring to the picture's parent `<a>`; min regenerated (11,488 B raw / 4,047 B gzip). Verified: 60/60 built pages byte-identical after reconstructing the change (76 tile anchors on the index, 227 on Namibia; 2 CSS selectors/page); browser (Chromium over HTTP): tile img computed style unchanged (absolute · cover · 1px black), ≤899 px border flips white as before, close href = the pre-click hash after a tile click, real mouse click on a tile opens its slide, zero console errors. Commit `dec1fa4`. **Unpushed — owner push pending.** |
