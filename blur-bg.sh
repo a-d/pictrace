@@ -9,7 +9,17 @@
 # Usage:
 #   ./blur-bg.sh                          # use the same image Jekyll would pick
 #   ./blur-bg.sh <source-image>           # or an explicit photo
+#
+# Needs ImageMagick - run it in the README's tooling container (same as resize.sh).
 set -euo pipefail
+
+if ! command -v convert >/dev/null 2>&1; then
+  echo "blur-bg.sh: ImageMagick (convert) not found." >&2
+  echo "  Run it in the README's tooling container (same environment as resize.sh). One-shot:" >&2
+  echo "  docker run --rm -v \"\$PWD:/work\" -w /work debian bash -lc 'apt-get update -qq && apt-get install -y -qq imagemagick && ./blur-bg.sh'" >&2
+  exit 1
+fi
+
 cd "$(dirname "$0")"
 
 src="${1:-}"
