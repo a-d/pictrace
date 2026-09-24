@@ -4,7 +4,13 @@ layout: compress
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  {%- capture seo_title -%}{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}{%- endcapture -%}
+  {%- if page.description -%}{%- assign seo_desc = page.description -%}
+  {%- elsif page.locdir -%}{%- assign seo_desc = page.locname | append: " — photos from " | append: page.year | append: ", a gallery by " | append: site.author | append: "." -%}
+  {%- elsif page.year -%}{%- assign seo_desc = "Photo galleries from " | append: page.year | append: " — every location, by " | append: site.author | append: "." -%}
+  {%- else -%}{%- assign seo_desc = site.description -%}
+  {%- endif -%}
+  <title>{{ seo_title }}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
@@ -34,6 +40,7 @@ layout: compress
       {%- assign sorted_thumbs = location.items | sort_natural: "name" -%}
       {%- for thumb in sorted_thumbs -%}
         {%- if preload_counter >= site.preload_count -%}{%- break -%}{%- endif -%}
+        {%- if preload_counter == 0 -%}{%- assign og_img = thumb.path -%}{%- endif -%}
         {%- assign avif_path = thumb.path | replace: '.jpg', '.avif' | replace: '.JPG', '.avif' | replace: '.jpeg', '.avif' | replace: '.JPEG', '.avif' | replace: '.png', '.avif' | replace: '.PNG', '.avif' -%}
         {%- assign avif_needle = "|" | append: avif_path | append: "|" -%}
         {%- if avif_set contains avif_needle -%}
@@ -45,6 +52,16 @@ layout: compress
       {%- endfor -%}
     {%- endfor -%}
   {%- endfor -%}
+
+  {%- comment -%} PT22: per-page SEO / social meta {%- endcomment -%}
+  <meta name="description" content="{{ seo_desc | strip }}">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ seo_title }}">
+  <meta property="og:description" content="{{ seo_desc | strip }}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  {% if og_img %}<meta property="og:image" content="{{ og_img | absolute_url }}">{% endif %}
+  <meta name="twitter:card" content="summary_large_image">
 
   {%- comment -%} Inline the stylesheet: main.css carries front matter so every page (root or collection) can read it here {%- endcomment -%}
   {%- assign css_page = site.pages | where_exp: "p", "p.path contains 'assets/css/main.css'" | first -%}
