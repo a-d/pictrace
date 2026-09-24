@@ -2,10 +2,10 @@
 {%- assign year_short = include.year.name | slice: 2, 2 -%}
 {%- assign locnum = include.location.name | split: "_" | first -%}
 {% if include.firstLoc and include.firstImage %}
-<section class="year" year="{{ include.year.name }}" id="p-{{ year_short }}">
+<section year="{{ include.year.name }}" id="p-{{ year_short }}">
 {% endif %}
 {% if include.firstImage %}
-<section class="location" location="{{ include.locationName }}" id="p-{{ year_short }}-{{ locnum }}">
+<section location="{{ include.locationName }}" id="p-{{ year_short }}-{{ locnum }}">
 {%- comment -%} Journey map: check if this location has a journey configuration {%- endcomment -%}
 {% assign journey = site.data.journeys | where: "name", include.locationName | first %}
 {% if journey %}
@@ -27,11 +27,11 @@
 {% endif %}
 {% endif %}
 
-<article class="gallery-item" location="{{ include.locationName }}" year="{{ include.year.name }}">
+<article location="{{ include.locationName }}" year="{{ include.year.name }}">
   {% if include.firstImage %}
-  <a href="#p-{{ year_short }}-{{ locnum }}" class="location" location="{{ include.locationName }}">{{ include.locationName }}</a>
+  <a href="#p-{{ year_short }}-{{ locnum }}" location="{{ include.locationName }}">{{ include.locationName }}</a>
   {% if include.firstLoc %}
-  <a href="#p-{{ year_short }}" class="year" year="{{ include.year.name }}">{{ include.year.name }}</a>
+  <a href="#p-{{ year_short }}" year="{{ include.year.name }}">{{ include.year.name }}</a>
   {% endif %}
   {% endif %}
   {%- assign image_basename = include.image.name | split: '.' | first -%}

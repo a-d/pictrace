@@ -263,10 +263,10 @@ The `gallery_item.html` template generates the complete map structure from YAML 
 
 ### Gallery Structure
 ```html
-<div class="gallery">
-  <section class="year" id="p-{year}">
-    <section class="location" id="p-{year}-{location}">
-      <article class="gallery-item">
+<main class="gallery">
+  <section year="{year}" id="p-{yy}">
+    <section location="{locname}" id="p-{yy}-{locnum}">
+      <article location="{locname}" year="{year}">
         <a href="#{popup-id}">
           <!-- First preload_count images: no loading="lazy" -->
           <!-- Remaining images: loading="lazy" -->
@@ -275,8 +275,9 @@ The `gallery_item.html` template generates the complete map structure from YAML 
       </article>
     </section>
   </section>
-</div>
+</main>
 ```
+No structural classes (PT24–PT26): styles and tests target `.gallery article`, `article > figure`, `a[rel=prev]` / `a[rel=next]`; the `location`/`year` attributes on sections / articles / links carry the metadata (JS indicator, tile labels).
 
 ### ID Conventions
 Fragment ids are deliberately compact (PT12) - every photo repeats them ~4x in the page, so keep the scheme short and stable:
@@ -323,11 +324,11 @@ Fragment ids are deliberately compact (PT12) - every photo repeats them ~4x in t
 Example preferred structure:
 ```html
 <main class="gallery">
-  <section class="year" id="p-2025">
+  <section year="2025" id="p-25">
     <header><h2>2025</h2></header>
-    <section class="location" id="p-2025-Berlin">
+    <section location="Berlin" id="p-25-01">
       <header><h3>Berlin</h3></header>
-      <article class="gallery-item">
+      <article location="Berlin" year="2025">
         <figure>
           <a href="#popup-id"><img src="thumb.jpg" alt="Description" loading="lazy" /></a>
           <figcaption>Optional caption</figcaption>

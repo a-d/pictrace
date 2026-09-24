@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       /* observe every gallery item once; injected batches re-use this (PT16) */
       window.observeLocationItems = function(root) {
-        (root || document).querySelectorAll(".gallery .gallery-item").forEach(function(sec) {
+        (root || document).querySelectorAll(".gallery article").forEach(function(sec) {
           if (sec.dataset.locationObserved) return;
           sec.dataset.locationObserved = "true";
           locationObserver.observe(sec);
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
   /* Add click event listeners to all gallery links */
   var closeLink = document.querySelector('a.close');
   if (closeLink) {
-    document.querySelectorAll('.gallery-item > a > picture').forEach(function(pic) {
+    document.querySelectorAll('.gallery article > a > picture').forEach(function(pic) {
       pic.parentElement.addEventListener('click', function(event) {
         closeLink.setAttribute('href', window.location.hash || '#p');
       });
@@ -259,13 +259,13 @@ document.addEventListener('DOMContentLoaded', function() {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
 
-      var slide = document.querySelector('.lightbox-container:target');
+      var slide = document.querySelector('article > figure:target');
       if (!slide) return;
 
       /* A slide is open: own the arrow keys, then follow the matching link */
       event.preventDefault();
 
-      var arrow = slide.querySelector(event.key === 'ArrowLeft' ? '.nav-prev' : '.nav-next');
+      var arrow = slide.querySelector(event.key === 'ArrowLeft' ? 'a[rel=prev]' : 'a[rel=next]');
       if (arrow) arrow.click();
     });
   }
@@ -285,14 +285,14 @@ document.addEventListener('DOMContentLoaded', function() {
       if (Math.abs(dx) < 4) return;
       if (!event.shiftKey && Math.abs(dx) <= Math.abs(event.deltaY)) return;
 
-      var slide = document.querySelector('.lightbox-container:target');
+      var slide = document.querySelector('article > figure:target');
       if (!slide) return;
 
       if (!wheelLocked) {
         wheelSum += dx;
         if (Math.abs(wheelSum) >= 45) {
           wheelLocked = true; /* one step per gesture - absorb the trackpad inertia tail */
-          var arrow = slide.querySelector(wheelSum > 0 ? '.nav-next' : '.nav-prev');
+          var arrow = slide.querySelector(wheelSum > 0 ? 'a[rel=next]' : 'a[rel=prev]');
           wheelSum = 0;
           if (arrow) arrow.click();
         }
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
          (on phones the mobile zone is the whole viewport and the arrow box is
          0 x 0, so swipes are always tracked there). */
       var touch = event.touches[0];
-      var arrow = (event.target && event.target.closest) ? event.target.closest('.nav-prev, .nav-next') : null;
+      var arrow = (event.target && event.target.closest) ? event.target.closest('a[rel=prev], a[rel=next]') : null;
       if (arrow) {
         var box = arrow.getBoundingClientRect();
         if (box.width > 0 && box.height > 0 &&
@@ -350,10 +350,10 @@ document.addEventListener('DOMContentLoaded', function() {
       var dy = touch.clientY - touchStartY;
       if (Math.abs(dx) < SWIPE_MIN_X || Math.abs(dx) < Math.abs(dy) * 1.5) return;
 
-      var slide = document.querySelector('.lightbox-container:target');
+      var slide = document.querySelector('article > figure:target');
       if (!slide) return;
 
-      var arrow = slide.querySelector(dx < 0 ? '.nav-next' : '.nav-prev');
+      var arrow = slide.querySelector(dx < 0 ? 'a[rel=next]' : 'a[rel=prev]');
       if (arrow) arrow.click();
     }, { passive: true });
   }
@@ -385,9 +385,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
 
     /* Fallback for closes that bypass the catcher (e.g. back navigation) */
-    var slideWasOpen = !!document.querySelector('.lightbox-container:target');
+    var slideWasOpen = !!document.querySelector('article > figure:target');
     window.addEventListener('hashchange', function() {
-      var slideOpen = !!document.querySelector('.lightbox-container:target');
+      var slideOpen = !!document.querySelector('article > figure:target');
       if (slideWasOpen && !slideOpen) resetPageZoom();
       slideWasOpen = slideOpen;
     });
@@ -565,9 +565,9 @@ function formatExifValue(tag, value) {
 }
 
 /* Reveal a slide's nav arrows once its image can be laid out */
-/* (the arrows are hidden until then - see .nav-arrow styles) */
+/* (the arrows are hidden until then - see the arrow styles) */
 function armSlideImageReady(img) {
-  var itemDiv = img.closest('.lightbox-container');
+  var itemDiv = img.closest('article > figure');
   if (!itemDiv || itemDiv.classList.contains('img-ready')) return;
 
   /* Already loaded (e.g. cached): reveal immediately */
@@ -593,14 +593,14 @@ async function handleHashChange() {
   var targetElement = document.getElementById(currentHash);
   if (!targetElement) return;
 
-  var images = targetElement.querySelectorAll('.lightbox-container img');
+  var images = targetElement.querySelectorAll('article > figure img');
 
   /* Reveal the nav arrows only once the slide's image is ready to lay out */
   images.forEach(armSlideImageReady);
   
   /* Process each image asynchronously without blocking rendering */
   images.forEach(function(img) {
-    var itemDiv = img.closest('.lightbox-container');
+    var itemDiv = img.closest('article > figure');
 
     var exifDataElement = itemDiv.querySelector('.exif-data');
     if (!exifDataElement) {
@@ -667,11 +667,11 @@ window.addEventListener('hashchange', handleHashChange);
   }
 
   /* mark the prerendered locations as loaded */
-  document.querySelectorAll('main.gallery > .year > .location').forEach(function(sec) {
+  document.querySelectorAll('main.gallery > section[year] > section[location]').forEach(function(sec) {
     var parts = (sec.getAttribute('id') || '').split('-');
     if (parts.length >= 3) loadedKeys[parts[1] + '-' + parts[2]] = true;
   });
-  var renderedFigs = gallery.querySelectorAll('figure.lightbox-container');
+  var renderedFigs = gallery.querySelectorAll('article > figure');
   if (renderedFigs.length) lastSlideId = renderedFigs[renderedFigs.length - 1].id;
 
   function firstUnloadedIndex() {
@@ -681,13 +681,13 @@ window.addEventListener('hashchange', handleHashChange);
 
   /* inject one fetched location page; keeps the global arrow chain intact */
   function injectLocation(doc) {
-    var srcYear = doc.querySelector('main.gallery > .year');
+    var srcYear = doc.querySelector('main.gallery > section[year]');
     if (!srcYear) return;
-    var srcLoc = srcYear.querySelector('section.location');
+    var srcLoc = srcYear.querySelector('section[location]');
     if (!srcLoc) return;
 
     var yearName = srcYear.getAttribute('year');
-    var targetYear = gallery.querySelector('section.year[year="' + yearName + '"]');
+    var targetYear = gallery.querySelector('section[year="' + yearName + '"]');
     var scope;
     if (targetYear) {
       targetYear.appendChild(srcLoc);
@@ -697,22 +697,22 @@ window.addEventListener('hashchange', handleHashChange);
       scope = srcYear;
     }
 
-    var figs = scope.querySelectorAll('figure.lightbox-container');
+    var figs = scope.querySelectorAll('article > figure');
     if (figs.length === 0) return;
 
     /* previous location's last slide now continues into this location */
     if (lastSlideId) {
       var prevFig = document.getElementById(lastSlideId);
-      var prevNext = prevFig ? prevFig.querySelector('.nav-next') : null;
+      var prevNext = prevFig ? prevFig.querySelector('a[rel=next]') : null;
       if (prevFig && !prevNext) {
         prevNext = document.createElement('a');
-        prevNext.className = 'nav-next';
+        prevNext.setAttribute('rel', 'next');
         prevNext.setAttribute('aria-label', 'Next');
         prevNext.textContent = '\u276f';
         prevFig.appendChild(prevNext);
       }
       if (prevNext) prevNext.setAttribute('href', '#' + figs[0].id);
-      figs[0].querySelector('.nav-prev').setAttribute('href', '#' + lastSlideId);
+      figs[0].querySelector('a[rel=prev]').setAttribute('href', '#' + lastSlideId);
     }
     lastSlideId = figs[figs.length - 1].id;
   }
