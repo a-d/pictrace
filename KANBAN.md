@@ -8,7 +8,6 @@
 
 | ID | Prio | Task |
 |---|---|---|
-| PT24 | P3 | Drop `class="image"` from tile links — CSS derives the style from the `a > picture` structure |
 | PT25 | P3 | Tile `<img>`: drop the (wrong, inert) `width`/`height`; keep `alt=""` — deleting the attribute is bad practice |
 | PT26 | P3 | Drop `gallery-item` / `location` / `year` / `lightbox-container` classes; `nav-prev`/`nav-next` → `rel="prev"/"next"` |
 | PT27 | P2 | Deep links: eagerly load batches until the anchor exists, then pop the slide (replaces the page hop) |
@@ -53,6 +52,7 @@ _(empty)_
 | PT21 | P2 | Lightbox: the dark blurred backdrop stays steady across prev/next steps (owner report: it reset with a distracting flash on every step) — ✅ done 2026-09-20 (commit `baf8324`) |
 | PT22 | P2 | HTML meta tags: description + canonical + Open Graph/Twitter on all 60 pages (hand-rolled, no plugin) — ✅ done 2026-09-24 (commit `fae4646`) |
 | PT23 | P2 | JS minification: committed terser build (`main.min.js`) + `minify.sh` drift check — −4,436 B gzip per first visit — ✅ done 2026-09-24 (commit `854d656`) |
+| PT24 | P3 | Drop `class="image"` from tile links (structure-based CSS `.gallery-item > a > picture > img` + JS wiring) — ✅ done 2026-09-24 (commit `dec1fa4`) |
 
 ## Task details
 
@@ -83,7 +83,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT21 | [`.hermes/plan/PT21-lightbox-backdrop-steady.md`](.hermes/plan/PT21-lightbox-backdrop-steady.md) — ✅ done 2026-09-20 (commit `baf8324`) |
 | PT22 | [`.hermes/plan/PT22-html-meta-tags.md`](.hermes/plan/PT22-html-meta-tags.md) — ✅ done 2026-09-24 |
 | PT23 | [`.hermes/plan/PT23-js-minification.md`](.hermes/plan/PT23-js-minification.md) — ✅ done 2026-09-24 |
-| PT24 | [`.hermes/plan/PT24-image-class-removal.md`](.hermes/plan/PT24-image-class-removal.md) — open (2026-09-24) |
+| PT24 | [`.hermes/plan/PT24-image-class-removal.md`](.hermes/plan/PT24-image-class-removal.md) — ✅ done 2026-09-24 |
 | PT25 | [`.hermes/plan/PT25-tile-img-attributes.md`](.hermes/plan/PT25-tile-img-attributes.md) — open (2026-09-24) |
 | PT26 | [`.hermes/plan/PT26-class-removal.md`](.hermes/plan/PT26-class-removal.md) — open (2026-09-24) |
 | PT27 | [`.hermes/plan/PT27-deeplink-eager-load.md`](.hermes/plan/PT27-deeplink-eager-load.md) — open (2026-09-24) |
@@ -92,6 +92,7 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 
 | Date | Decision |
 |---|---|
+| 2026-09-24 | **PT24 done — the tile links lost `class="image"`.** CSS derives the tile styling structurally (`.gallery-item > a > picture > img`; base + ≤899 px border rule); `main.js` binds the close-href wiring to the picture's parent `<a>`; min regenerated (11,488 B raw / 4,047 B gzip). Verified: 60/60 built pages byte-identical after reconstructing the change (76 tile anchors on the index, 227 on Namibia; 2 CSS selectors/page); browser (Chromium over HTTP): tile img computed style unchanged (absolute · cover · 1px black), ≤899 px border flips white as before, close href = the pre-click hash after a tile click, real mouse click on a tile opens its slide, zero console errors. Commit `dec1fa4`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT23 done — the site ships minified JS.** `assets/js/main.js` stays the editable source; `minify.sh` (terser 5.44.0, deterministic, `--check` drift guard, `src-sha256` marker) writes `assets/js/main.min.js`; the layout loads the minified file (fallback to `main.js` if absent). Sizes: **28,719 → 11,470 B raw, 8,471 → 4,036 B gzip (−4,436 B per first visit)**. Verified: all 60 built pages byte-identical to the PT22 build once the script ref is reverted; browser smoke (Chromium over HTTP, real CDP) on the built site ran the minified bundle — lightbox open/next/close, EXIF 7 items, arrows armed, loader 76 → 160 slides, **zero console errors**. Note: `main.min.js` needs `git add -f` (`/assets/` ignore) — documented in .clinerules. Commit `854d656`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **PT22 done — per-page SEO/social meta.** `<meta name="description">` (site / location `locname`+`year` / year variants), self-referencing `<link rel="canonical">`, og:title/description/url/image/type and a `twitter:card` on all 60 pages; og:image = the page's first preloaded thumbnail (JPG, absolute — scrapers don't do AVIF). Hand-rolled Liquid; no plugin added (default Pages build). Verified: removing the new block reproduces the PT21 build **byte-for-byte on 60/60 pages**; canonical/descriptions/og:image content-checked (index, Namibia, Berlin, /2026/); index +714 B raw / +175 B gzip. Commit `fae4646`. **Unpushed — owner push pending.** |
 | 2026-09-24 | **Owner batch opened: PT22–PT27 (meta tags · JS minification · class/attr trims · deep-link eager loading).** Measured against the PT21 build before carding: class/attr trims (PT24–PT26) = **−10.3 % raw but only −1.1 % gzip** on the index (−9,375 B raw / −138 B gzip; Namibia page −27.5 KB raw / −287 B gzip) — done as requested, framed as markup hygiene, not transfer savings. The batch's real lever: **terser minification of `main.js` → 28,719 → 11,388 B raw, 8,471 → 3,955 B gzip (−4.5 KB per first visit)** (PT23 implements). Side finding (owner decision): the inlined `main.css` costs 5.9 KB gzip on **every** page; minifying it saves ≈2.6 KB/page. PT25 answers the alt question: keep `alt=""` (removing the attribute makes screen readers read filenames). Plans (local): `.hermes/plan/PT22…PT27`. |
