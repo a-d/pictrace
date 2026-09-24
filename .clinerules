@@ -270,7 +270,7 @@ The `gallery_item.html` template generates the complete map structure from YAML 
         <a href="#{popup-id}">
           <!-- First preload_count images: no loading="lazy" -->
           <!-- Remaining images: loading="lazy" -->
-          <img src="{thumb-path}" width="512" height="384" />
+          <img src="{thumb-path}" alt="" />
         </a>
       </article>
     </section>
@@ -398,15 +398,13 @@ The site uses a coordinated preload + lazy loading strategy to optimize initial 
 ### Layout Shift Prevention
 To prevent Cumulative Layout Shift (CLS) during image loading:
 
-- **Explicit dimensions**: All `<img>` tags include `width` and `height` attributes
-- **Aspect ratio**: Thumbnail images use 512×384 (4:3 ratio) dimensions
+- **CSS aspect contract**: gallery tiles are fixed 4:3 boxes (`aspect-ratio` + `contain-intrinsic-size`); the thumbnail fills the tile (`position:absolute; width/height:100%; object-fit:cover`). Tile size never depends on the image's intrinsic ratio - do **not** add `width`/`height` to the tile `<img>` (the old hardcoded 512×384 was wrong for non-4:3 photos anyway)
 - **CSS containment**: Gallery items use `contain: layout style` to isolate layout calculations
 
 ### Thumbnail Dimensions
-Standard thumbnail size: **512px width × 384px height** (4:3 aspect ratio)
+Thumbnails are **512px wide**; heights follow each photo's aspect ratio (3:2 ≈ 512×341, portrait 512×768, …)
 - Set in `resize.sh` during image processing
-- Reflected in `<img width="512" height="384">` in templates
-- Ensures browser reserves correct space before images load
+- The gallery crops to a uniform 4:3 tile via CSS (`object-fit: cover`) — no per-image dimensions are needed in the markup
 
 ### Tuning `preload_count`
 Adjust based on viewport and grid layout:
