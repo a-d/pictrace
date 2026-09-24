@@ -92,11 +92,11 @@ body:has([popover]:popover-open) .click-blocker {
 /* While a slide is open, release the overview's touch restriction: the slide
    lives inside the gallery, so its ancestor's touch-action (pan-x pan-y)
    would otherwise block pinch-zoom on the opened image (PT6). */
-body:has(.lightbox-container:target) .gallery {
+body:has(article > figure:target) .gallery {
 	touch-action: auto;
 }
 
-.gallery-item {
+.gallery article {
 	position: relative;
 	opacity: 0;
 	animation: fadeIn 0.5s forwards;
@@ -115,32 +115,32 @@ body:has(.lightbox-container:target) .gallery {
 }
 
 /* Apply different animation delays for each image */
-.gallery-item:nth-child(24n+0) { animation-delay: 0ms; }
-.gallery-item:nth-child(24n+1) { animation-delay: 50ms; }
-.gallery-item:nth-child(24n+2) { animation-delay: 100ms; }
-.gallery-item:nth-child(24n+3) { animation-delay: 150ms; }
-.gallery-item:nth-child(24n+4) { animation-delay: 200ms; }
-.gallery-item:nth-child(24n+5) { animation-delay: 250ms; }
-.gallery-item:nth-child(24n+6) { animation-delay: 300ms; }
-.gallery-item:nth-child(24n+7) { animation-delay: 350ms; }
-.gallery-item:nth-child(24n+8) { animation-delay: 400ms; }
-.gallery-item:nth-child(24n+9) { animation-delay: 450ms; }
-.gallery-item:nth-child(24n+10) { animation-delay: 500ms; }
-.gallery-item:nth-child(24n+11) { animation-delay: 550ms; }
-.gallery-item:nth-child(24n+12) { animation-delay: 600ms; }
-.gallery-item:nth-child(24n+13) { animation-delay: 650ms; }
-.gallery-item:nth-child(24n+14) { animation-delay: 700ms; }
-.gallery-item:nth-child(24n+15) { animation-delay: 750ms; }
-.gallery-item:nth-child(24n+16) { animation-delay: 800ms; }
-.gallery-item:nth-child(24n+17) { animation-delay: 850ms; }
-.gallery-item:nth-child(24n+18) { animation-delay: 900ms; }
-.gallery-item:nth-child(24n+19) { animation-delay: 950ms; }
-.gallery-item:nth-child(24n+20) { animation-delay: 1000ms; }
-.gallery-item:nth-child(24n+21) { animation-delay: 1050ms; }
-.gallery-item:nth-child(24n+22) { animation-delay: 1100ms; }
-.gallery-item:nth-child(24n+23) { animation-delay: 1150ms; }
+.gallery article:nth-child(24n+0) { animation-delay: 0ms; }
+.gallery article:nth-child(24n+1) { animation-delay: 50ms; }
+.gallery article:nth-child(24n+2) { animation-delay: 100ms; }
+.gallery article:nth-child(24n+3) { animation-delay: 150ms; }
+.gallery article:nth-child(24n+4) { animation-delay: 200ms; }
+.gallery article:nth-child(24n+5) { animation-delay: 250ms; }
+.gallery article:nth-child(24n+6) { animation-delay: 300ms; }
+.gallery article:nth-child(24n+7) { animation-delay: 350ms; }
+.gallery article:nth-child(24n+8) { animation-delay: 400ms; }
+.gallery article:nth-child(24n+9) { animation-delay: 450ms; }
+.gallery article:nth-child(24n+10) { animation-delay: 500ms; }
+.gallery article:nth-child(24n+11) { animation-delay: 550ms; }
+.gallery article:nth-child(24n+12) { animation-delay: 600ms; }
+.gallery article:nth-child(24n+13) { animation-delay: 650ms; }
+.gallery article:nth-child(24n+14) { animation-delay: 700ms; }
+.gallery article:nth-child(24n+15) { animation-delay: 750ms; }
+.gallery article:nth-child(24n+16) { animation-delay: 800ms; }
+.gallery article:nth-child(24n+17) { animation-delay: 850ms; }
+.gallery article:nth-child(24n+18) { animation-delay: 900ms; }
+.gallery article:nth-child(24n+19) { animation-delay: 950ms; }
+.gallery article:nth-child(24n+20) { animation-delay: 1000ms; }
+.gallery article:nth-child(24n+21) { animation-delay: 1050ms; }
+.gallery article:nth-child(24n+22) { animation-delay: 1100ms; }
+.gallery article:nth-child(24n+23) { animation-delay: 1150ms; }
 
-.gallery-item > a > picture > img {
+.gallery article > a > picture > img {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -159,7 +159,7 @@ body:has(.lightbox-container:target) .gallery {
    animation on the figure fades its whole subtree (the backdrop included), and
    both animations restart on every prev/next step (a fresh figure becomes
    :target), so the dark blur visibly reset on each navigation (PT21). */
-.lightbox-container {
+article > figure {
 	position: relative;
 	width: auto;
 	height: auto;
@@ -168,7 +168,7 @@ body:has(.lightbox-container:target) .gallery {
 	align-items: center;
 }
 
-.lightbox-container:target {
+article > figure:target {
 	display: flex;
 	position: fixed;
 	inset: 0;
@@ -180,7 +180,7 @@ body:has(.lightbox-container:target) .gallery {
 	z-index: 20010;
 }
 
-.lightbox-container:target::before {
+article > figure:target::before {
 	content: "";
 	position: fixed;
 	inset: 0;
@@ -196,7 +196,7 @@ body:has(.lightbox-container:target) .gallery {
    fixed descendants; the ≤899px brightness filter does the same).
    content-visibility: auto implies the same containment, so it must be
    reset as well - contain: none alone does not. */
-body:has(.lightbox-container:target) .gallery-item {
+body:has(article > figure:target) .gallery article {
 	contain: none;
 	content-visibility: visible;
 	filter: none;
@@ -209,7 +209,7 @@ body:has(.lightbox-container:target) .gallery-item {
    owns the open slide restores the overlay's intended place in the paint
    order, whatever creates that context (dropping the animation instead would
    restart the fade on every close). */
-.gallery-item:has(.lightbox-container:target) {
+.gallery article:has(> figure:target) {
 	z-index: 20011;
 }
 
@@ -218,13 +218,13 @@ body:has(.lightbox-container:target) .gallery-item {
    only the prev/next arrows stay hit-testable, together with their oversized
    ::before navigation zones (the left/right screen halves). On phones the
    zones give up their pointer events and the catcher takes every tap (PT17). */
-.lightbox-container:target,
-.gallery-item:has(.lightbox-container:target) {
+article > figure:target,
+.gallery article:has(> figure:target) {
 	pointer-events: none;
 }
 
-.lightbox-container:target .nav-prev,
-.lightbox-container:target .nav-next {
+article > figure:target a[rel=prev],
+article > figure:target a[rel=next] {
 	pointer-events: auto;
 }
 
@@ -234,7 +234,7 @@ body:has(.lightbox-container:target) .gallery-item {
 }
 
 /* The slide's own fade-in (see the Lightbox styles note above) */
-.lightbox-container img {
+article > figure img {
 	animation: lbFade 0.5s ease;
 	max-width: 100%;
 	max-height: calc(100vh - 2em);
@@ -250,7 +250,7 @@ body:has(.lightbox-container:target) .gallery-item {
 
 /* Functional hit box for the close action (same spot as the painted X). The
    visible glyph is painted by the open slide itself (see
-   .lightbox-container:target::after): this link must stay *below* the raised
+   article > figure:target::after): this link must stay *below* the raised
    slide item, or its full-viewport ::before zone would swallow the arrows. */
 .close {
 	display: none;
@@ -266,7 +266,7 @@ body:has(.lightbox-container:target) .gallery-item {
 
 /* Shown only while a slide is open; also the click-anywhere-to-close catcher
    (its visible X is painted by the open slide - see below) */
-body:has(.lightbox-container:target) .close {
+body:has(article > figure:target) .close {
 	display: block;
 }
 
@@ -285,7 +285,7 @@ body:has(.lightbox-container:target) .close {
    link above cannot paint it (it must stay below the raised slide item to keep
    the catcher/arrow hit order, PT12/PT17), so the glyph is drawn here instead;
    clicks on it fall through to the link's hit box (pointer-events: none). */
-.lightbox-container:target::after {
+article > figure:target::after {
 	content: "\00d7";
 	position: fixed;
 	top: 1.5em;
@@ -306,18 +306,18 @@ body:has(.lightbox-container:target) .close {
 
 /* Hover/focus feedback stays on the .close link (it owns the hit box and the
    focus ring position) and is mirrored onto the painted X. */
-body:has(.close:hover) .lightbox-container:target::after {
+body:has(.close:hover) article > figure:target::after {
 	background: rgba(255, 255, 255, 0.3);
 }
 
-body:has(.close:focus-visible) .lightbox-container:target::after {
+body:has(.close:focus-visible) article > figure:target::after {
 	outline: 2px solid #fff;
 	outline-offset: 2px;
 }
 
 /* Navigation arrows */
-.nav-prev,
-.nav-next {
+a[rel=prev],
+a[rel=next] {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
@@ -337,30 +337,30 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	transition: background 0.3s ease, opacity 0.3s ease;
 }
 
-.nav-prev:hover,
-.nav-next:hover {
+a[rel=prev]:hover,
+a[rel=next]:hover {
 	background: rgba(255, 255, 255, 0.3);
 }
 
-.lightbox-container.img-ready .nav-prev,
-.lightbox-container.img-ready .nav-next {
+article > figure.img-ready a[rel=prev],
+article > figure.img-ready a[rel=next] {
 	opacity: 1;
 }
 
 /* No-JS fallback: keep the arrows visible when scripting is unavailable */
 @media (scripting: none) {
-	.nav-prev,
-	.nav-next {
+	a[rel=prev],
+	a[rel=next] {
 		opacity: 1;
 	}
 }
 
-.nav-prev {
+a[rel=prev] {
 	left: -1.7em;
 	padding-right: 0.1em;
 }
 
-.nav-prev::before {
+a[rel=prev]::before {
 	content: "";
 	position: fixed;
 	top: -10vh;
@@ -369,12 +369,12 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	bottom: -10vh;
 }
 
-.nav-next {
+a[rel=next] {
 	right: -1.7em;
 	padding-left: 0.1em;
 }
 
-.nav-next::before {
+a[rel=next]::before {
 	content: "";
 	position: fixed;
 	top: -10vh;
@@ -389,7 +389,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery {
 		grid-template-columns: repeat(4, 1fr);
 	}
-	.gallery-item {
+	.gallery article {
 		contain-intrinsic-size: auto calc(100vw / 4) calc(100vw / 4 * 0.75);
 	}
 }
@@ -398,7 +398,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery {
 		grid-template-columns: repeat(3, 1fr);
 	}
-	.gallery-item {
+	.gallery article {
 		contain-intrinsic-size: auto calc(100vw / 3) calc(100vw / 3 * 0.75);
 	}
 }
@@ -407,7 +407,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	.gallery-item {
+	.gallery article {
 		contain-intrinsic-size: auto calc(100vw / 2) calc(100vw / 2 * 0.75);
 	}
 }
@@ -416,18 +416,18 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery {
 		grid-template-columns: 1fr;
 	}
-	.gallery-item {
+	.gallery article {
 		contain-intrinsic-size: auto calc(100vw / 1) calc(100vw / 1 * 0.75);
 	}
-	.lightbox-container:target {
+	article > figure:target {
 		max-width: calc(100vw - 4em);
 	}
-	.lightbox-container:target::before {
+	article > figure:target::before {
 		pointer-events: none; /* taps fall through to the .close catcher (PT17) */
 	}
 	ul.exif-data,
 	#header > h1 > a > strong,
-	.nav-prev {
+	a[rel=prev] {
 		display: none !important;
 	}
 	/* .close::before stays visible on phones (PT17): with the arrow zone's
@@ -442,17 +442,17 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	#header nav > ul > li > button.icon::before {
 		right: 1.6em !important;
 	}
-	.nav-next {
+	a[rel=next] {
 		font-size: 0;
 	}
-	.nav-next::before {
+	a[rel=next]::before {
 		top: -100vh;
 		left: -100vw;
 		right: -100vw;
 		bottom: -100vh;
 		pointer-events: none; /* taps close instead of advancing (PT17); one-finger swipes still navigate (main.js) */
 	}
-	.lightbox-container {
+	article > figure {
 		z-index: 1;
 	}
 }
@@ -461,10 +461,10 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	.gallery .map {
 		display: none;
 	}
-	.gallery-item {
+	.gallery article {
 		filter: brightness(1.1);
 	}
-	.gallery-item > a > picture > img {
+	.gallery article > a > picture > img {
 		border-color: white;
 	}
 
@@ -473,7 +473,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	}
 }
 
-.gallery > .year > .location > article > a.year {
+.gallery > section[year] > section[location] > article > a[year] {
 	position: absolute;
 	z-index: 1;
 	background-color: rgba(0, 0, 0, 0.5);
@@ -483,7 +483,7 @@ body:has(.close:focus-visible) .lightbox-container:target::after {
 	font-size: 1.2em;
 }
 
-.gallery > .year > .location > article > a.location {
+.gallery > section[year] > section[location] > article > a[location] {
 	position: absolute;
 	z-index: 1;
 	background-color: rgba(0, 0, 0, 0.5);
@@ -546,21 +546,21 @@ ul.exif-data > li[tag="DateTimeOriginal"] {
 	display: none;
 }
 
-.gallery > .year,
-.gallery > .year > .location {
+.gallery > section[year],
+.gallery > section[year] > section[location] {
 	display: contents;
 }
 
-.gallery:has(> .year:target, > .year > .location:target) > .year > .location {
+.gallery:has(> section[year]:target, > section[year] > section[location]:target) > section[year] > section[location] {
 	display: none;
 }
 
-.gallery > .year:target > .location,
-.gallery > .year > .location:target {
+.gallery > section[year]:target > section[location],
+.gallery > section[year] > section[location]:target {
 	display: contents !important;
 }
 
-body:has(.lightbox-container:target > a) header {
+body:has(article > figure:target > a) header {
 	display: none;
 }
 

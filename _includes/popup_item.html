@@ -4,11 +4,11 @@
 {%- assign avif_exists = false -%}
 {%- assign avif_needle = "|" | append: avif_static_path | append: "|" -%}
 {%- if avif_set contains avif_needle -%}{%- assign avif_exists = true -%}{%- endif -%}
-<figure class="lightbox-container" id="{{ include.current_id }}">
-  <a href="#{{ include.prev_id }}" class="nav-prev" aria-label="Previous">❮</a>
+<figure id="{{ include.current_id }}">
+  <a href="#{{ include.prev_id }}" rel="prev" aria-label="Previous">❮</a>
   <picture>
     {% if avif_exists %}<source srcset="{{ full_base_path }}{{ image_basename }}.avif" type="image/avif">{% endif %}
     <img loading="lazy" src="{{ full_base_path }}{{ include.image.name }}" alt="{{ include.image.name }}" />
   </picture>
-  {% if include.next_id %}<a href="#{{ include.next_id }}" class="nav-next" aria-label="Next">❯</a>{% endif %}
+  {% if include.next_id %}<a href="#{{ include.next_id }}" rel="next" aria-label="Next">❯</a>{% endif %}
 </figure>
