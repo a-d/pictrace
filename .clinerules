@@ -136,7 +136,8 @@ All site-wide styles and scripts are in external files:
 
 ### Adding New Styles/Scripts
 - Add site-wide styles to `assets/css/main.css`
-- Add site-wide JavaScript to `assets/js/main.js`
+- Add site-wide JavaScript to `assets/js/main.js` (the editable source)
+- After editing `main.js`: run `./minify.sh` and commit **both** `main.js` and the regenerated `main.min.js` — the layout loads the minified file (`main.min.js` needs `git add -f`; `/assets/` is gitignored). `./minify.sh --check` exits non-zero when the shipped file is stale.
 - Journey progress functions are now generated from YAML data (no inline scripts needed)
 
 ## Liquid Templating Patterns
