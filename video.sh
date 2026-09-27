@@ -17,8 +17,7 @@ set -euo pipefail
 
 FULL_WIDTH=1024
 THUMB_WIDTH=512
-FPS=15                       # looping gallery clips read fine at 15; halves the bytes
-LOOP_SECONDS=0               # 0 = whole clip; set e.g. 4 to cut a long take down to a loop
+FPS=30                       # 30 fps - matches the source and keeps motion smooth
 AVIF_SPEED=6
 AVIF_FULL_Q=${AVIF_FULL_Q:-65}
 AVIF_THUMB_Q=${AVIF_THUMB_Q:-60}
@@ -60,14 +59,14 @@ echo ">> target location dir: $LOC_DIR (basename: $BASE)"
 # ffmpeg auto-applies any display-matrix rotation (baked into the pixels, the
 # same rule resize.sh follows for EXIF Orientation) and we drop audio entirely -
 # AVIF has no audio track and the source is effectively silent anyway.
-filter="scale=${FULL_WIDTH}:683:force_original_aspect_ratio=increase,crop=${FULL_WIDTH}:683"
-TRIM=()
-[ "$LOOP_SECONDS" != "0" ] && TRIM=(-t "$LOOP_SECONDS")
+scale_filter() { echo "scale=$1:$2:force_original_aspect_ratio=increase,crop=$1:$2,flags=lanczos"; }
 
 for spec in "fulls:$FULL_WIDTH:1024x683:$AVIF_FULL_Q" "thumbs:$THUMB_WIDTH:512x342:$AVIF_THUMB_Q"; do
   sub=${spec%%:*}; rest=${spec#*:}
   W=${rest%%:*}; rest=${rest#*:}
   DIMS=${rest%%:*}; Q=${rest#*:}
+  vf_anim="$(scale_filter "$W" "$DIMS"),fps=${FPS}"
+  vf_still="$(scale_filter "$W" "$DIMS")"
 
   mkdir -p "$LOC_DIR/$sub"
   AVIF="$LOC_DIR/$sub/$BASE.avif"
@@ -75,21 +74,19 @@ for spec in "fulls:$FULL_WIDTH:1024x683:$AVIF_FULL_Q" "thumbs:$THUMB_WIDTH:512x3
 
   # Animated AVIF: frames are streamed to avifenc as a y4m image sequence, with
   # an infinite repetition count so the <img> loops without JS.
-  echo ">> $sub: encoding animated AVIF (${DIMS}, ${FPS}fps, q=$Q)"
+  echo ">> $sub: encoding animated AVIF (${DIMS}, ${FPS}fps, q=$Q, crop ${CROP_PCT}% top/right)"
   # NOTE: with --stdin avifenc accepts no other input, so the y4m stream must arrive
   # on stdin and -q/-s must follow it. Infinite repetition = loops without JS.
-  ffmpeg -hide_banner -loglevel error -y -i "$SRC" "${TRIM[@]}" -an \
-    -vf "$filter,scale=${W}:-2:flags=lanczos,fps=${FPS}" \
-    -pix_fmt yuv420p -f yuv4mpegpipe - |
+  ffmpeg -hide_banner -loglevel error -y -i "$SRC" -an \
+    -vf "$vf_anim" -pix_fmt yuv420p -f yuv4mpegpipe - |
     avifenc --stdin -q "$Q" -s "$AVIF_SPEED" \
       --timescale "$FPS" --repetition-count infinite "$AVIF" >/dev/null
 
   # Poster still = the first frame, as the <img> fallback. Every browser that can
   # animate the AVIF ignores this; the rest show a clean still instead of a gap.
   echo ">> $sub: writing poster JPEG"
-  ffmpeg -hide_banner -loglevel error -y -i "$SRC" "${TRIM[@]}" -frames:v 1 \
-    -vf "$filter,scale=${W}:-2:flags=lanczos" \
-    -q:v 2 "$JPG"
+  ffmpeg -hide_banner -loglevel error -y -i "$SRC" -frames:v 1 \
+    -vf "$vf_still" -q:v 2 "$JPG"
 
   # Carry the source's metadata across (resize.sh's rule: EXIF stays).
   exiftool -overwrite_original -tagsFromFile "$SRC" \
