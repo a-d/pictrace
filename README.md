@@ -60,9 +60,10 @@ The script generates:
 - **EXIF metadata**: preserved in the JPGs (AVIF files carry pixels only)
 
 ## Refresh the backdrop
-The page/lightbox backdrop (`images/bg-blurred.jpg`) is a pre-blurred 96px derivative of a single
+The page/lightbox backdrop (`bg-blurred.jpg` in the project root) is a pre-blurred 96px derivative of a single
 photo. It is **not** rebuilt automatically — rerun this only when you want a new look, then commit
-the file:
+the file. It deliberately lives outside `images/`, which is the drop folder `./resize.sh` scans for new
+originals:
 ```bash
 ./blur-bg.sh                    # default source: the last thumbnail in the images tree
 ./blur-bg.sh path/to/photo.jpg  # or pass an explicit photo
