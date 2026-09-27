@@ -81,7 +81,7 @@ body:has([popover]:popover-open) .click-blocker {
 	width: 100%;
 	grid-auto-flow: dense;
 	grid-template-columns: repeat(5, 1fr);
-	/* Backdrop is the pre-blurred images/bg-blurred.jpg (./blur-bg.sh) - no runtime blur */
+	/* Backdrop is the pre-blurred bg-blurred.jpg (./blur-bg.sh) - no runtime blur */
 }
 
 /* Touch: no pinch/double-tap zoom on the overview; the lightbox stays zoomable */

@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# blur-bg.sh - regenerate images/bg-blurred.jpg, the baked blurred backdrop.
+# blur-bg.sh - regenerate bg-blurred.jpg, the baked blurred backdrop.
 #
 # The gallery backdrop is a single static image, so the old runtime
 # `backdrop-filter: blur(0.5em)` on .gallery was replaced by this
 # pre-blurred derivative: identical look (verified by pixel diff),
 # no per-frame blur cost, ~1% of the file size.
+#
+# It lives in the project root, NOT in images/ - that directory is the
+# drop folder resize.sh scans for new originals (images/*.{jpg,jpeg,...}),
+# so a stray file there would be imported as a photo.
 #
 # Usage:
 #   ./blur-bg.sh                          # use the same image Jekyll would pick
@@ -29,5 +33,5 @@ if [ -z "$src" ]; then
 fi
 [ -f "$src" ] || { echo "blur-bg.sh: source not found: $src" >&2; exit 1; }
 
-convert "$src" -resize 96x -blur 0x1.0 -strip -sampling-factor 2x2 -quality 82 images/bg-blurred.jpg
-echo "blur-bg.sh: wrote images/bg-blurred.jpg from $src ($(stat -c%s images/bg-blurred.jpg) bytes)"
+convert "$src" -resize 96x -blur 0x1.0 -strip -sampling-factor 2x2 -quality 82 bg-blurred.jpg
+echo "blur-bg.sh: wrote bg-blurred.jpg from $src ($(stat -c%s bg-blurred.jpg) bytes)"
