@@ -45,12 +45,13 @@ THUMB_WIDTH=512
 FULL_QUALITY=95                # JPG quality (fulls)
 THUMB_QUALITY=80               # JPG quality (thumbs)
 
-# AVIF quantizer (0-63, lower = better). Deliberately unchanged from the
-# pre-PT11 pipeline (proven, and the sweep showed near-flat SSIM ~0.98 with
-# 2-4% byte margin between settings). The PT11 wins are elsewhere: coverage,
-# metadata-free output, from-JPG backfill.
+# AVIF quantizer (0-63, lower = better). AVIF_THUMB_QMAX is quality-matched to
+# THUMB_QUALITY=80: at qmax=22 the thumb AVIF measured SSIM 0.986 vs its JPEG
+# sibling, i.e. it was storing *more* quality than the JPEG and so lost on bytes
+# (1.01x on Helsinki, worse on detailed shots). qmax=42 lands at 0.60x of the
+# JPEG across locations while still measuring SSIM 0.975 (min 0.956) against it.
 AVIF_FULL_QMAX=14
-AVIF_THUMB_QMAX=22
+AVIF_THUMB_QMAX=42
 AVIF_SPEED=6                   # avifenc speed preset
 
 IMAGES_DIR="images"
@@ -220,9 +221,14 @@ process_original() {
   tmp_thumb="/tmp/resize_$$_${n}_thumb.png"
   detail=""; stage=""
 
-  if ! convert "$img" -auto-orient -resize "${FULL_WIDTH}x>" "$tmp_full" 2>/dev/null; then
+  # -strip is required: without it the PNG temp inherits the full original's
+  # EXIF+XMP (~78 KB), and avifenc copies that straight into the .avif, so the
+  # AVIF lands ~3x LARGER than its JPEG sibling (115 KB vs 39 KB on Helsinki).
+  # Stripping is safe: the JPEG's EXIF comes from the original via exiftool
+  # -TagsFromFile below, never from this intermediate.
+  if ! convert "$img" -auto-orient -resize "${FULL_WIDTH}x>" -strip "$tmp_full" 2>/dev/null; then
     result=FAIL; stage="resize-full"
-  elif ! convert "$img" -auto-orient -resize "${THUMB_WIDTH}x>" "$tmp_thumb" 2>/dev/null; then
+  elif ! convert "$img" -auto-orient -resize "${THUMB_WIDTH}x>" -strip "$tmp_thumb" 2>/dev/null; then
     result=FAIL; stage="resize-thumb"
   elif ! convert "$tmp_full" -quality "$FULL_QUALITY" -interlace Plane "$FULLS_DIR/$BASENAME.jpg" 2>/dev/null; then
     result=FAIL; stage="jpg-full"
@@ -234,6 +240,14 @@ process_original() {
     avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_FULL_QMAX" \
       -- "$tmp_full" "$FULLS_DIR/$BASENAME.avif" \
       >>"$LOG_FILE" 2>&1 || detail="${detail}avif-full-warn "
+    # The AVIF is served via <picture><source>, so the browser (and exifr) read
+    # the AVIF — it must carry the same 9 tags as the JPG, just not the original's
+    # whole EXIF+XMP block (~78 KB). Measured on Helsinki: bare 202 KB, +9 tags
+    # 206 KB, +full block 658 KB across 6 thumbs.
+    exiftool -overwrite_original -TagsFromFile "$FULLS_DIR/$BASENAME.jpg" \
+      -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
+      -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
+      "$FULLS_DIR/$BASENAME.avif" >/dev/null 2>&1
     if ! convert "$tmp_thumb" -quality "$THUMB_QUALITY" -interlace Plane "$THUMBS_DIR/$BASENAME.jpg" 2>/dev/null; then
       result=FAIL; stage="jpg-thumb"
     else
@@ -244,6 +258,10 @@ process_original() {
       avifenc --speed "$AVIF_SPEED" --jobs "$AVIF_JOBS" --yuv 420 --min 0 --max "$AVIF_THUMB_QMAX" \
         -- "$tmp_thumb" "$THUMBS_DIR/$BASENAME.avif" \
         >>"$LOG_FILE" 2>&1 || detail="${detail}avif-thumb-warn "
+      exiftool -overwrite_original -TagsFromFile "$THUMBS_DIR/$BASENAME.jpg" \
+        -Model -Make -FNumber -FocalLength -FocalLengthIn35mmFormat \
+        -ExposureTime -ISOSpeedRatings -ISO -DateTimeOriginal \
+        "$THUMBS_DIR/$BASENAME.avif" >/dev/null 2>&1
       result=OK
     fi
   fi
