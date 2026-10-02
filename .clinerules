@@ -101,7 +101,10 @@ pictrace/
 > The `locations` and `years` collections (each `output: true`) render the per-location
 > pages (`/{year}/{NN}_{Location}/`, PT16) and the per-year pages (`/{year}/`, PT20) from
 > front-matter-only stubs. Regenerate the stubs with `./mklocations.sh` after adding or
-> renaming a location (a missing stub = a 404).
+> renaming a location (a missing stub = a 404). Since PT30 this is automated: `resize.sh`
+> syncs stubs at the end of a run, the agent commit helper auto-includes stubs missing
+> from HEAD, and `./mklocations.sh --check` reports drift (exit 1). A stub that never
+> gets committed is still a 404.
 
 ```yaml
 image_root: "images"           # Base path for images

@@ -11,16 +11,16 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 - Stack: Jekyll + Liquid, vanilla JS, plain CSS. No npm, no frameworks, no build step beyond Jekyll.
 - Local paths: Windows `C:\Users\James\IdeaProjects\pictrace` · WSL `/mnt/c/Users/James/IdeaProjects/pictrace`.
 
-## Current state (2026-09-24)
+## Current state (2026-10-03)
 
 | Area | State |
 |---|---|
 | Live site | https://pictrace.de — GitHub Pages, publishes from default branch `master` |
-| Repo | `github.com/a-d/pictrace` (origin). Pushed through `19932f8` (includes PT11, PT17 and the Morocco re-derive). Local commits ahead of `origin/master`: PT21 + the **PT22–PT27 batch** (2026-09-24: meta tags, minified JS, structural classes removed, eager deep links) — **unpushed, owner push pending**; PT18–PT20 are on the remote |
+| Repo | `github.com/a-d/pictrace` (origin). **2026-10-03 (PT29):** the 2026-09-20…10-03 history was rewritten — all 98 agent-era commits are attributed to `Alexander Dümont <alexander_duemont@web.de>`; PT30 (Helsinki stub + stub-sync automation) is on top — **remote force-push pending (owner)** |
 | Branches | `master` only — `redesign` / `multi-map` / `namibia` were deleted in PT14 (the `multi-map` WIP is kept as `.hermes/plan/PT14-audit/multi-map-wip.patch`) |
 | Working tree | Clean apart from two untracked entries (below). The ~170 staged Morocco raw photos are gone from the index — PT14 rescued the sources to `IdeaProjects/pictrace-morocco-sources/` (md5-verified) and `images/_2026-morocco/` no longer exists |
 | Untracked | `.agentbridge/` (local agent state) · `namib1.svg` (working file) — leave as-is |
-| Task board | `KANBAN.md` — PT22–PT27 batch done 2026-09-24 (meta tags; minified JS via `minify.sh`; structural classes dropped; eager deep-link loading); PT10 parked; PT13 dormant |
+| Task board | `KANBAN.md` — PT22–PT27 done 2026-09-24; PT28 retro-logged, PT29 (attribution rewrite) + PT30 (Helsinki 404 + stub-sync automation) done 2026-10-03; PT10 parked; PT13 dormant |
 
 ## Conventions (must-follow)
 
@@ -51,9 +51,9 @@ Pictrace is a Jekyll photo blog — Alexander Dümont's photography grouped by y
 ## Workflow
 
 - **Local dev:** `bundle exec jekyll serve --host 0.0.0.0` (deps/Docker one-liner in README).
-- **Local build:** `jekyll build -s . -d /tmp/site` (Jekyll 3.10 + jekyll-sitemap; ~80 s for ~1 900 photos + 56 location pages).
+- **Local build:** `jekyll build -s . -d /tmp/site` (Jekyll 3.10 + jekyll-sitemap; ~130 s for ~1 900 photos + 57 location pages).
 - **Deploy:** push to `master` → GitHub Pages rebuilds. No manual deploy.
-- **Images:** `./resize.sh` (interactive) or `./resize.sh 2026 "Paris" [-d] [-v] [-j N]`; `--backfill` / `--coverage` for AVIF maintenance; `./mklocations.sh` after adding locations; `./blur-bg.sh` refreshes the baked backdrop (not automatic — commit the result).
+- **Images:** `./resize.sh` (interactive) or `./resize.sh 2026 "Paris" [-d] [-v] [-j N]`; `--backfill` / `--coverage` for AVIF maintenance; `./mklocations.sh` after adding locations (auto-run by `resize.sh` since PT30; `--check` reports drift); `./blur-bg.sh` refreshes the baked backdrop (not automatic — commit the result).
 - **Testing:** no test suite — verify visually with `jekyll serve`; check responsive breakpoints (grid 5/4/3/2/1 columns; lightbox mobile rules ≤768px) and cold-cache behavior for image-loading changes. For the PT16 loader, a `file://` fixture (index + a few location pages) works: fetch the pages over `file://` and stub `window.fetch` if the browser blocks it.
 
 ## Directory map
@@ -81,7 +81,7 @@ KANBAN.md              Task board
 
 ## Pitfalls observed
 
-- **Re-run `./mklocations.sh` whenever locations change** — it writes both the `_locations/` and `_years/` stubs; a missing stub means a missing page (the links block, the year quick-links and the sitemap would point at a 404).
+- **Location stubs must exist and be committed** — `./mklocations.sh` writes both the `_locations/` and `_years/` stubs from `images/`; a missing or uncommitted stub is a 404 (the links block, the year quick-links and the sitemap point at the missing page — PT30, Helsinki). Since PT30 the sync is automated (`resize.sh` end-of-run; the agent commit helper auto-includes stubs missing from HEAD) and `./mklocations.sh --check` reports missing/stale stubs (exit 1).
 - **`content-visibility: auto` implies containment** — it re-anchors `position: fixed` descendants (the lightbox overlay) to their article, shrinking it to the grid cell. The `body:has(article > figure:target)` guard must reset **both** `contain: none` **and** `content-visibility: visible`; `contain: none` alone does not undo it.
 - **The tile fade-in keeps a stacking context alive after it finishes** (Chromium) — the open slide's fixed overlay was clamped inside its `<article>`: items after it painted above the backdrop, and the page-level `.close` catcher painted above the arrows (every click closed the lightbox). Fixed by raising the item that owns the open slide (`z-index: 20011`) and making the slide + item click-transparent while open; don't drop the animation instead — the fade would restart on every close. The ≤899 px `filter: brightness(1.1)` on `.gallery article` re-anchors fixed descendants like `contain` does — it is reset in the same guard.
 - **The X close button is painted by the slide, not by the `.close` link (PT19)** — the link is the click-anywhere catcher and must stay below the raised slide item (else its full-viewport `::before` zone swallows the arrows), but the backdrop lives inside that item, so the link's own glyph would sit behind the blur. The slide's `::after` paints the X instead (`z-index: 20012` in the slide's stacking context, `pointer-events: none`; hover/focus feedback mirrored from the link via `:has()`). Do not “simplify” this by raising the `.close` z-index — the arrows break.
