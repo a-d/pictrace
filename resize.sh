@@ -24,6 +24,8 @@
 #   -h, --help      Show this help
 #
 # PT11 (2026-09-20): parallel job pool; --backfill/--coverage modes.
+# PT30 (2026-10-03): location stubs (_locations/, _years/) are synced at the
+# end of a run - see mklocations.sh (a missing stub = a 404 page link).
 #
 # EXIF DISCIPLINE - owner rule, must never regress:
 #  * The JPGs are the masters: never strip or alter their EXIF (Orientation
@@ -469,5 +471,15 @@ if [ "$MODE" = "backfill" ]; then
 fi
 
 rm -f "$RESULTS_FILE"
+
+# PT30: keep the _locations/ stubs in sync with images/ - a location directory
+# without its stub is a 404 page link (the links nav enumerates images, not
+# stubs). A stub that is written but never committed still deploys as a 404:
+# commit what mklocations.sh reports as NEW.
+if [ -f "$(dirname "$0")/mklocations.sh" ]; then
+  echo ""
+  bash "$(dirname "$0")/mklocations.sh"
+fi
+
 if [ "$FAILED" -gt 0 ]; then exit 1; fi
 exit 0
