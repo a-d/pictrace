@@ -756,6 +756,7 @@ window.addEventListener('hashchange', handleHashChange);
       if (window.refreshJourneyMaps) window.refreshJourneyMaps();
       if (window.observeLocationItems) window.observeLocationItems(gallery);
       prefetchNextBatch();
+      refreshBoundaryArrow(); /* PT31: keep a forward arrow on the loaded end */
       /* if the sentinel is still close, keep going */
       if (linksNav.getBoundingClientRect().top < window.innerHeight * 2.5) injectBatch();
       return true;
@@ -772,6 +773,55 @@ window.addEventListener('hashchange', handleHashChange);
     });
   }, { rootMargin: '200% 0px' });
   sentinelObserver.observe(linksNav);
+
+  /* PT31: the triggers above are scroll-driven, but lightbox navigation changes
+     only the hash and never scrolls - without help the walk dead-ends at the
+     last loaded slide (it has no next arrow, so keys / wheel / swipe do nothing
+     and the right-half zone click closes the popup instead). Two additions:
+     (a) prefetch ahead when a slide step brings the walk near the loaded end,
+     and (b) a real forward arrow on the last loaded slide while the manifest
+     has more locations; pressing it loads the next batch, then follows the
+     rewired href (all four input paths click this same arrow). */
+  var PREFETCH_REMAINING = 25; /* at most this many loaded slides stay ahead */
+
+  /* load the next batch before the lightbox walk reaches the end */
+  function maybePrefetchAhead() {
+    var slide = document.querySelector('article > figure:target');
+    if (!slide) return;
+    if (firstUnloadedIndex() >= links.length) return;
+    var figs = gallery.querySelectorAll('article > figure');
+    var idx = Array.prototype.indexOf.call(figs, slide);
+    if (idx < 0) return;
+    if (figs.length - 1 - idx > PREFETCH_REMAINING) return;
+    injectBatch();
+  }
+
+  /* a real forward arrow for the last loaded slide while more locations are
+     unloaded; its href starts at the slide itself, so a press asks for the next
+     batch first and continues only once the batch has rewired the href */
+  function refreshBoundaryArrow() {
+    var tail = lastSlideId ? document.getElementById(lastSlideId) : null;
+    if (!tail) return;
+    if (tail.querySelector('a[rel=next]')) return; /* real or pending arrow */
+    if (firstUnloadedIndex() >= links.length) return; /* true end: none */
+    var arrow = document.createElement('a');
+    arrow.setAttribute('rel', 'next');
+    arrow.setAttribute('aria-label', 'Next');
+    arrow.textContent = '\u276f';
+    arrow.setAttribute('href', '#' + tail.id);
+    tail.appendChild(arrow);
+    arrow.addEventListener('click', function(event) {
+      if (arrow.getAttribute('href') !== '#' + tail.id) return; /* rewired: navigate */
+      event.preventDefault();
+      injectBatch().then(function() {
+        if (arrow.getAttribute('href') !== '#' + tail.id) arrow.click(); /* continue the walk */
+      });
+    });
+  }
+
+  window.addEventListener('hashchange', maybePrefetchAhead);
+  refreshBoundaryArrow();
+  maybePrefetchAhead();
 
   /* deep links to a photo that is not prerendered: eagerly load batches until the
      anchor exists, then let :target open it; the location-page hop stays as the
