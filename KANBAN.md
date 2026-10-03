@@ -6,7 +6,9 @@
 
 ## 📋 Open
 
-_(empty)_
+| ID | Prio | Task |
+|---|---|---|
+| PT31 | P2 | Lightbox forward navigation runs out of loaded content: at the end of the loaded gallery a next step neither loads the following location batches nor offers a forward affordance (owner report 2026-10-03; reproduced) — add lightbox-driven loading (prefetch ahead + load-then-continue at the boundary) |
 
 ## 🔵 In progress
 
@@ -92,11 +94,13 @@ Per-task details live in `.hermes/plan/` — one file per task (local-only, not 
 | PT28 | [`.hermes/plan/PT28-video-gallery.md`](.hermes/plan/PT28-video-gallery.md) — ✅ done 2026-09-27 (retro-logged 2026-10-03) |
 | PT29 | [`.hermes/plan/PT29-author-identity.md`](.hermes/plan/PT29-author-identity.md) — ✅ done 2026-10-03 |
 | PT30 | [`.hermes/plan/PT30-location-stub-sync.md`](.hermes/plan/PT30-location-stub-sync.md) — ✅ done 2026-10-03 |
+| PT31 | [`.hermes/plan/PT31-lightbox-load-ahead.md`](.hermes/plan/PT31-lightbox-load-ahead.md) — open 2026-10-03 |
 
 ## Decisions log
 
 | Date | Decision |
 |---|---|
+| 2026-10-03 | **PT31 opened — the lightbox must keep loading when the reader navigates to the end of the loaded gallery.** Owner report: with the popup open, navigating right runs out of images although further location pages exist. Verified on the PT30 build (chromium/CDP; log `pictrace-work/pt31-check-result.json`): the last prerendered slide (`p-26-11-DSCF4680(1)(1)`, end of Utrecht) has no `a[rel=next]`; ArrowRight there is a dead stop (no hash change, ±0 fetches) and the right-half click falls through to the close catcher (popup closes); page steps do not scroll (measured scrollY 0), so the scroll-driven loader never fires; a manual scroll to the bottom loads exactly one 5-page batch (+84 figures) after which the chain continues. Root cause: the loader is scroll-driven only (IntersectionObserver on the links nav + post-batch proximity check, `main.js` ~651-824) and the template omits the next arrow when the neighbour is outside the rendered set. Direction: expose the loader and drive it from the lightbox path — prefetch ahead on steps + a boundary arrow that loads-and-continues while unloaded pages remain; no-JS and the true end unchanged. Details: `.hermes/plan/PT31-lightbox-load-ahead.md`. |
 | 2026-10-03 | **PT30 done — Helsinki 404 fixed + location stubs can no longer go missing silently.** Root cause (verified): `images/2025/41_Helsinki/` was committed (8383dcf) but `./mklocations.sh` was never run again — the links nav enumerates locations from `images/`, so the nav and the 2025 quick-links already pointed at `/2025/41_Helsinki/`, while the page itself is generated from its `_locations/` stub, which did not exist → live 404 (missing from the sitemap too). Fix: stub generated + automation so the step can't be forgotten — `mklocations.sh --check` (missing/stale report, exit 1) and `--expected` (machine-readable list), write mode flags stubs not yet in git HEAD, `resize.sh` syncs at the end of a run, and the agent commit helper (mkcommit.sh) auto-includes stubs missing from HEAD. Compile-time generation was considered and rejected: the native Pages build (PT10, parked — vendor workflow, no custom plugins) cannot run repo scripts. Verified: full `jekyll build` (129 s) — 57 location + 3 year pages, `/2025/41_Helsinki/` = 20 photos + full nav; index, Paris, London and 2025 pages byte-identical to the live site; resize.sh end-to-end run auto-created its stub; commit-guard self-test passed. Commit `2b135f4`. |
 | 2026-10-03 | **PT29 done — the agent-era commits are re-attributed.** Owner report: the 2026-09-20…10-03 commits carried `Hermes Agent <hermes-agent@local>`. It came from explicit config, not a default: the repo-local `.git/config` and the sandbox clone's helper `githome/.gitconfig` both had it written literally. Fix: the 98 contiguous tip commits rewritten (`git filter-branch --env-filter`, author + committer) to `Alexander Dümont <alexander_duemont@web.de>` — the identity of all pre-September history (GitHub accounts by email, so `a-d` attribution is unchanged); dates/trees/messages preserved, 437/437 commits pairwise-verified, boundary parent `fcae42687` and older history untouched. Old tip `8383dcf` kept at `refs/original/…`; new tip `dc041b43`; both configs + the helper's fallback fixed. **Force-push pending (owner).** |
 | 2026-10-03 | **PT28 retro-logged — the video gallery.** Shipped 2026-09-27 without a card: `video.sh` turns a clip into gallery assets (animated AVIF + poster JPG under `fulls/`/`thumbs/`) and needs no template change — `iterator.html` picks the non-`.avif` file and `gallery_item.html` already emits `<source type="image/avif">` + the JPG `<img>`; Faro `dolphin15` recut (7.7 s, 30 fps, loop; commits `894711b`, `421afa1`). Details: `.hermes/plan/PT28-video-gallery.md`. |
