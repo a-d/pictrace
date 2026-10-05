@@ -6,7 +6,9 @@
 
 ## 📋 Open
 
-_(empty)_
+| ID | Prio | Task |
+|---|---|---|
+| PT33 | P3 | Lyon: create `_locations/` stub + `images/` folder — no images yet, location missing entirely |
 
 ## 🔵 In progress
 
